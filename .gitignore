@@ -1,0 +1,14 @@
+wp-admin/
+wp-includes/
+
+# 上传文件
+wp-content/uploads/
+
+# 缓存/日志
+*.log
+cache/
+temp/
+
+# 环境文件
+.envs
+

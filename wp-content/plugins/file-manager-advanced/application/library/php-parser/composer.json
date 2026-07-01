@@ -1,0 +1,20 @@
+{
+    "name": "file-manager-advanced/php-parser",
+    "description": "PHP Parser for File Manager Advanced Debug Feature",
+    "type": "library",
+    "require": {
+        "php": ">=7.4",
+        "nikic/php-parser": "^4.15"
+    },
+    "autoload": {
+        "psr-4": {
+            "FileManagerAdvanced\\PhpParser\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

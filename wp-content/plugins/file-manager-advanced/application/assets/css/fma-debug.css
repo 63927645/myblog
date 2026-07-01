@@ -1,0 +1,350 @@
+/**
+ * FMA Enhanced Debug CSS
+ * 
+ * Styles for enhanced debugging panel
+ *
+ * @package Advanced File Manager
+ * @since 1.0.0
+ */
+
+.fma-debug-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 999999;
+    overflow: hidden;
+}
+
+.fma-debug-header {
+    background: #f1f1f1;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ccd0d4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fma-debug-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #23282d;
+}
+
+.fma-debug-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fma-debug-close:hover {
+    color: #000;
+}
+
+.fma-debug-content {
+    padding: 0;
+}
+
+.fma-debug-tabs {
+    display: flex;
+    border-bottom: 1px solid #ccd0d4;
+    background: #f9f9f9;
+}
+
+.fma-debug-tab {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.fma-debug-tab:hover {
+    background: #f1f1f1;
+    color: #23282d;
+}
+
+.fma-debug-tab.active {
+    color: #0073aa;
+    border-bottom-color: #0073aa;
+    background: #fff;
+}
+
+.fma-debug-tab-content {
+    display: none;
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.fma-debug-tab-content:first-child {
+    display: block;
+}
+
+.fma-debug-section h4 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    color: #23282d;
+    font-weight: 600;
+}
+
+.fma-debug-status {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.fma-status-indicator {
+    margin-right: 10px;
+}
+
+.fma-status-icon {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.fma-status-icon.fma-success {
+    color: #46b450;
+}
+
+.fma-status-icon.fma-error {
+    color: #dc3232;
+}
+
+.fma-status-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.fma-debug-btn {
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 15px;
+    transition: background 0.2s ease;
+}
+
+.fma-debug-btn:hover {
+    background: #005a87;
+}
+
+.fma-debug-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.fma-debug-results {
+    margin-top: 15px;
+}
+
+.fma-loading {
+    padding: 10px;
+    background: #f0f8ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    color: #0073aa;
+    font-style: italic;
+}
+
+.fma-success {
+    padding: 10px;
+    background: #f0f8f0;
+    border: 1px solid #b3e6b3;
+    border-radius: 4px;
+    color: #2d5a2d;
+}
+
+.fma-error {
+    padding: 10px;
+    background: #fff0f0;
+    border: 1px solid #ffb3b3;
+    border-radius: 4px;
+    color: #5a2d2d;
+}
+
+.fma-error-list {
+    margin: 10px 0 0 20px;
+    padding: 0;
+}
+
+.fma-error-list li {
+    margin-bottom: 5px;
+    color: #5a2d2d;
+}
+
+.fma-error-type {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+
+.fma-function-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.fma-function-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+
+.fma-function-item.working {
+    border-color: #46b450;
+    background: #f0f8f0;
+}
+
+.fma-function-item.available {
+    border-color: #ffb900;
+    background: #fff8f0;
+}
+
+.fma-function-item.unavailable {
+    border-color: #dc3232;
+    background: #fff0f0;
+}
+
+.fma-function-name {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #23282d;
+}
+
+.fma-function-status {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.fma-function-status .fma-status-icon {
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+.fma-function-status .fma-status-text {
+    font-size: 12px;
+    color: #666;
+}
+
+.fma-function-error {
+    font-size: 12px;
+    color: #dc3232;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.fma-function-output {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    font-family: monospace;
+    background: #f1f1f1;
+    padding: 4px;
+    border-radius: 2px;
+}
+
+.fma-debug-info p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #23282d;
+}
+
+.fma-debug-info strong {
+    color: #0073aa;
+}
+
+.fma-debug-toggle {
+    background: #ffb900;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+.fma-debug-toggle:hover {
+    background: #e6a600;
+    transform: translateY(-1px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .fma-debug-panel {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .fma-debug-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .fma-debug-tab {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .fma-function-results {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animation for panel */
+.fma-debug-panel {
+    animation: fma-debug-slide-in 0.3s ease-out;
+}
+
+@keyframes fma-debug-slide-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Overlay for modal */
+.fma-debug-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999998;
+}

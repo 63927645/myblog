@@ -1,0 +1,94 @@
+.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.ui-draggable.std42-dialog.touch-punch.elfinder-dialog.ui-resizable.elfinder-dialog-active.ui-front {
+  left: 0 !important;
+  width: 100% !important;
+}
+
+/* PHP Validation Styles */
+
+/* CodeMirror lint marker improvements */
+.CodeMirror-lint-marker-error {
+  cursor: pointer;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+}
+
+.CodeMirror-lint-marker-error:hover {
+  background-color: rgba(214, 54, 56, 0.1);
+  border-radius: 50%;
+}
+
+/* PHP Error Dialog Styles */
+.fma-php-errors {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.fma-php-errors h3 {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.fma-error-list {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9f9f9;
+  padding: 10px;
+}
+
+.fma-error-item {
+  border-radius: 4px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.fma-error-item strong {
+  color: #d63638;
+}
+
+.fma-btn:focus {
+  box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+  outline: none;
+}
+
+/* Success dialog styles */
+.fma-success-icon {
+  font-size: 24px;
+  color: #46b450;
+  margin-bottom: 10px;
+}
+
+/* Editor Toolbar Styles */
+.fma-editor-toolbar {
+  background: #f1f1f1;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  padding: 8px 12px;
+  border-radius: 4px 4px 0 0;
+}
+
+.fma-validate-btn {
+  background: #0073aa;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.fma-validate-btn:hover {
+  background: #005a87;
+}
+
+.fma-validate-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.fma-validate-btn:focus {
+  box-shadow: 0 0 0 1px #5b9dd9;
+  outline: none;
+}

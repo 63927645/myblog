@@ -1,0 +1,163 @@
+# Translation of Plugins - Advanced File Manager - Development (trunk) in Chinese (China)
+# This file is distributed under the same license as the Plugins - Advanced File Manager - Development (trunk) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-06-21 07:27:57+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: zh_CN\n"
+"Project-Id-Version: Plugins - Advanced File Manager - Development (trunk)\n"
+
+#: application/class_fma_admin_menus.php:26
+#: application/class_fma_admin_menus.php:27
+msgid "File Manager"
+msgstr "文档管理器"
+
+#: application/pages/buy_shortcode.php:3 application/pages/main.php:46
+msgid "Shortcodes"
+msgstr "短代码"
+
+#: application/pages/main.php:45
+msgid "Support"
+msgstr "支持"
+
+#: application/pages/buy_shortcode.php:3 application/pages/controls.php:11
+#: application/pages/main.php:44
+msgid "Documentation"
+msgstr "文档"
+
+#: application/pages/main.php:31
+msgid "Not Now"
+msgstr "现在不行"
+
+#: application/pages/main.php:30
+msgid "I love your plugin!"
+msgstr "我喜爱这个插件！"
+
+#: application/pages/main.php:27
+msgid "<strong>Advanced File Manager</strong>, we always support you and provide better features for you, please spend some seconds to review our plugin."
+msgstr "<strong>高级文档管理器</strong>, 我们永远支持您，并将提供更好的功能，请为我们的插件评分。"
+
+#: application/pages/main.php:12
+msgid "Advanced File Manager"
+msgstr "高级文档管理器"
+
+#: application/pages/buy_shortcode.php:6
+msgid "Congratulations,"
+msgstr "恭喜！"
+
+#: application/pages/controls.php:118
+msgid "Will Display .htaccess file (if exists) in file manager."
+msgstr "文档管理器中将显示.htaccess文件（如有）。"
+
+#: application/pages/controls.php:114
+msgid "Display .htaccess?"
+msgstr "显示.htaccess？"
+
+#: application/pages/controls.php:109
+msgid "Deleted files will go to trash folder, you can restore later."
+msgstr "删除的文档将进入垃圾桶，您可以稍后恢复它们。"
+
+#: application/pages/controls.php:101 application/pages/controls.php:110
+#: application/pages/controls.php:119
+msgid "Not Enabled"
+msgstr "未开启"
+
+#: application/pages/controls.php:96
+msgid "Hide File Path on Preview ?"
+msgstr "预览时隐藏真实路径？"
+
+#: application/pages/controls.php:100
+msgid "Hide real path of file on preview."
+msgstr "预览时隐藏文档的真实路径"
+
+#: application/pages/controls.php:91
+msgid "File Manager Advanced Files URL, you can change according to your choice."
+msgstr "高级文档管理器文档URL，您可以根据选择进行修改。"
+
+#: application/pages/controls.php:88
+msgid "Files URL"
+msgstr "文档URL"
+
+#: application/pages/controls.php:83
+msgid "File Manager Advanced Root Path, you can change according to your choice."
+msgstr "高级文档管理器根目录，您可以根据选择进行修改。"
+
+#: application/pages/controls.php:80
+msgid "Public Root Path"
+msgstr "公共根目录"
+
+#: application/pages/controls.php:76
+msgid "Select file manager advanced language. Default: en (English)"
+msgstr "选择语言。默认：en（英语）"
+
+#: application/pages/controls.php:69
+msgid "Language"
+msgstr "语言"
+
+#: application/pages/controls.php:65
+msgid "Select file manager advanced theme. Default: Light"
+msgstr "选择主题。默认：Light"
+
+#: application/pages/controls.php:63
+msgid "Bootstrap"
+msgstr "Bootstrap"
+
+#: application/pages/controls.php:62
+msgid "Windows 10"
+msgstr "Windows 10"
+
+#: application/pages/controls.php:61
+msgid "Grey"
+msgstr "灰色"
+
+#: application/pages/controls.php:60
+msgid "Dark"
+msgstr "暗黑"
+
+#: application/pages/controls.php:59
+msgid "Light"
+msgstr "浅色"
+
+#: application/pages/controls.php:56
+msgid "Theme"
+msgstr "主题"
+
+#: application/pages/controls.php:14 application/pages/main.php:39
+msgid "Rate Us"
+msgstr "给我们评分"
+
+#: application/pages/controls.php:13
+msgid "Thank you for using <a href=\"https://wordpress.org/plugins/file-manager-advanced/\">File Manager Advanced</a>. If happy then "
+msgstr "感谢您使用 <a href=\"https://wordpress.org/plugins/file-manager-advanced/\">File Manager Advanced</a>. 如果满意 "
+
+#: application/pages/controls.php:11 application/pages/main.php:13
+msgid "Buy Shortcode Addon"
+msgstr "购买Shortcode 扩展"
+
+#: application/pages/controls.php:11
+msgid "Settings"
+msgstr "设置"
+
+#. Author of the plugin
+msgid "modalweb"
+msgstr "modalweb"
+
+#. Description of the plugin
+msgid "Cpanel for files management in wordpress"
+msgstr "文档管理控制板"
+
+#. Plugin URI of the plugin
+msgid "https://wordpress.org/plugins/file-manager-advanced"
+msgstr "https://wordpress.org/plugins/file-manager-advanced"
+
+#. Plugin Name of the plugin
+msgid "File Manager Advanced"
+msgstr "高级文档管理器"
+
+#: application/pages/controls.php:105
+msgid "Enable Trash?"
+msgstr "开启回收站？"
