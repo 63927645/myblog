@@ -1104,8 +1104,8 @@ $GLOBALS['argon_comment_options']['current_user_can_moderate_comments'] = curren
 $GLOBALS['argon_comment_options']['show_comment_parent_info'] = (get_option("argon_show_comment_parent_info", "true") == "true");
 function argon_sanitize_comment_wechat_id($wechat_id){
 	$wechat_id = sanitize_text_field($wechat_id);
-	$wechat_id = preg_replace('/[^\w\-\.]/u', '', $wechat_id);
-	return substr($wechat_id, 0, 40);
+	$wechat_id = preg_replace('/[^\p{L}\p{N}_\-\.\s]/u', '', $wechat_id);
+	return function_exists('mb_substr') ? mb_substr($wechat_id, 0, 40, 'UTF-8') : substr($wechat_id, 0, 40);
 }
 function argon_sanitize_comment_github_id($github_id){
 	$github_id = trim(sanitize_text_field($github_id));
@@ -1124,14 +1124,211 @@ function argon_get_comment_identity_badges($comment_id = 0){
 	$github_id = get_comment_meta($comment_id, "github_id", true);
 	$html = "";
 	if ($wechat_id != ""){
-		$html .= '<span class="badge badge-comment-identity badge-comment-wechat" title="微信号：' . esc_attr($wechat_id) . '"><i class="fa fa-weixin" aria-hidden="true"></i> ' . esc_html($wechat_id) . '</span>';
+		$html .= '<span class="badge badge-comment-identity badge-comment-wechat" title="微信昵称：' . esc_attr($wechat_id) . '"><i class="fa fa-weixin" aria-hidden="true"></i> ' . esc_html($wechat_id) . '</span>';
 	}
 	if ($github_id != ""){
 		$github_url = 'https://github.com/' . rawurlencode($github_id);
 		$html .= '<a class="badge badge-comment-identity badge-comment-github" href="' . esc_url($github_url) . '" target="_blank" rel="nofollow noopener" title="GitHub：' . esc_attr($github_id) . '"><i class="fa fa-github" aria-hidden="true"></i> ' . esc_html($github_id) . '</a>';
 	}
+	$clogin_id = get_comment_meta($comment_id, "clogin_id", true);
+	if ($clogin_id != ""){
+		$clogin_type = get_comment_meta($comment_id, "clogin_type", true);
+		$clogin_label = $clogin_type != "" ? strtoupper($clogin_type) : "彩虹";
+		$html .= '<span class="badge badge-comment-identity badge-comment-clogin" title="彩虹聚合登录：' . esc_attr($clogin_id) . '"><i class="fa fa-user-circle" aria-hidden="true"></i> ' . esc_html($clogin_label) . '</span>';
+	}
 	return $html;
 }
+function argon_comment_oauth_config($provider){
+	if ($provider == "github"){
+		return array(
+			'client_id' => defined('ARGON_GITHUB_CLIENT_ID') ? ARGON_GITHUB_CLIENT_ID : '',
+			'client_secret' => defined('ARGON_GITHUB_CLIENT_SECRET') ? ARGON_GITHUB_CLIENT_SECRET : ''
+		);
+	}
+	if ($provider == "clogin"){
+		return array(
+			'client_id' => defined('ARGON_CLOGIN_APPID') ? ARGON_CLOGIN_APPID : '',
+			'client_secret' => defined('ARGON_CLOGIN_APPKEY') ? ARGON_CLOGIN_APPKEY : '',
+			'endpoint' => defined('ARGON_CLOGIN_ENDPOINT') ? ARGON_CLOGIN_ENDPOINT : 'https://u.cccyun.cc/connect.php',
+			'type' => defined('ARGON_CLOGIN_TYPE') ? ARGON_CLOGIN_TYPE : 'qq'
+		);
+	}
+	return array('client_id' => '', 'client_secret' => '');
+}
+function argon_comment_oauth_is_configured($provider){
+	$config = argon_comment_oauth_config($provider);
+	return $config['client_id'] != '' && $config['client_secret'] != '';
+}
+function argon_comment_oauth_current_url(){
+	$scheme = is_ssl() ? 'https://' : 'http://';
+	$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : wp_parse_url(home_url(), PHP_URL_HOST);
+	$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+	return esc_url_raw($scheme . $host . $uri);
+}
+function argon_comment_oauth_login_url($provider){
+	return add_query_arg(array(
+		'argon_comment_oauth' => $provider,
+		'redirect_to' => rawurlencode(argon_comment_oauth_current_url())
+	), home_url('/'));
+}
+function argon_comment_oauth_cookie_name(){
+	return 'argon_comment_identity';
+}
+function argon_comment_oauth_sign($payload){
+	return hash_hmac('sha256', $payload, wp_salt('auth'));
+}
+function argon_set_comment_oauth_identity($identity){
+	$payload = base64_encode(wp_json_encode($identity));
+	$value = $payload . '.' . argon_comment_oauth_sign($payload);
+	setcookie(argon_comment_oauth_cookie_name(), $value, time() + MONTH_IN_SECONDS, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
+	$_COOKIE[argon_comment_oauth_cookie_name()] = $value;
+}
+function argon_clear_comment_oauth_identity(){
+	setcookie(argon_comment_oauth_cookie_name(), '', time() - HOUR_IN_SECONDS, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
+	unset($_COOKIE[argon_comment_oauth_cookie_name()]);
+}
+function argon_get_comment_oauth_identity(){
+	if (empty($_COOKIE[argon_comment_oauth_cookie_name()])){
+		return false;
+	}
+	$parts = explode('.', $_COOKIE[argon_comment_oauth_cookie_name()], 2);
+	if (count($parts) != 2 || !hash_equals(argon_comment_oauth_sign($parts[0]), $parts[1])){
+		return false;
+	}
+	$identity = json_decode(base64_decode($parts[0]), true);
+	if (!is_array($identity) || empty($identity['provider']) || empty($identity['id']) || empty($identity['name'])){
+		return false;
+	}
+	if (!in_array($identity['provider'], array('github', 'clogin'))){
+		return false;
+	}
+	return $identity;
+}
+function argon_comment_oauth_fail($message, $redirect_to = ''){
+	$redirect_to = $redirect_to == '' ? home_url('/') : $redirect_to;
+	wp_safe_redirect(add_query_arg('comment_login_error', rawurlencode($message), $redirect_to));
+	exit;
+}
+function argon_handle_comment_oauth(){
+	if (empty($_GET['argon_comment_oauth'])){
+		return;
+	}
+	$action = sanitize_key($_GET['argon_comment_oauth']);
+	if ($action == 'logout'){
+		$redirect_to = !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/');
+		argon_clear_comment_oauth_identity();
+		wp_safe_redirect($redirect_to);
+		exit;
+	}
+	if ($action == 'github' || $action == 'clogin'){
+		if (!argon_comment_oauth_is_configured($action)){
+			argon_comment_oauth_fail($action == 'github' ? 'GitHub 登录尚未配置 Client ID/Secret' : '彩虹聚合登录尚未配置 APPID/APPKEY', !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/'));
+		}
+		$state = wp_generate_password(24, false, false);
+		$redirect_to = !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/');
+		set_transient('argon_comment_oauth_' . $state, array('provider' => $action, 'redirect_to' => $redirect_to), 10 * MINUTE_IN_SECONDS);
+		$config = argon_comment_oauth_config($action);
+		$callback = add_query_arg(array(
+			'argon_comment_oauth' => $action . '_callback',
+			'state' => $state
+		), home_url('/'));
+		if ($action == 'clogin'){
+			$login_response = wp_remote_get(add_query_arg(array(
+				'act' => 'login',
+				'appid' => $config['client_id'],
+				'appkey' => $config['client_secret'],
+				'type' => $config['type'],
+				'redirect_uri' => $callback
+			), $config['endpoint']), array('timeout' => 15));
+			$login_body = json_decode(wp_remote_retrieve_body($login_response), true);
+			if (empty($login_body['code']) || intval($login_body['code']) !== 0 || empty($login_body['url'])){
+				$msg = !empty($login_body['msg']) ? sanitize_text_field($login_body['msg']) : '彩虹聚合登录跳转地址获取失败';
+				argon_comment_oauth_fail($msg, $redirect_to);
+			}
+			wp_redirect(esc_url_raw($login_body['url']));
+			exit;
+		}
+		wp_redirect(add_query_arg(array(
+			'client_id' => $config['client_id'],
+			'redirect_uri' => add_query_arg('argon_comment_oauth', 'github_callback', home_url('/')),
+			'scope' => 'read:user user:email',
+			'state' => $state
+		), 'https://github.com/login/oauth/authorize'));
+		exit;
+	}
+	if ($action != 'github_callback' && $action != 'clogin_callback'){
+		return;
+	}
+	$provider = str_replace('_callback', '', $action);
+	$state = isset($_GET['state']) ? sanitize_text_field(wp_unslash($_GET['state'])) : '';
+	$code = isset($_GET['code']) ? sanitize_text_field(wp_unslash($_GET['code'])) : '';
+	$state_data = $state != '' ? get_transient('argon_comment_oauth_' . $state) : false;
+	if (!$state_data || $state_data['provider'] != $provider || $code == ''){
+		argon_comment_oauth_fail('第三方登录状态已过期，请重试');
+	}
+	delete_transient('argon_comment_oauth_' . $state);
+	$config = argon_comment_oauth_config($provider);
+	if ($provider == 'clogin'){
+		$type = isset($_GET['type']) ? sanitize_key($_GET['type']) : $config['type'];
+		$user_response = wp_remote_get(add_query_arg(array(
+			'act' => 'callback',
+			'appid' => $config['client_id'],
+			'appkey' => $config['client_secret'],
+			'type' => $type,
+			'code' => $code
+		), $config['endpoint']), array('timeout' => 15));
+		$user = json_decode(wp_remote_retrieve_body($user_response), true);
+		if (empty($user['code']) || intval($user['code']) !== 0 || empty($user['social_uid'])){
+			$msg = !empty($user['msg']) ? sanitize_text_field($user['msg']) : '彩虹聚合登录失败，请重试';
+			argon_comment_oauth_fail($msg, $state_data['redirect_to']);
+		}
+		$name = !empty($user['nickname']) ? sanitize_text_field($user['nickname']) : '彩虹访客';
+		argon_set_comment_oauth_identity(array(
+			'provider' => 'clogin',
+			'id' => sanitize_text_field($user['social_uid']),
+			'name' => $name,
+			'type' => $type,
+			'avatar' => !empty($user['faceimg']) ? esc_url_raw($user['faceimg']) : '',
+			'url' => ''
+		));
+		wp_safe_redirect($state_data['redirect_to']);
+		exit;
+	}
+	$token_response = wp_remote_post('https://github.com/login/oauth/access_token', array(
+		'headers' => array('Accept' => 'application/json'),
+		'body' => array(
+			'client_id' => $config['client_id'],
+			'client_secret' => $config['client_secret'],
+			'code' => $code,
+			'redirect_uri' => add_query_arg('argon_comment_oauth', 'github_callback', home_url('/'))
+		),
+		'timeout' => 15
+	));
+	$token_body = json_decode(wp_remote_retrieve_body($token_response), true);
+	if (empty($token_body['access_token'])){
+		argon_comment_oauth_fail('GitHub 登录失败，请重试', $state_data['redirect_to']);
+	}
+	$user_response = wp_remote_get('https://api.github.com/user', array(
+		'headers' => array(
+			'Authorization' => 'Bearer ' . $token_body['access_token'],
+			'User-Agent' => 'Argon Comment OAuth'
+		),
+		'timeout' => 15
+	));
+	$user = json_decode(wp_remote_retrieve_body($user_response), true);
+	if (empty($user['login'])){
+		argon_comment_oauth_fail('GitHub 用户信息获取失败', $state_data['redirect_to']);
+	}
+	argon_set_comment_oauth_identity(array(
+		'provider' => 'github',
+		'id' => argon_sanitize_comment_github_id($user['login']),
+		'name' => sanitize_text_field($user['login']),
+		'url' => !empty($user['html_url']) ? esc_url_raw($user['html_url']) : ''
+	));
+	wp_safe_redirect($state_data['redirect_to']);
+	exit;
+}
+add_action('init', 'argon_handle_comment_oauth');
 function argon_comment_format($comment, $args, $depth){
 	global $comment_enable_upvote, $comment_enable_pinning;
 	$GLOBALS['comment'] = $comment;
@@ -1379,15 +1576,35 @@ function ajax_post_comment(){
 			)));
 		}
 	}
-	$identity_type = isset($_POST['identity_type']) && $_POST['identity_type'] == "github" ? "github" : "wechat";
-	$wechat_id = $identity_type == "wechat" && isset($_POST['wechat_id']) ? argon_sanitize_comment_wechat_id(wp_unslash($_POST['wechat_id'])) : "";
-	$github_id = $identity_type == "github" && isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
-	if ($wechat_id != "" || $github_id != ""){
-		$_POST['author'] = $github_id != "" ? $github_id : $wechat_id;
+	$oauth_identity = function_exists('argon_get_comment_oauth_identity') ? argon_get_comment_oauth_identity() : false;
+	if (!$oauth_identity && !is_user_logged_in()){
+		exit(json_encode(array(
+			'status' => 'failed',
+			'msg' =>  '请先使用 GitHub 或彩虹聚合登录后再评论',
+			'isAdmin' => current_user_can('level_7')
+		)));
 	}
-	if (empty($_POST['email']) && ($wechat_id != "" || $github_id != "")){
-		$identity_source = $github_id != "" ? "github-" . $github_id : "wechat-" . md5($wechat_id);
-		$_POST['email'] = $identity_source . "@comments.local";
+	$identity_type = "";
+	$wechat_id = "";
+	$github_id = "";
+	$clogin_id = "";
+	if ($oauth_identity){
+		$identity_type = $oauth_identity['provider'] == "clogin" ? "clogin" : "github";
+		$github_id = $identity_type == "github" ? argon_sanitize_comment_github_id($oauth_identity['id']) : "";
+		$clogin_id = $identity_type == "clogin" ? sanitize_text_field($oauth_identity['id']) : "";
+		$_POST['identity_type'] = $identity_type;
+		$_POST['wechat_id'] = "";
+		$_POST['github_id'] = $github_id;
+		$_POST['clogin_id'] = $clogin_id;
+		$_POST['clogin_type'] = $identity_type == "clogin" && !empty($oauth_identity['type']) ? sanitize_key($oauth_identity['type']) : "";
+		$_POST['author'] = sanitize_text_field($oauth_identity['name']);
+		$_POST['url'] = !empty($oauth_identity['url']) ? esc_url_raw($oauth_identity['url']) : "";
+	}
+	if ($github_id != ""){
+		$_POST['author'] = $github_id;
+	}
+	if (empty($_POST['email']) && ($github_id != "" || $clogin_id != "")){
+		$_POST['email'] = $github_id != "" ? "github-" . $github_id . "@comments.local" : "clogin-" . md5($clogin_id) . "@comments.local";
 		$_POST['enable_mailnotice'] = "false";
 	}
 	if (get_option('argon_comment_enable_qq_avatar') == 'true'){
@@ -1632,16 +1849,19 @@ function post_comment_updatemetas($id){
 			update_comment_meta($id, "qq_number", $_POST['qq']);
 		}
 	}
-	//保存访客微信号 / GitHub 账号
-	$identity_type = isset($_POST['identity_type']) && $_POST['identity_type'] == "github" ? "github" : "wechat";
-	$wechat_id = $identity_type == "wechat" && isset($_POST['wechat_id']) ? argon_sanitize_comment_wechat_id(wp_unslash($_POST['wechat_id'])) : "";
-	$github_id = $identity_type == "github" && isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
-	if ($wechat_id != ""){
-		update_comment_meta($id, "wechat_id", $wechat_id);
-		delete_comment_meta($id, "github_id");
-	}
+	//保存访客 GitHub 账号
+	$github_id = isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
 	if ($github_id != ""){
 		update_comment_meta($id, "github_id", $github_id);
+		delete_comment_meta($id, "wechat_id");
+		delete_comment_meta($id, "clogin_id");
+		delete_comment_meta($id, "clogin_type");
+	}
+	$clogin_id = isset($_POST['clogin_id']) ? sanitize_text_field(wp_unslash($_POST['clogin_id'])) : "";
+	if ($clogin_id != ""){
+		update_comment_meta($id, "clogin_id", $clogin_id);
+		update_comment_meta($id, "clogin_type", isset($_POST['clogin_type']) ? sanitize_key(wp_unslash($_POST['clogin_type'])) : "");
+		delete_comment_meta($id, "github_id");
 		delete_comment_meta($id, "wechat_id");
 	}
 }

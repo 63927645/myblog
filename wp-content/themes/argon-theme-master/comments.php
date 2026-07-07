@@ -116,35 +116,49 @@
 					}
 				}
 			?>
+			<?php
+				$comment_oauth_identity = function_exists('argon_get_comment_oauth_identity') ? argon_get_comment_oauth_identity() : false;
+				$comment_oauth_provider = $comment_oauth_identity ? $comment_oauth_identity['provider'] : '';
+				$comment_oauth_name = $comment_oauth_identity ? $comment_oauth_identity['name'] : '';
+				$comment_oauth_id = $comment_oauth_identity ? $comment_oauth_identity['id'] : '';
+				$comment_oauth_url = $comment_oauth_identity && !empty($comment_oauth_identity['url']) ? $comment_oauth_identity['url'] : '';
+				$comment_oauth_label = $comment_oauth_provider == 'clogin' ? '彩虹聚合登录' : 'GitHub';
+				$comment_oauth_icon = $comment_oauth_provider == 'clogin' ? 'fa-user-circle' : 'fa-github';
+				$comment_oauth_redirect = rawurlencode(argon_comment_oauth_current_url());
+				$comment_oauth_error = !empty($_GET['comment_login_error']) ? sanitize_text_field(rawurldecode(wp_unslash($_GET['comment_login_error']))) : '';
+			?>
 			<div class="row hide-on-comment-editing" id="post_comment_extra_input" style="display: flex;">
-				<div class="col-md-4" style="margin-bottom: -10px;">
-					<div class="form-group">
-						<input id="post_comment_identity_type" type="hidden" value="wechat">
-						<input id="post_comment_link" type="hidden" name="url" value="">
-						<div class="comment-identity-switch btn-group mb-4" role="group" aria-label="评论身份">
-							<button type="button" class="btn btn-sm btn-primary active" data-comment-identity="wechat"><i class="fa fa-weixin"></i> 微信</button>
-							<button type="button" class="btn btn-sm btn-outline-primary" data-comment-identity="github"><i class="fa fa-github"></i> GitHub</button>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-8" id="post_comment_wechat_group" style="margin-bottom: -10px;">
-					<div class="form-group">
-						<div class="input-group input-group-alternative mb-4 post-comment-wechat-container">
-							<div class="input-group-prepend">
-								<span class="input-group-text"><i class="fa fa-weixin"></i></span>
+				<div class="col-md-12">
+					<input id="post_comment_identity_type" type="hidden" value="<?php echo esc_attr($comment_oauth_provider); ?>">
+					<input id="post_comment_link" type="hidden" name="url" value="<?php echo esc_url($comment_oauth_url); ?>">
+					<input id="post_comment_wechat" type="hidden" name="wechat_id" value="">
+					<input id="post_comment_github" type="hidden" name="github_id" value="<?php echo $comment_oauth_provider == 'github' ? esc_attr($comment_oauth_id) : ''; ?>">
+					<input id="post_comment_clogin" type="hidden" name="clogin_id" value="<?php echo $comment_oauth_provider == 'clogin' ? esc_attr($comment_oauth_id) : ''; ?>">
+					<input id="post_comment_clogin_name" type="hidden" value="<?php echo $comment_oauth_provider == 'clogin' ? esc_attr($comment_oauth_name) : ''; ?>">
+					<div class="comment-oauth-panel">
+						<?php if ($comment_oauth_error != ''){ ?>
+							<div class="comment-oauth-error"><i class="fa fa-exclamation-circle"></i> <?php echo esc_html($comment_oauth_error); ?></div>
+						<?php } ?>
+						<?php if ($comment_oauth_identity){ ?>
+							<div class="comment-oauth-status">
+								<div class="comment-oauth-avatar"><i class="fa <?php echo esc_attr($comment_oauth_icon); ?>"></i></div>
+								<div class="comment-oauth-copy">
+									<div class="comment-oauth-label">已通过 <?php echo esc_html($comment_oauth_label); ?> 登录</div>
+									<div class="comment-oauth-name"><?php echo esc_html($comment_oauth_name); ?></div>
+								</div>
+								<a class="comment-oauth-logout" href="<?php echo esc_url(add_query_arg(array('argon_comment_oauth' => 'logout', 'redirect_to' => $comment_oauth_redirect), home_url('/'))); ?>">切换账号</a>
 							</div>
-							<input id="post_comment_wechat" class="form-control" placeholder="微信号（将作为昵称）" type="text" name="wechat_id" value="">
-						</div>
-					</div>
-				</div>
-				<div class="col-md-8" id="post_comment_github_group" style="display: none; margin-bottom: -10px;">
-					<div class="form-group">
-						<div class="input-group input-group-alternative mb-4 post-comment-github-container">
-							<div class="input-group-prepend">
-								<span class="input-group-text"><i class="fa fa-github"></i></span>
+						<?php }else{ ?>
+							<div class="comment-oauth-actions" aria-label="评论登录">
+								<a class="btn btn-primary comment-oauth-login comment-oauth-github" href="<?php echo esc_url(argon_comment_oauth_login_url('github')); ?>">
+									<i class="fa fa-github"></i><span>GitHub 登录评论</span>
+								</a>
+								<a class="btn btn-outline-primary comment-oauth-login comment-oauth-clogin" href="<?php echo esc_url(argon_comment_oauth_login_url('clogin')); ?>">
+									<i class="fa fa-user-circle"></i><span>彩虹聚合登录</span>
+								</a>
 							</div>
-							<input id="post_comment_github" class="form-control" placeholder="GitHub 用户名（将作为昵称）" type="text" name="github_id" value="">
-						</div>
+							<div class="comment-oauth-tip">登录后会自动同步第三方昵称作为评论昵称。</div>
+						<?php } ?>
 					</div>
 				</div>
 			</div>

@@ -89,6 +89,12 @@ define( 'WP_DEBUG', false );
 
 /* Add any custom values between this line and the "stop editing" line. */
 
+define('ARGON_GITHUB_CLIENT_ID', 'Ov23lizcVWJEQLrwaK6r');
+define('ARGON_GITHUB_CLIENT_SECRET', '6ec6e8e129b7c1fada304432f2d03272f8c2e26b');
+
+define('ARGON_CLOGIN_APPID', '1131');
+define('ARGON_CLOGIN_APPKEY', 'e51a1a2fce67e04634fdc1bfb6f52fea');
+define('ARGON_CLOGIN_TYPE', 'qq');
 
 
 /* That's all, stop editing! Happy publishing. */

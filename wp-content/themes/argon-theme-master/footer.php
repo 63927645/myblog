@@ -44,7 +44,7 @@
 				</main>
 			</div>
 		</div>
-		<script src="<?php echo $GLOBALS['assets_path']; ?>/argontheme.js?v<?php echo $GLOBALS['assets_version']; ?>"></script>
+		<script src="<?php echo get_template_directory_uri(); ?>/argontheme.js?v<?php echo $GLOBALS['assets_version']; ?>"></script>
 		<?php if (get_option('argon_math_render') == 'mathjax3') { /*Mathjax V3*/?>
 			<script>
 				window.MathJax = {
