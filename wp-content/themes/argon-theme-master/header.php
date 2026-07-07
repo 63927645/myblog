@@ -232,6 +232,78 @@
 		article.post-preview-layout-2 .post-title {
 			font-weight: 700 !important;
 		}
+		@media screen and (max-width: 600px) {
+			body.home #banner.banner {
+				height: 58vh;
+				min-height: 430px;
+				max-height: 560px;
+				margin-bottom: 0;
+				background-position: center top;
+			}
+			body.home #banner.banner::before {
+				background:
+					linear-gradient(180deg, rgba(7, 16, 30, 0.38) 0%, rgba(7, 16, 30, 0.1) 38%, rgba(255, 255, 255, 0.32) 76%, rgba(255, 255, 255, 0.7) 100%),
+					linear-gradient(90deg, rgba(7, 16, 30, 0.12), rgba(7, 16, 30, 0));
+			}
+			body.home #banner.banner::after {
+				height: 34%;
+			}
+			body.home #banner_container {
+				height: 100% !important;
+			}
+			body.home .banner-title {
+				top: 34%;
+				padding: 0 22px;
+				font-size: clamp(30px, 10vw, 42px) !important;
+				line-height: 1.28;
+			}
+			body.home .banner-title-inner {
+				max-width: min(92vw, 420px);
+				white-space: normal;
+				word-break: keep-all;
+				text-shadow: 0 4px 16px rgba(0, 0, 0, 0.44), 0 1px 0 rgba(255, 255, 255, 0.16);
+			}
+			body.home #content {
+				margin-top: -92px;
+				padding: 0 12px;
+			}
+			body.home #main {
+				padding: 0;
+			}
+			#leftbar {
+				padding-left: 0;
+				padding-right: 0;
+			}
+			#float_action_buttons {
+				right: 14px;
+				bottom: 78px;
+			}
+			#float_action_buttons .fabtn {
+				width: 46px;
+				height: 46px;
+			}
+			article.post-preview-layout-2 {
+				flex-direction: column;
+			}
+			article.post-preview-layout-2 .post-header.post-header-with-thumbnail {
+				width: 100%;
+				flex-basis: auto;
+				border-radius: var(--card-radius) var(--card-radius) 0 0;
+			}
+			article.post-preview-layout-2 .post-thumbnail {
+				min-height: 190px;
+				max-height: 230px;
+				object-fit: cover;
+			}
+			article.post-preview-layout-2 .post-content-container {
+				padding: 20px 18px 22px;
+			}
+			article.post-preview-layout-2 .post-title {
+				max-width: 100%;
+				font-size: 24px;
+				line-height: 1.35;
+			}
+		}
 	</style>
 	<?php $GLOBALS['wp_path'] = get_option('argon_wp_path') == '' ? '/' : get_option('argon_wp_path'); ?>
 	<script>

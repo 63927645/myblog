@@ -934,6 +934,34 @@ if (argonConfig.waterflow_columns != "1") {
 			$("#post_comment_extra_input").slideUp(300, 'easeOutCirc');
 		}
 	});
+	function syncCommentIdentityName(){
+		let identityType = $("#post_comment_identity_type").val();
+		let identityValue = identityType == "github" ? $("#post_comment_github").val() : $("#post_comment_wechat").val();
+		if (identityValue != ""){
+			$("#post_comment_name").val(identityValue);
+		}
+	}
+	$(document).on("click" , ".comment-identity-switch [data-comment-identity]" , function(){
+		let identityType = $(this).attr("data-comment-identity");
+		$("#post_comment_identity_type").val(identityType);
+		$(".comment-identity-switch [data-comment-identity]").removeClass("btn-primary active").addClass("btn-outline-primary");
+		$(this).removeClass("btn-outline-primary").addClass("btn-primary active");
+		if (identityType == "github"){
+			$("#post_comment_wechat").val("");
+			$("#post_comment_wechat_group").hide();
+			$("#post_comment_github_group").show();
+			$("#post_comment_github").focus();
+		}else{
+			$("#post_comment_github").val("");
+			$("#post_comment_github_group").hide();
+			$("#post_comment_wechat_group").show();
+			$("#post_comment_wechat").focus();
+		}
+		syncCommentIdentityName();
+	});
+	$(document).on("change input keydown keyup propertychange" , "#post_comment_wechat, #post_comment_github" , function(){
+		syncCommentIdentityName();
+	});
 
 	//输入框细节
 	$(document).on("change input keydown keyup propertychange" , "#post_comment_content" , function(){
@@ -959,8 +987,9 @@ if (argonConfig.waterflow_columns != "1") {
 		let commentName = $("#post_comment_name").val();
 		let commentEmail = $("#post_comment_email").val();
 		let commentLink = $("#post_comment_link").val();
-		let commentWechat = $("#post_comment_wechat").val();
-		let commentGithub = $("#post_comment_github").val();
+		let commentIdentityType = $("#post_comment_identity_type").val();
+		let commentWechat = commentIdentityType == "wechat" ? $("#post_comment_wechat").val() : "";
+		let commentGithub = commentIdentityType == "github" ? $("#post_comment_github").val() : "";
 		let commentCaptcha = $("#post_comment_captcha").val();
 		let useMarkdown = false;
 		let privateMode = false;
@@ -986,14 +1015,16 @@ if (argonConfig.waterflow_columns != "1") {
 			isError = true;
 			errorMsg += __("评论内容不能为空") + "</br>";
 		}
+		if (commentIdentityType == "github"){
+			commentName = commentGithub;
+		}else{
+			commentName = commentWechat;
+		}
+		$("#post_comment_name").val(commentName);
 		if (!$("#post_comment").hasClass("no-need-name-email")){
 			if (commentName.match(/^\s*$/)){
 				isError = true;
-				errorMsg += __("昵称不能为空") + "</br>";
-			}
-			if (commentEmail.match(/^\s*$/) && commentWechat.match(/^\s*$/) && commentGithub.match(/^\s*$/)){
-				isError = true;
-				errorMsg += __("邮箱、微信号、GitHub 用户名至少填写一项") + "</br>";
+				errorMsg += (commentIdentityType == "github" ? "GitHub 用户名不能为空" : "微信号不能为空") + "</br>";
 			}
 			if (!commentEmail.match(/^\s*$/) && $("#post_comment").hasClass("enable-qq-avatar")){
 				if (!(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(commentEmail) && !(/^[1-9][0-9]{4,10}$/).test(commentEmail)){
@@ -1020,10 +1051,6 @@ if (argonConfig.waterflow_columns != "1") {
 					}
 				}
 			}
-		}
-		if (commentLink != "" && !(/https?:\/\//).test(commentLink)){
-			isError = true;
-			errorMsg += __("网站格式错误 (不是 http(s):// 开头)") + "</br>";
 		}
 		if (mailNotice && commentEmail.match(/^\s*$/)){
 			isError = true;
@@ -1103,6 +1130,7 @@ if (argonConfig.waterflow_columns != "1") {
 				use_markdown: useMarkdown,
 				private_mode: privateMode,
 				enable_mailnotice: mailNotice,
+				identity_type: commentIdentityType,
 				wechat_id: commentWechat,
 				github_id: commentGithub
 			},

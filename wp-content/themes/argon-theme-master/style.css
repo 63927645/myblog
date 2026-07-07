@@ -2984,6 +2984,19 @@ html.darkmode .comment-edit-history-item {
 	justify-content: center;
 }
 
+.comment-identity-switch {
+	display: flex;
+	width: 100%;
+}
+
+.comment-identity-switch .btn {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+}
+
 #post_comment_extra_input .fa-weixin {
 	color: #18a058;
 }
@@ -5527,6 +5540,74 @@ html.darkmode article.post-preview-layout-2 .post-content {
 }
 
 @media screen and (max-width: 600px) {
+	body.home #banner.banner {
+		height: 58vh;
+		min-height: 430px;
+		max-height: 560px;
+		margin-bottom: 0;
+		background-position: center top;
+	}
+
+	body.home #banner.banner::before {
+		background:
+			linear-gradient(180deg, rgba(7, 16, 30, 0.38) 0%, rgba(7, 16, 30, 0.1) 38%, rgba(255, 255, 255, 0.32) 76%, rgba(255, 255, 255, 0.7) 100%),
+			linear-gradient(90deg, rgba(7, 16, 30, 0.12), rgba(7, 16, 30, 0));
+	}
+
+	body.home #banner.banner::after {
+		height: 34%;
+	}
+
+	body.home #banner_container {
+		height: 100% !important;
+	}
+
+	body.home .banner-title {
+		top: 34%;
+		padding: 0 22px;
+		font-size: clamp(30px, 10vw, 42px) !important;
+		line-height: 1.28;
+	}
+
+	body.home .banner-title-inner {
+		max-width: min(92vw, 420px);
+		white-space: normal;
+		word-break: keep-all;
+		text-shadow: 0 4px 16px rgba(0, 0, 0, 0.44), 0 1px 0 rgba(255, 255, 255, 0.16);
+	}
+
+	body.home #content {
+		margin-top: -92px;
+		padding: 0 12px;
+	}
+
+	body.home #main {
+		padding: 0;
+	}
+
+	#leftbar {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	#float_action_buttons {
+		right: 14px;
+		bottom: 78px;
+	}
+
+	#float_action_buttons .fabtn {
+		width: 46px;
+		height: 46px;
+	}
+
+	.comment-identity-switch {
+		margin-bottom: 12px !important;
+	}
+
+	#post_comment_extra_input > [class*="col-"] {
+		margin-bottom: 0 !important;
+	}
+
 	#footer {
 		padding: 24px 18px 22px;
 	}
@@ -5559,5 +5640,37 @@ html.darkmode article.post-preview-layout-2 .post-content {
 
 	article.post-preview-layout-2 .post-thumbnail {
 		min-height: 210px;
+	}
+
+	article.post-preview-layout-2.card {
+		margin-bottom: 18px;
+		border-radius: 10px !important;
+		box-shadow: 0 10px 24px rgba(31, 45, 61, 0.08), 0 1px 4px rgba(31, 45, 61, 0.06) !important;
+	}
+
+	article.post-preview-layout-2 .post-header.post-header-with-thumbnail {
+		box-shadow: 0 1px 0 rgba(94, 114, 228, 0.12);
+	}
+
+	article.post-preview-layout-2 .post-thumbnail {
+		min-height: 190px;
+		max-height: 230px;
+		object-fit: cover;
+	}
+
+	article.post-preview-layout-2 .post-content-container {
+		padding: 20px 18px 22px;
+		background: rgba(255, 255, 250, 0.97);
+	}
+
+	article.post-preview-layout-2 .post-title {
+		max-width: 100%;
+		font-size: 24px;
+		line-height: 1.35;
+	}
+
+	article.post-preview-layout-2 .post-meta {
+		font-size: 13px;
+		line-height: 1.8;
 	}
 }

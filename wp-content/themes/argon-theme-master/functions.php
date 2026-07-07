@@ -1379,8 +1379,12 @@ function ajax_post_comment(){
 			)));
 		}
 	}
-	$wechat_id = isset($_POST['wechat_id']) ? argon_sanitize_comment_wechat_id(wp_unslash($_POST['wechat_id'])) : "";
-	$github_id = isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
+	$identity_type = isset($_POST['identity_type']) && $_POST['identity_type'] == "github" ? "github" : "wechat";
+	$wechat_id = $identity_type == "wechat" && isset($_POST['wechat_id']) ? argon_sanitize_comment_wechat_id(wp_unslash($_POST['wechat_id'])) : "";
+	$github_id = $identity_type == "github" && isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
+	if ($wechat_id != "" || $github_id != ""){
+		$_POST['author'] = $github_id != "" ? $github_id : $wechat_id;
+	}
 	if (empty($_POST['email']) && ($wechat_id != "" || $github_id != "")){
 		$identity_source = $github_id != "" ? "github-" . $github_id : "wechat-" . md5($wechat_id);
 		$_POST['email'] = $identity_source . "@comments.local";
@@ -1629,13 +1633,16 @@ function post_comment_updatemetas($id){
 		}
 	}
 	//保存访客微信号 / GitHub 账号
-	$wechat_id = isset($_POST['wechat_id']) ? argon_sanitize_comment_wechat_id(wp_unslash($_POST['wechat_id'])) : "";
-	$github_id = isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
+	$identity_type = isset($_POST['identity_type']) && $_POST['identity_type'] == "github" ? "github" : "wechat";
+	$wechat_id = $identity_type == "wechat" && isset($_POST['wechat_id']) ? argon_sanitize_comment_wechat_id(wp_unslash($_POST['wechat_id'])) : "";
+	$github_id = $identity_type == "github" && isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
 	if ($wechat_id != ""){
 		update_comment_meta($id, "wechat_id", $wechat_id);
+		delete_comment_meta($id, "github_id");
 	}
 	if ($github_id != ""){
 		update_comment_meta($id, "github_id", $github_id);
+		delete_comment_meta($id, "wechat_id");
 	}
 }
 add_action('comment_post' , 'post_comment_updatemetas');
