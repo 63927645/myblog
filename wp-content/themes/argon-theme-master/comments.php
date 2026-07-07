@@ -126,6 +126,13 @@
 				$comment_oauth_icon = $comment_oauth_provider == 'clogin' ? 'fa-user-circle' : 'fa-github';
 				$comment_oauth_redirect = rawurlencode(argon_comment_oauth_current_url());
 				$comment_oauth_error = !empty($_GET['comment_login_error']) ? sanitize_text_field(rawurldecode(wp_unslash($_GET['comment_login_error']))) : '';
+				if (strtolower($comment_oauth_error) == 'succ'){
+					$comment_oauth_error = '';
+				}
+				$comment_email_value = is_user_logged_in() ? (wp_get_current_user() -> user_email) : $current_commenter['comment_author_email'];
+				if (preg_match('/^(github|clogin|wechat)-.*@comments\.local$/', $comment_email_value)){
+					$comment_email_value = '';
+				}
 			?>
 			<div class="row hide-on-comment-editing" id="post_comment_extra_input" style="display: flex;">
 				<div class="col-md-12">
@@ -179,7 +186,7 @@
 							<div class="input-group-prepend">
 								<span class="input-group-text"><i class="fa fa-envelope"></i></span>
 							</div>
-							<input id="post_comment_email" class="form-control" placeholder="<?php _e('邮箱', 'argon');?><?php if ($enable_qq_avatar == 'true'){echo __(' / QQ 号', 'argon');} ?>" type="email" name="email" value="<?php if (is_user_logged_in()) {echo (wp_get_current_user() -> user_email);} else {echo htmlspecialchars($current_commenter['comment_author_email']);} ?>">
+							<input id="post_comment_email" class="form-control" placeholder="<?php _e('邮箱', 'argon');?><?php if ($enable_qq_avatar == 'true'){echo __(' / QQ 号', 'argon');} ?>" type="email" name="email" value="<?php echo esc_attr($comment_email_value); ?>">
 						</div>
 					</div>
 				</div>

@@ -1163,7 +1163,7 @@ function argon_comment_oauth_current_url(){
 	$scheme = is_ssl() ? 'https://' : 'http://';
 	$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : wp_parse_url(home_url(), PHP_URL_HOST);
 	$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
-	return esc_url_raw($scheme . $host . $uri);
+	return esc_url_raw(remove_query_arg(array('comment_login_error', 'argon_comment_oauth', 'state', 'code', 'type'), $scheme . $host . $uri));
 }
 function argon_comment_oauth_login_url($provider){
 	return add_query_arg(array(
@@ -1301,7 +1301,7 @@ function argon_handle_comment_oauth(){
 			'code' => $code
 		), $config['endpoint']), array('timeout' => 15));
 		$user = json_decode(wp_remote_retrieve_body($user_response), true);
-		if (empty($user['code']) || intval($user['code']) !== 0 || empty($user['social_uid'])){
+		if (!isset($user['code']) || intval($user['code']) !== 0 || empty($user['social_uid'])){
 			$msg = !empty($user['msg']) ? sanitize_text_field($user['msg']) : '彩虹聚合登录失败，请重试';
 			argon_comment_oauth_fail($msg, $state_data['redirect_to']);
 		}
