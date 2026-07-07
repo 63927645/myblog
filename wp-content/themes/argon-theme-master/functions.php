@@ -3318,6 +3318,53 @@ function shortcode_post_modified_time($attr,$content=""){
 	$format = isset( $attr['format'] ) ? $attr['format'] : 'Y-n-d G:i:s';
 	return get_the_modified_time($format);
 }
+function argon_render_mobile_home_profile_card(){
+	$avatar = get_option('argon_sidebar_auther_image');
+	if ($avatar == ''){
+		$avatar = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiB4bWw6c3BhY2U9InByZXNlcnZlIj48cmVjdCBmaWxsPSIjNUU3MkU0MjIiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIi8+PGc+PGcgb3BhY2l0eT0iMC4zIj48cGF0aCBmaWxsPSIjNUU3MkU0IiBkPSJNNzQuMzksMzIuODZjLTAuOTgtMS43LTMuMzktMy4wOS01LjM1LTMuMDlINDUuNjJjLTEuOTYsMC00LjM3LDEuMzktNS4zNSwzLjA5TDI4LjU3LDUzLjE1Yy0wLjk4LDEuNy0wLjk4LDQuNDgsMCw2LjE3bDExLjcxLDIwLjI5YzAuOTgsMS43LDMuMzksMy4wOSw1LjM1LDMuMDloMjMuNDNjMS45NiwwLDQuMzctMS4zOSw1LjM1LTMuMDlMODYuMSw1OS4zMmMwLjk4LTEuNywwLjk4LTQuNDgsMC02LjE3TDc0LjM5LDMyLjg2eiIvPjwvZz48ZyBvcGFjaXR5PSIwLjgiPjxwYXRoIGZpbGw9IiM1RTcyRTQiIGQ9Ik02Mi4wNCwyMC4zOWMtMC45OC0xLjctMy4zOS0zLjA5LTUuMzUtMy4wOUgzMS43M2MtMS45NiwwLTQuMzcsMS4zOS01LjM1LDMuMDlMMTMuOSw0Mi4wMWMtMC45OCwxLjctMC45OCw0LjQ4LDAsNi4xN2wxMi40OSwyMS42MmMwLjk4LDEuNywzLjM5LDMuMDksNS4zNSwzLjA5aDI0Ljk3YzEuOTYsMCw0LjM3LTEuMzksNS4zNS0zLjA5bDEyLjQ5LTIxLjYyYzAuOTgtMS43LDAuOTgtNC40OCwwLTYuMTdMNjIuMDQsMjAuMzl6Ii8+PC9nPjwvZz48L3N2Zz4=';
+	}
+	$name = get_option('argon_sidebar_auther_name');
+	if ($name == ''){
+		$name = get_bloginfo('name');
+	}
+	$description = get_option('argon_sidebar_author_description');
+	$posts_count = wp_count_posts() -> publish;
+	$categories_count = wp_count_terms('category');
+	$tags_count = wp_count_terms('post_tag');
+	if (is_wp_error($categories_count)){
+		$categories_count = 0;
+	}
+	if (is_wp_error($tags_count)){
+		$tags_count = 0;
+	}
+	$author_links = '';
+	if (has_nav_menu('leftbar_author_links')){
+		$author_links = wp_nav_menu(array(
+			'container' => '',
+			'theme_location' => 'leftbar_author_links',
+			'items_wrap' => '<ul class="mobile-home-profile-links">%3$s</ul>',
+			'depth' => 1,
+			'echo' => false
+		));
+	}
+	?>
+	<section class="mobile-home-profile-card card shadow-sm border-0" aria-label="个人信息">
+		<div class="mobile-home-profile-avatar" style="background-image: url('<?php echo esc_attr($avatar); ?>');"></div>
+		<div class="mobile-home-profile-body">
+			<h2 class="mobile-home-profile-name"><?php echo esc_html($name); ?></h2>
+			<?php if (!empty($description)){ ?>
+				<div class="mobile-home-profile-description"><?php echo wp_kses_post($description); ?></div>
+			<?php } ?>
+			<nav class="mobile-home-profile-stats" aria-label="站点概览">
+				<span><strong><?php echo esc_html($posts_count); ?></strong>文章</span>
+				<span><strong><?php echo esc_html($categories_count); ?></strong>分类</span>
+				<span><strong><?php echo esc_html($tags_count); ?></strong>标签</span>
+			</nav>
+			<?php echo $author_links; ?>
+		</div>
+	</section>
+	<?php
+}
 add_shortcode('noshortcode','shortcode_noshortcode');
 function shortcode_noshortcode($attr,$content=""){
 	return $content;

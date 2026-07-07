@@ -6,6 +6,7 @@
 
 <div id="primary" class="content-area">
 	<main id="main" class="site-main article-list article-list-home" role="main">
+	<?php if (function_exists('argon_render_mobile_home_profile_card')) { argon_render_mobile_home_profile_card(); } ?>
 	<?php if ( have_posts() ) : ?>
 		<?php
 			while ( have_posts() ) :

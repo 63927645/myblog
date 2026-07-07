@@ -309,6 +309,9 @@
 		}
 	</style>
 	<style id="mobile-refinements-inline">
+		.mobile-home-profile-card {
+			display: none;
+		}
 		@media screen and (max-width: 900px) {
 			#navbar_global.navbar-collapse.show,
 			#navbar_global.navbar-collapse.collapsing {
@@ -372,6 +375,13 @@
 				background: rgba(15, 23, 42, 0.34) !important;
 				backdrop-filter: blur(2px);
 				-webkit-backdrop-filter: blur(2px);
+			}
+			#open_sidebar,
+			#fabtn_open_sidebar,
+			#sidebar_mask,
+			#leftbar {
+				display: none !important;
+				pointer-events: none !important;
 			}
 		}
 		@media screen and (max-width: 600px) {
@@ -460,6 +470,61 @@
 			}
 			body.home article.post-preview-layout-2:first-of-type {
 				transform: none !important;
+			}
+			body.home #open_sidebar,
+			body.home #fabtn_open_sidebar,
+			body.home #sidebar_mask {
+				display: none !important;
+				pointer-events: none !important;
+			}
+			.mobile-home-profile-card {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				margin: 0 0 14px 0;
+				padding: 18px;
+				overflow: hidden;
+				background: linear-gradient(105deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 252, 246, 0.94) 100%);
+				box-shadow: 0 8px 22px rgba(50, 50, 93, 0.08), 0 3px 12px rgba(0, 0, 0, 0.04) !important;
+			}
+			.mobile-home-profile-avatar {
+				flex: 0 0 76px;
+				width: 76px;
+				height: 76px;
+				border-radius: 50%;
+				background-position: center;
+				background-size: cover;
+				box-shadow: 0 8px 18px rgba(50, 50, 93, 0.16);
+			}
+			.mobile-home-profile-body {
+				min-width: 0;
+				flex: 1;
+			}
+			.mobile-home-profile-name {
+				margin: 0;
+				color: var(--themecolor);
+				font-size: 22px;
+				font-weight: 800;
+				line-height: 1.28;
+			}
+			.mobile-home-profile-description {
+				margin-top: 8px;
+				color: #606b86;
+				font-size: 14px;
+				line-height: 1.65;
+			}
+			.mobile-home-profile-stats {
+				display: flex;
+				gap: 14px;
+				margin-top: 12px;
+				color: #7b8193;
+				font-size: 13px;
+			}
+			.mobile-home-profile-stats strong {
+				display: block;
+				color: #32325d;
+				font-size: 18px;
+				line-height: 1.1;
 			}
 			body:not(.home) #banner.banner {
 				display: none !important;
