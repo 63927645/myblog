@@ -412,33 +412,54 @@
 			html.is-home.banner-as-cover.banner-as-cover .banner,
 			body.home #banner.banner {
 				display: block !important;
-				height: 92px !important;
-				min-height: 92px !important;
-				max-height: 92px !important;
+				height: 320px !important;
+				min-height: 320px !important;
+				max-height: 320px !important;
 				padding: 0 !important;
 				margin: 0 !important;
 				overflow: hidden !important;
 			}
 			html.is-home.banner-as-cover.banner-as-cover .banner-container,
 			body.home #banner_container {
-				height: 92px !important;
+				height: 320px !important;
 				min-height: 0 !important;
 				padding: 0 !important;
 			}
 			body.home .banner-title {
-				top: 50% !important;
-				font-size: clamp(16px, 4.8vw, 20px) !important;
+				top: 44% !important;
+				font-size: clamp(24px, 7vw, 30px) !important;
 			}
 			html.is-home.banner-as-cover #content,
 			body.home #content {
+				margin-top: -18px !important;
+				padding-top: 0 !important;
+				position: relative !important;
+				top: auto !important;
+				transform: none !important;
+			}
+			body.home #primary {
+				width: 100% !important;
+				float: none !important;
+				display: block !important;
+				clear: both !important;
 				margin-top: 0 !important;
 				padding-top: 0 !important;
 			}
 			body.home #main,
-			body.home #leftbar,
 			body.home article.post-preview-layout-2:first-of-type {
 				margin-top: 0 !important;
 				padding-top: 0 !important;
+			}
+			body.home #leftbar {
+				display: none !important;
+				height: 0 !important;
+				min-height: 0 !important;
+				margin: 0 !important;
+				padding: 0 !important;
+				overflow: hidden !important;
+			}
+			body.home article.post-preview-layout-2:first-of-type {
+				transform: none !important;
 			}
 			body:not(.home) #banner.banner {
 				display: none !important;
