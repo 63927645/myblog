@@ -441,7 +441,7 @@
 			}
 			html.is-home.banner-as-cover #content,
 			body.home #content {
-				margin-top: -46px !important;
+				margin-top: -92px !important;
 				padding-top: 0 !important;
 				position: relative !important;
 				top: auto !important;
@@ -516,13 +516,15 @@
 				line-height: 1.65;
 			}
 			.mobile-home-profile-motto {
-				max-width: 84%;
+				width: 100%;
+				max-width: 100%;
 				margin: 0 auto;
 				color: #6f7590;
-				font-size: 14px;
+				font-size: clamp(11px, 3.1vw, 13px);
 				font-weight: 400;
-				line-height: 1.75;
+				line-height: 1.45;
 				letter-spacing: 0;
+				white-space: nowrap;
 			}
 			body:not(.home) #banner.banner {
 				display: none !important;
@@ -564,8 +566,9 @@
 				font-size: 20px;
 			}
 			.mobile-home-profile-motto {
-				max-width: 90%;
-				font-size: 13.5px;
+				max-width: 100%;
+				font-size: clamp(11px, 3.05vw, 12.5px);
+				white-space: nowrap;
 			}
 		}
 	</style>
