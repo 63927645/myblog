@@ -120,17 +120,18 @@
 	<?php
 		wp_enqueue_style("argon_css_merged", $GLOBALS['assets_path'] . "/assets/argon_css_merged.css", null, $GLOBALS['assets_version']);
 		wp_enqueue_style("style", $GLOBALS['assets_path'] . "/style.css", null, $GLOBALS['assets_version']);
-		if (get_option('argon_disable_googlefont') != 'true') {wp_enqueue_style("googlefont", "//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Noto+Serif+SC:300,600&display=swap");}
+		if (get_option('argon_disable_googlefont') != 'true') {wp_enqueue_style("googlefont", "//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Noto+Serif+SC:300,600,700,900&display=swap");}
 		wp_enqueue_script("argon_js_merged", $GLOBALS['assets_path'] . "/assets/argon_js_merged.js", null, $GLOBALS['assets_version']);
 		wp_enqueue_script("argonjs", $GLOBALS['assets_path'] . "/assets/js/argon.min.js", null, $GLOBALS['assets_version']);
 	?>
 	<?php wp_head(); ?>
+	<?php $home_city_hero_url = esc_url(get_template_directory_uri() . '/assets/img/home-city-hero-2d.png'); ?>
 	<style id="homepage-refinements-inline">
 		html:not(.no-banner) #navbar-main {
-			background: linear-gradient(180deg, rgba(10, 14, 39, 0.72), rgba(10, 14, 39, 0.42)) !important;
-			backdrop-filter: blur(14px) saturate(1.18);
-			-webkit-backdrop-filter: blur(14px) saturate(1.18);
-			box-shadow: 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 30px rgba(0, 0, 0, 0.12);
+			background: linear-gradient(180deg, rgba(13, 22, 39, 0.56), rgba(13, 22, 39, 0.22)) !important;
+			backdrop-filter: blur(16px) saturate(1.12);
+			-webkit-backdrop-filter: blur(16px) saturate(1.12);
+			box-shadow: none;
 		}
 		html:not(.no-banner) #navbar-main .navbar-title,
 		html:not(.no-banner) #navbar-main .nav-link,
@@ -140,59 +141,78 @@
 			text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
 		}
 		html:not(.no-banner) #navbar-main #navbar_search_input_container .input-group {
-			background: rgba(8, 12, 32, 0.28);
+			background: rgba(8, 16, 30, 0.38);
 			backdrop-filter: blur(10px);
 			-webkit-backdrop-filter: blur(10px);
 		}
 		.banner {
 			position: relative;
+			isolation: isolate;
 		}
 		.banner-container,
 		.cover-scroll-down {
 			position: relative;
-			z-index: 2;
+			z-index: 3;
 		}
 		.banner .shape {
-			z-index: 0;
+			z-index: -1;
+		}
+		html.is-home:not(.no-banner) .banner {
+			background-image: url("<?php echo $home_city_hero_url; ?>") !important;
+			background-position: center top;
+			background-size: cover;
+			background-repeat: no-repeat;
+		}
+		html.is-home:not(.no-banner) .banner .shape {
+			display: none;
 		}
 		.banner::before {
 			content: "";
 			position: absolute;
 			inset: 0;
-			z-index: 1;
+			z-index: 0;
 			pointer-events: none;
 			background:
-				linear-gradient(180deg, rgba(4, 7, 23, 0.6) 0%, rgba(4, 7, 23, 0.24) 28%, rgba(4, 7, 23, 0.08) 56%, rgba(244, 245, 247, 0.46) 100%),
-				linear-gradient(90deg, rgba(4, 7, 23, 0.28), rgba(4, 7, 23, 0.04) 50%, rgba(4, 7, 23, 0.28));
+				linear-gradient(180deg, rgba(7, 16, 30, 0.34) 0%, rgba(7, 16, 30, 0.08) 30%, rgba(255, 255, 255, 0.06) 64%, rgba(255, 255, 255, 0.58) 100%),
+				linear-gradient(90deg, rgba(7, 16, 30, 0.2), rgba(7, 16, 30, 0) 46%, rgba(7, 16, 30, 0.16));
 		}
 		.banner::after {
 			content: "";
 			position: absolute;
 			left: 0;
 			right: 0;
-			bottom: -1px;
-			height: 190px;
+			bottom: 0;
+			height: 30%;
 			z-index: 1;
 			pointer-events: none;
-			background: linear-gradient(180deg, rgba(244, 245, 247, 0), rgba(244, 245, 247, 0.9) 54%, var(--color-background) 100%);
-			backdrop-filter: blur(22px);
-			-webkit-backdrop-filter: blur(22px);
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(248, 251, 253, 0.74) 54%, var(--color-background) 100%);
 		}
 		html.darkmode .banner::after {
 			background: linear-gradient(180deg, rgba(40, 40, 40, 0), rgba(40, 40, 40, 0.78) 58%, var(--color-background) 100%);
 		}
+		html.is-home #content,
+		html.is-home #main,
+		html.is-home #leftbar {
+			position: relative;
+			z-index: 4;
+		}
 		.banner-title {
 			padding: 0 20px;
+			font-family: "Noto Serif SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+			font-size: clamp(42px, 4.8vw, 72px);
+			font-weight: 800;
+			line-height: 1.12;
+			letter-spacing: 0;
 		}
 		.banner-title-inner {
 			display: inline-block;
-			padding: 0.14em 0.5em 0.2em;
-			border-radius: 18px;
-			background: rgba(7, 12, 31, 0.34);
-			box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.13);
-			backdrop-filter: blur(10px);
-			-webkit-backdrop-filter: blur(10px);
-			text-shadow: 0 3px 18px rgba(0, 0, 0, 0.86);
+			padding: 0;
+			border-radius: 0;
+			background: transparent;
+			box-shadow: none;
+			backdrop-filter: none;
+			-webkit-backdrop-filter: none;
+			text-shadow: 0 5px 22px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.18);
 		}
 		.banner-subtitle {
 			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
@@ -207,6 +227,10 @@
 		article.post-preview-layout-2 .post-content-container {
 			padding: 30px 36px;
 			min-width: 0;
+		}
+		.post-title,
+		article.post-preview-layout-2 .post-title {
+			font-weight: 700 !important;
 		}
 	</style>
 	<?php $GLOBALS['wp_path'] = get_option('argon_wp_path') == '' ? '/' : get_option('argon_wp_path'); ?>
