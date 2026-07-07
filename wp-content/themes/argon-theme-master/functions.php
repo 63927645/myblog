@@ -11,6 +11,7 @@ add_action('after_setup_theme','theme_slug_setup');
 
 $argon_version = !(wp_get_theme() -> Template) ? wp_get_theme() -> Version : wp_get_theme(wp_get_theme() -> Template) -> Version;
 $GLOBALS['theme_version'] = $argon_version;
+$GLOBALS['assets_version'] = $argon_version . '.' . @filemtime(get_template_directory() . '/style.css');
 $argon_assets_path = get_option("argon_assets_path");
 switch ($argon_assets_path) {
     case "jsdelivr":

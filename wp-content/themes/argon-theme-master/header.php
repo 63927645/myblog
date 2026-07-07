@@ -118,13 +118,97 @@
 	<link rel="pingback" href="<?php echo esc_url( get_bloginfo( 'pingback_url' ) ); ?>">
 	<?php endif; ?>
 	<?php
-		wp_enqueue_style("argon_css_merged", $GLOBALS['assets_path'] . "/assets/argon_css_merged.css", null, $GLOBALS['theme_version']);
-		wp_enqueue_style("style", $GLOBALS['assets_path'] . "/style.css", null, $GLOBALS['theme_version']);
+		wp_enqueue_style("argon_css_merged", $GLOBALS['assets_path'] . "/assets/argon_css_merged.css", null, $GLOBALS['assets_version']);
+		wp_enqueue_style("style", $GLOBALS['assets_path'] . "/style.css", null, $GLOBALS['assets_version']);
 		if (get_option('argon_disable_googlefont') != 'true') {wp_enqueue_style("googlefont", "//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Noto+Serif+SC:300,600&display=swap");}
-		wp_enqueue_script("argon_js_merged", $GLOBALS['assets_path'] . "/assets/argon_js_merged.js", null, $GLOBALS['theme_version']);
-		wp_enqueue_script("argonjs", $GLOBALS['assets_path'] . "/assets/js/argon.min.js", null, $GLOBALS['theme_version']);
+		wp_enqueue_script("argon_js_merged", $GLOBALS['assets_path'] . "/assets/argon_js_merged.js", null, $GLOBALS['assets_version']);
+		wp_enqueue_script("argonjs", $GLOBALS['assets_path'] . "/assets/js/argon.min.js", null, $GLOBALS['assets_version']);
 	?>
 	<?php wp_head(); ?>
+	<style id="homepage-refinements-inline">
+		html:not(.no-banner) #navbar-main {
+			background: linear-gradient(180deg, rgba(10, 14, 39, 0.72), rgba(10, 14, 39, 0.42)) !important;
+			backdrop-filter: blur(14px) saturate(1.18);
+			-webkit-backdrop-filter: blur(14px) saturate(1.18);
+			box-shadow: 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 30px rgba(0, 0, 0, 0.12);
+		}
+		html:not(.no-banner) #navbar-main .navbar-title,
+		html:not(.no-banner) #navbar-main .nav-link,
+		html:not(.no-banner) #navbar-main #navbar_search_input_container .input-group-text,
+		html:not(.no-banner) #navbar-main #navbar_search_input_container input.form-control {
+			color: rgba(255, 255, 255, 0.96) !important;
+			text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+		}
+		html:not(.no-banner) #navbar-main #navbar_search_input_container .input-group {
+			background: rgba(8, 12, 32, 0.28);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+		}
+		.banner {
+			position: relative;
+		}
+		.banner-container,
+		.cover-scroll-down {
+			position: relative;
+			z-index: 2;
+		}
+		.banner .shape {
+			z-index: 0;
+		}
+		.banner::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+			pointer-events: none;
+			background:
+				linear-gradient(180deg, rgba(4, 7, 23, 0.6) 0%, rgba(4, 7, 23, 0.24) 28%, rgba(4, 7, 23, 0.08) 56%, rgba(244, 245, 247, 0.46) 100%),
+				linear-gradient(90deg, rgba(4, 7, 23, 0.28), rgba(4, 7, 23, 0.04) 50%, rgba(4, 7, 23, 0.28));
+		}
+		.banner::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: -1px;
+			height: 190px;
+			z-index: 1;
+			pointer-events: none;
+			background: linear-gradient(180deg, rgba(244, 245, 247, 0), rgba(244, 245, 247, 0.9) 54%, var(--color-background) 100%);
+			backdrop-filter: blur(22px);
+			-webkit-backdrop-filter: blur(22px);
+		}
+		html.darkmode .banner::after {
+			background: linear-gradient(180deg, rgba(40, 40, 40, 0), rgba(40, 40, 40, 0.78) 58%, var(--color-background) 100%);
+		}
+		.banner-title {
+			padding: 0 20px;
+		}
+		.banner-title-inner {
+			display: inline-block;
+			padding: 0.14em 0.5em 0.2em;
+			border-radius: 18px;
+			background: rgba(7, 12, 31, 0.34);
+			box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.13);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+			text-shadow: 0 3px 18px rgba(0, 0, 0, 0.86);
+		}
+		.banner-subtitle {
+			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
+		}
+		article.post-preview-layout-2 .post-header.post-header-with-thumbnail {
+			flex: 0 0 clamp(300px, 42%, 540px);
+			width: clamp(300px, 42%, 540px);
+		}
+		article.post-preview-layout-2 .post-thumbnail {
+			min-height: 275px;
+		}
+		article.post-preview-layout-2 .post-content-container {
+			padding: 30px 36px;
+			min-width: 0;
+		}
+	</style>
 	<?php $GLOBALS['wp_path'] = get_option('argon_wp_path') == '' ? '/' : get_option('argon_wp_path'); ?>
 	<script>
 		document.documentElement.classList.remove("no-js");
