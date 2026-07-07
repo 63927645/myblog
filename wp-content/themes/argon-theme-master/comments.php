@@ -122,7 +122,7 @@
 				$comment_oauth_name = $comment_oauth_identity ? $comment_oauth_identity['name'] : '';
 				$comment_oauth_id = $comment_oauth_identity ? $comment_oauth_identity['id'] : '';
 				$comment_oauth_url = $comment_oauth_identity && !empty($comment_oauth_identity['url']) ? $comment_oauth_identity['url'] : '';
-				$comment_oauth_label = $comment_oauth_provider == 'clogin' ? 'UR互联登录' : 'GitHub';
+				$comment_oauth_label = $comment_oauth_provider == 'clogin' ? 'UR互联（微信）登录' : 'GitHub';
 				$comment_oauth_icon = $comment_oauth_provider == 'clogin' ? 'fa-user-circle' : 'fa-github';
 				$comment_oauth_redirect = rawurlencode(argon_comment_oauth_current_url());
 				$comment_oauth_error = !empty($_GET['comment_login_error']) ? sanitize_text_field(rawurldecode(wp_unslash($_GET['comment_login_error']))) : '';
@@ -161,7 +161,7 @@
 									<i class="fa fa-github"></i><span>GitHub 登录评论</span>
 								</a>
 								<a class="btn btn-outline-primary comment-oauth-login comment-oauth-clogin" href="<?php echo esc_url(argon_comment_oauth_login_url('clogin')); ?>">
-									<i class="fa fa-user-circle"></i><span>UR互联登录</span>
+									<i class="fa fa-user-circle"></i><span>UR互联（微信）登录</span>
 								</a>
 							</div>
 							<div class="comment-oauth-tip">登录后会自动同步第三方昵称作为评论昵称。</div>

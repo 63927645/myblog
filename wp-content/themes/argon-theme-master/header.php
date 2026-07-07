@@ -324,30 +324,33 @@
 				max-height: calc(100vh - 116px);
 				overflow-y: auto;
 				padding: 16px;
-				border: 1px solid rgba(94, 114, 228, 0.16);
+				border: 1px solid rgba(71, 85, 135, 0.18);
 				border-radius: 18px;
-				background: rgba(246, 248, 255, 0.96) !important;
-				box-shadow: 0 22px 52px rgba(25, 35, 60, 0.22);
-				backdrop-filter: blur(18px) saturate(1.12);
-				-webkit-backdrop-filter: blur(18px) saturate(1.12);
+				background: rgba(248, 250, 255, 0.98) !important;
+				box-shadow: 0 22px 52px rgba(25, 35, 60, 0.24);
+				backdrop-filter: blur(10px) saturate(1.04);
+				-webkit-backdrop-filter: blur(10px) saturate(1.04);
 			}
 			#navbar_global .navbar-collapse-header {
 				margin: 0 0 10px !important;
 			}
 			#navbar_global .navbar-collapse-header .input-group {
 				min-height: 52px;
-				border: 1px solid rgba(94, 114, 228, 0.14);
+				border: 1px solid rgba(71, 85, 135, 0.16);
 				border-radius: 14px;
-				background: rgba(255, 255, 255, 0.92);
-				box-shadow: 0 8px 22px rgba(31, 45, 61, 0.08);
+				background: #fff !important;
+				box-shadow: 0 10px 24px rgba(31, 45, 61, 0.1);
 			}
 			#navbar_global .navbar-collapse-header .input-group-text,
-			#navbar_global .navbar-collapse-header .form-control {
-				color: #2d3150 !important;
+			#navbar_global .navbar-collapse-header .form-control,
+			#navbar_global .navbar-collapse-header .form-control:focus {
+				color: #252a44 !important;
 				text-shadow: none !important;
+				background: transparent !important;
 			}
 			#navbar_global .navbar-collapse-header .form-control::placeholder {
-				color: rgba(45, 49, 80, 0.5);
+				color: #7b8193 !important;
+				opacity: 1;
 			}
 			#navbar_global .navbar-nav {
 				margin: 0;
@@ -358,15 +361,23 @@
 				display: flex;
 				align-items: center;
 				min-height: 46px;
+				margin: 4px 0;
 				padding: 10px 8px !important;
-				border-bottom: 1px solid rgba(94, 114, 228, 0.1);
-				color: #2d3150 !important;
+				border: 1px solid rgba(94, 114, 228, 0.1) !important;
+				border-radius: 12px;
+				background: rgba(255, 255, 255, 0.74);
+				color: #252a44 !important;
 				font-size: 16px;
 				font-weight: 700;
 				text-shadow: none !important;
 			}
 			#navbar_global .nav-link-inner--text {
-				color: inherit !important;
+				color: #252a44 !important;
+			}
+			html.darkmode #navbar_global.navbar-collapse.show *,
+			html.darkmode #navbar_global.navbar-collapse.collapsing * {
+				color: #252a44 !important;
+				text-shadow: none !important;
 			}
 			#navbar_global .nav-item:last-child .nav-link {
 				border-bottom: none;
@@ -393,13 +404,16 @@
 			}
 			body.home .banner-title {
 				top: 43% !important;
-				font-size: clamp(20px, 6vw, 27px) !important;
+				font-size: clamp(20px, 6.4vw, 28px) !important;
 				line-height: 1.32 !important;
+				white-space: nowrap !important;
 			}
 			body.home .banner-title-inner {
-				max-width: min(78vw, 320px) !important;
-				word-break: normal;
-				overflow-wrap: break-word;
+				display: inline-block !important;
+				max-width: none !important;
+				white-space: nowrap !important;
+				word-break: keep-all !important;
+				overflow-wrap: normal !important;
 			}
 			body.home #content {
 				margin-top: -16px !important;
@@ -437,7 +451,15 @@
 			}
 			body.home .banner-title {
 				top: 44% !important;
-				font-size: clamp(24px, 7vw, 30px) !important;
+				font-size: clamp(20px, 6.4vw, 28px) !important;
+				white-space: nowrap !important;
+			}
+			body.home .banner-title-inner {
+				display: inline-block !important;
+				max-width: none !important;
+				white-space: nowrap !important;
+				word-break: keep-all !important;
+				overflow-wrap: normal !important;
 			}
 			html.is-home.banner-as-cover #content,
 			body.home #content {
@@ -525,6 +547,26 @@
 				line-height: 1.45;
 				letter-spacing: 0;
 				white-space: nowrap;
+			}
+			.mobile-home-profile-about-link {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				gap: 5px;
+				width: max-content;
+				margin: 9px auto 0;
+				padding: 6px 13px;
+				border-radius: 999px;
+				background: rgba(var(--themecolor-R), var(--themecolor-G), var(--themecolor-B), 0.1);
+				color: var(--themecolor) !important;
+				font-size: 14px;
+				font-weight: 700;
+				line-height: 1.3;
+				white-space: nowrap;
+			}
+			.mobile-home-profile-about-link span {
+				display: inline-block;
+				transform: translateY(-0.5px);
 			}
 			body:not(.home) #banner.banner {
 				display: none !important;

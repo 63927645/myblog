@@ -1134,7 +1134,7 @@ function argon_get_comment_identity_badges($comment_id = 0){
 	if ($clogin_id != ""){
 		$clogin_type = get_comment_meta($comment_id, "clogin_type", true);
 		$clogin_label = $clogin_type != "" ? strtoupper($clogin_type) : "UR";
-		$html .= '<span class="badge badge-comment-identity badge-comment-clogin" title="UR互联登录：' . esc_attr($clogin_id) . '"><i class="fa fa-user-circle" aria-hidden="true"></i> ' . esc_html($clogin_label) . '</span>';
+		$html .= '<span class="badge badge-comment-identity badge-comment-clogin" title="UR互联（微信）登录：' . esc_attr($clogin_id) . '"><i class="fa fa-user-circle" aria-hidden="true"></i> ' . esc_html($clogin_label) . '</span>';
 	}
 	return $html;
 }
@@ -1233,7 +1233,7 @@ function argon_handle_comment_oauth(){
 	}
 	if ($action == 'github' || $action == 'clogin'){
 		if (!argon_comment_oauth_is_configured($action)){
-			argon_comment_oauth_fail($action == 'github' ? 'GitHub 登录尚未配置 Client ID/Secret' : 'UR互联登录尚未配置 APPID/APPKEY', !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/'));
+			argon_comment_oauth_fail($action == 'github' ? 'GitHub 登录尚未配置 Client ID/Secret' : 'UR互联（微信）登录尚未配置 APPID/APPKEY', !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/'));
 		}
 		$state = wp_generate_password(24, false, false);
 		$redirect_to = !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/');
@@ -1254,17 +1254,17 @@ function argon_handle_comment_oauth(){
 				'redirect_uri' => $callback
 			), $config['endpoint']), array('timeout' => 15));
 			if (is_wp_error($login_response)){
-				argon_comment_oauth_fail('UR互联登录请求失败：' . $login_response->get_error_message(), $redirect_to);
+				argon_comment_oauth_fail('UR互联（微信）登录请求失败：' . $login_response->get_error_message(), $redirect_to);
 			}
 			$login_body = json_decode(wp_remote_retrieve_body($login_response), true);
 			if (!is_array($login_body)){
 				$raw_body = wp_remote_retrieve_body($login_response);
-				$msg = $raw_body != '' ? 'UR互联登录返回非 JSON：' . wp_trim_words(wp_strip_all_tags($raw_body), 20) : 'UR互联登录返回为空';
+				$msg = $raw_body != '' ? 'UR互联（微信）登录返回非 JSON：' . wp_trim_words(wp_strip_all_tags($raw_body), 20) : 'UR互联（微信）登录返回为空';
 				argon_comment_oauth_fail($msg, $redirect_to);
 			}
 			$login_url = !empty($login_body['url']) ? $login_body['url'] : (!empty($login_body['qrcode']) ? $login_body['qrcode'] : '');
 			if (!isset($login_body['code']) || intval($login_body['code']) !== 0 || $login_url == ''){
-				$msg = !empty($login_body['msg']) ? sanitize_text_field($login_body['msg']) : 'UR互联登录跳转地址获取失败';
+				$msg = !empty($login_body['msg']) ? sanitize_text_field($login_body['msg']) : 'UR互联（微信）登录跳转地址获取失败';
 				$msg .= isset($login_body['code']) ? '（错误码：' . intval($login_body['code']) . '）' : '';
 				argon_comment_oauth_fail($msg, $redirect_to);
 			}
@@ -1302,7 +1302,7 @@ function argon_handle_comment_oauth(){
 		), $config['endpoint']), array('timeout' => 15));
 		$user = json_decode(wp_remote_retrieve_body($user_response), true);
 		if (!isset($user['code']) || intval($user['code']) !== 0 || empty($user['social_uid'])){
-			$msg = !empty($user['msg']) ? sanitize_text_field($user['msg']) : 'UR互联登录失败，请重试';
+			$msg = !empty($user['msg']) ? sanitize_text_field($user['msg']) : 'UR互联（微信）登录失败，请重试';
 			argon_comment_oauth_fail($msg, $state_data['redirect_to']);
 		}
 		$name = !empty($user['nickname']) ? sanitize_text_field($user['nickname']) : 'UR访客';
@@ -1603,7 +1603,7 @@ function ajax_post_comment(){
 	if (!$oauth_identity && !is_user_logged_in()){
 		exit(json_encode(array(
 			'status' => 'failed',
-			'msg' =>  '请先使用 GitHub 或 UR互联登录后再评论',
+			'msg' =>  '请先使用 GitHub 或 UR互联（微信）登录后再评论',
 			'isAdmin' => current_user_can('level_7')
 		)));
 	}
@@ -3318,6 +3318,36 @@ function shortcode_post_modified_time($attr,$content=""){
 	$format = isset( $attr['format'] ) ? $attr['format'] : 'Y-n-d G:i:s';
 	return get_the_modified_time($format);
 }
+function argon_get_profile_page_url(){
+	$match_titles = array('新世纪传说W.Y.Z.', '新世纪传说W.Y.Z');
+	$locations = get_nav_menu_locations();
+	foreach (array('toolbar_menu', 'leftbar_menu') as $location){
+		if (empty($locations[$location])){
+			continue;
+		}
+		$items = wp_get_nav_menu_items($locations[$location]);
+		if (empty($items) || is_wp_error($items)){
+			continue;
+		}
+		foreach ($items as $item){
+			$title = trim(wp_strip_all_tags(html_entity_decode($item -> title, ENT_QUOTES, get_bloginfo('charset'))));
+			foreach ($match_titles as $match_title){
+				if ($title == $match_title || strpos($title, 'W.Y.Z') !== false){
+					return $item -> url;
+				}
+			}
+		}
+	}
+	if (function_exists('get_page_by_title')){
+		foreach ($match_titles as $match_title){
+			$page = get_page_by_title($match_title);
+			if (!empty($page)){
+				return get_permalink($page -> ID);
+			}
+		}
+	}
+	return home_url('/');
+}
 function argon_render_mobile_home_profile_card(){
 	$avatar = get_option('argon_sidebar_auther_image');
 	if ($avatar == ''){
@@ -3347,6 +3377,7 @@ function argon_render_mobile_home_profile_card(){
 				<div class="mobile-home-profile-description"><?php echo wp_kses_post($description); ?></div>
 			<?php } ?>
 			<div class="mobile-home-profile-motto">桂棹兰桨，溯流远上，不惧劲风勇搏浪</div>
+			<a class="mobile-home-profile-about-link" href="<?php echo esc_url(argon_get_profile_page_url()); ?>">关于我 <span aria-hidden="true">→</span></a>
 			<?php echo $author_links; ?>
 		</div>
 	</section>
