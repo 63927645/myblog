@@ -234,11 +234,11 @@
 		}
 		@media screen and (max-width: 600px) {
 			body.home #banner.banner {
-				height: 58vh;
-				min-height: 430px;
-				max-height: 560px;
+				height: 330px;
+				min-height: 300px;
+				max-height: 360px;
 				margin-bottom: 0;
-				background-position: center top;
+				background-position: center 18%;
 			}
 			body.home #banner.banner::before {
 				background:
@@ -246,25 +246,28 @@
 					linear-gradient(90deg, rgba(7, 16, 30, 0.12), rgba(7, 16, 30, 0));
 			}
 			body.home #banner.banner::after {
-				height: 34%;
+				height: 42%;
 			}
 			body.home #banner_container {
 				height: 100% !important;
 			}
 			body.home .banner-title {
-				top: 34%;
-				padding: 0 22px;
-				font-size: clamp(30px, 10vw, 42px) !important;
-				line-height: 1.28;
+				top: 39%;
+				padding: 0 18px;
+				font-size: clamp(24px, 7.8vw, 32px) !important;
+				line-height: 1.35;
 			}
 			body.home .banner-title-inner {
-				max-width: min(92vw, 420px);
+				display: block;
+				max-width: min(86vw, 360px);
+				margin: 0 auto;
 				white-space: normal;
-				word-break: keep-all;
-				text-shadow: 0 4px 16px rgba(0, 0, 0, 0.44), 0 1px 0 rgba(255, 255, 255, 0.16);
+				word-break: break-all;
+				overflow-wrap: anywhere;
+				text-shadow: 0 3px 14px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.16);
 			}
 			body.home #content {
-				margin-top: -92px;
+				margin-top: -44px;
 				padding: 0 12px;
 			}
 			body.home #main {

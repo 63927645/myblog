@@ -116,14 +116,46 @@
 					}
 				}
 			?>
+			<div class="row hide-on-comment-editing" id="post_comment_extra_input" style="display: flex;">
+				<div class="col-md-4" style="margin-bottom: -10px;">
+					<div class="form-group">
+						<input id="post_comment_identity_type" type="hidden" value="wechat">
+						<input id="post_comment_link" type="hidden" name="url" value="">
+						<div class="comment-identity-switch btn-group mb-4" role="group" aria-label="评论身份">
+							<button type="button" class="btn btn-sm btn-primary active" data-comment-identity="wechat"><i class="fa fa-weixin"></i> 微信</button>
+							<button type="button" class="btn btn-sm btn-outline-primary" data-comment-identity="github"><i class="fa fa-github"></i> GitHub</button>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-8" id="post_comment_wechat_group" style="margin-bottom: -10px;">
+					<div class="form-group">
+						<div class="input-group input-group-alternative mb-4 post-comment-wechat-container">
+							<div class="input-group-prepend">
+								<span class="input-group-text"><i class="fa fa-weixin"></i></span>
+							</div>
+							<input id="post_comment_wechat" class="form-control" placeholder="微信号（将作为昵称）" type="text" name="wechat_id" value="">
+						</div>
+					</div>
+				</div>
+				<div class="col-md-8" id="post_comment_github_group" style="display: none; margin-bottom: -10px;">
+					<div class="form-group">
+						<div class="input-group input-group-alternative mb-4 post-comment-github-container">
+							<div class="input-group-prepend">
+								<span class="input-group-text"><i class="fa fa-github"></i></span>
+							</div>
+							<input id="post_comment_github" class="form-control" placeholder="GitHub 用户名（将作为昵称）" type="text" name="github_id" value="">
+						</div>
+					</div>
+				</div>
+			</div>
 			<div class="row hide-on-comment-editing" style="margin-bottom: -10px;">
-				<div class="<?php echo $col1_class;?>">
+				<div class="d-none">
 					<div class="form-group">
 						<div class="input-group input-group-alternative mb-4">
 							<div class="input-group-prepend">
 								<span class="input-group-text"><i class="fa fa-user-circle"></i></span>
 							</div>
-							<input id="post_comment_name" class="form-control" placeholder="<?php _e('昵称', 'argon');?>" type="text" name="author" value="<?php if (is_user_logged_in()) {echo (wp_get_current_user() -> user_login);} else {echo htmlspecialchars($current_commenter['comment_author']);} ?>">
+							<input id="post_comment_name" class="form-control" placeholder="<?php _e('昵称', 'argon');?>" type="hidden" name="author" value="<?php if (is_user_logged_in()) {echo (wp_get_current_user() -> user_login);} else {echo htmlspecialchars($current_commenter['comment_author']);} ?>">
 						</div>
 					</div>
 				</div>
@@ -172,39 +204,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="row hide-on-comment-editing" id="post_comment_extra_input" style="display: none;">
-				<div class="col-md-4" style="margin-bottom: -10px;">
-					<div class="form-group">
-						<input id="post_comment_identity_type" type="hidden" value="wechat">
-						<input id="post_comment_link" type="hidden" name="url" value="">
-						<div class="comment-identity-switch btn-group mb-4" role="group" aria-label="评论身份">
-							<button type="button" class="btn btn-sm btn-primary active" data-comment-identity="wechat"><i class="fa fa-weixin"></i> 微信</button>
-							<button type="button" class="btn btn-sm btn-outline-primary" data-comment-identity="github"><i class="fa fa-github"></i> GitHub</button>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-8" id="post_comment_wechat_group" style="margin-bottom: -10px;">
-					<div class="form-group">
-						<div class="input-group input-group-alternative mb-4 post-comment-wechat-container">
-							<div class="input-group-prepend">
-								<span class="input-group-text"><i class="fa fa-weixin"></i></span>
-							</div>
-							<input id="post_comment_wechat" class="form-control" placeholder="微信号" type="text" name="wechat_id" value="">
-						</div>
-					</div>
-				</div>
-				<div class="col-md-8" id="post_comment_github_group" style="display: none; margin-bottom: -10px;">
-					<div class="form-group">
-						<div class="input-group input-group-alternative mb-4 post-comment-github-container">
-							<div class="input-group-prepend">
-								<span class="input-group-text"><i class="fa fa-github"></i></span>
-							</div>
-							<input id="post_comment_github" class="form-control" placeholder="GitHub 用户名" type="text" name="github_id" value="">
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="row hide-on-comment-editing <?php if (get_option('argon_hide_name_email_site_input') == 'true') {echo 'd-none';}?>" style="margin-top: 10px; <?php if (is_user_logged_in()) {echo('display: none');}?>">
+			<div class="row hide-on-comment-editing d-none">
 				<div class="col-md-12">
 					<button id="post_comment_toggle_extra_input" type="button" class="btn btn-icon btn-outline-primary btn-sm" tooltip-show-extra-field="<?php _e('展开附加字段', 'argon'); ?>" tooltip-hide-extra-field="<?php _e('折叠附加字段', 'argon'); ?>">
 						<span class="btn-inner--icon"><i class="fa fa-angle-down"></i></span>
