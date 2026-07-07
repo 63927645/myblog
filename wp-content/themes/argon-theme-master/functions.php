@@ -1240,7 +1240,10 @@ function argon_handle_comment_oauth(){
 		set_transient('argon_comment_oauth_' . $state, array('provider' => $action, 'redirect_to' => $redirect_to), 10 * MINUTE_IN_SECONDS);
 		$config = argon_comment_oauth_config($action);
 		$callback = $action == 'clogin'
-			? home_url('/argon-comment-oauth/clogin-callback/' . rawurlencode($state) . '/')
+			? add_query_arg(array(
+				'argon_comment_oauth' => 'clogin_callback',
+				'state' => $state
+			), home_url('/'))
 			: add_query_arg('argon_comment_oauth', $action . '_callback', home_url('/'));
 		if ($action == 'clogin'){
 			$login_response = wp_remote_get(add_query_arg(array(
@@ -1250,12 +1253,22 @@ function argon_handle_comment_oauth(){
 				'type' => $config['type'],
 				'redirect_uri' => $callback
 			), $config['endpoint']), array('timeout' => 15));
+			if (is_wp_error($login_response)){
+				argon_comment_oauth_fail('彩虹聚合登录请求失败：' . $login_response->get_error_message(), $redirect_to);
+			}
 			$login_body = json_decode(wp_remote_retrieve_body($login_response), true);
-			if (empty($login_body['code']) || intval($login_body['code']) !== 0 || empty($login_body['url'])){
-				$msg = !empty($login_body['msg']) ? sanitize_text_field($login_body['msg']) : '彩虹聚合登录跳转地址获取失败';
+			if (!is_array($login_body)){
+				$raw_body = wp_remote_retrieve_body($login_response);
+				$msg = $raw_body != '' ? '彩虹聚合登录返回非 JSON：' . wp_trim_words(wp_strip_all_tags($raw_body), 20) : '彩虹聚合登录返回为空';
 				argon_comment_oauth_fail($msg, $redirect_to);
 			}
-			wp_redirect(esc_url_raw($login_body['url']));
+			$login_url = !empty($login_body['url']) ? $login_body['url'] : (!empty($login_body['qrcode']) ? $login_body['qrcode'] : '');
+			if (!isset($login_body['code']) || intval($login_body['code']) !== 0 || $login_url == ''){
+				$msg = !empty($login_body['msg']) ? sanitize_text_field($login_body['msg']) : '彩虹聚合登录跳转地址获取失败';
+				$msg .= isset($login_body['code']) ? '（错误码：' . intval($login_body['code']) . '）' : '';
+				argon_comment_oauth_fail($msg, $redirect_to);
+			}
+			wp_redirect(esc_url_raw($login_url));
 			exit;
 		}
 		wp_redirect(add_query_arg(array(
