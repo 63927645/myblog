@@ -1149,7 +1149,7 @@ function argon_comment_oauth_config($provider){
 		return array(
 			'client_id' => defined('ARGON_CLOGIN_APPID') ? ARGON_CLOGIN_APPID : '',
 			'client_secret' => defined('ARGON_CLOGIN_APPKEY') ? ARGON_CLOGIN_APPKEY : '',
-			'endpoint' => defined('ARGON_CLOGIN_ENDPOINT') ? ARGON_CLOGIN_ENDPOINT : 'https://u.cccyun.cc/connect.php',
+			'endpoint' => defined('ARGON_CLOGIN_ENDPOINT') ? ARGON_CLOGIN_ENDPOINT : 'https://login.uz6.cn/connect.php',
 			'type' => defined('ARGON_CLOGIN_TYPE') ? ARGON_CLOGIN_TYPE : 'qq'
 		);
 	}
