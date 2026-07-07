@@ -218,8 +218,8 @@
 			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
 		}
 		article.post-preview-layout-2 .post-header.post-header-with-thumbnail {
-			flex: 0 0 clamp(300px, 42%, 540px);
-			width: clamp(300px, 42%, 540px);
+			flex: 0 0 clamp(360px, 48%, 620px);
+			width: clamp(360px, 48%, 620px);
 		}
 		article.post-preview-layout-2 .post-thumbnail {
 			min-height: 275px;
