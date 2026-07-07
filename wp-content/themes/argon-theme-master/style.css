@@ -5943,3 +5943,40 @@ html.darkmode .comment-oauth-panel {
 		font-size: 15px;
 	}
 }
+
+@media screen and (max-width: 768px) {
+	body.home #banner.banner {
+		height: 205px !important;
+		min-height: 190px !important;
+		max-height: 220px !important;
+		padding: 0 !important;
+	}
+	body.home #banner_container {
+		min-height: 0 !important;
+	}
+	body.home .banner-title {
+		top: 50% !important;
+		font-size: clamp(18px, 5.4vw, 24px) !important;
+	}
+	body.home #content {
+		margin-top: -8px !important;
+		padding-top: 0 !important;
+	}
+	body:not(.home) #banner.banner {
+		display: none !important;
+		height: 0 !important;
+		min-height: 0 !important;
+		max-height: 0 !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		overflow: hidden !important;
+	}
+	body:not(.home) #content {
+		margin-top: 68px !important;
+		padding-top: 0 !important;
+	}
+	body:not(.home) article.post-full,
+	body:not(.home) #comments {
+		margin-top: 12px !important;
+	}
+}

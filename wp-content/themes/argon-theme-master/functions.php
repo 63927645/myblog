@@ -1209,11 +1209,22 @@ function argon_comment_oauth_fail($message, $redirect_to = ''){
 	wp_safe_redirect(add_query_arg('comment_login_error', rawurlencode($message), $redirect_to));
 	exit;
 }
+function argon_comment_oauth_callback_action(){
+	if (!empty($_GET['argon_comment_oauth'])){
+		return sanitize_key($_GET['argon_comment_oauth']);
+	}
+	$request_path = isset($_SERVER['REQUEST_URI']) ? wp_parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
+	if (preg_match('#/argon-comment-oauth/clogin-callback/([^/]+)/?#', $request_path, $matches)){
+		$_GET['state'] = sanitize_text_field(rawurldecode($matches[1]));
+		return 'clogin_callback';
+	}
+	return '';
+}
 function argon_handle_comment_oauth(){
-	if (empty($_GET['argon_comment_oauth'])){
+	$action = argon_comment_oauth_callback_action();
+	if ($action == ''){
 		return;
 	}
-	$action = sanitize_key($_GET['argon_comment_oauth']);
 	if ($action == 'logout'){
 		$redirect_to = !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/');
 		argon_clear_comment_oauth_identity();
@@ -1228,10 +1239,9 @@ function argon_handle_comment_oauth(){
 		$redirect_to = !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/');
 		set_transient('argon_comment_oauth_' . $state, array('provider' => $action, 'redirect_to' => $redirect_to), 10 * MINUTE_IN_SECONDS);
 		$config = argon_comment_oauth_config($action);
-		$callback = add_query_arg(array(
-			'argon_comment_oauth' => $action . '_callback',
-			'state' => $state
-		), home_url('/'));
+		$callback = $action == 'clogin'
+			? home_url('/argon-comment-oauth/clogin-callback/' . rawurlencode($state) . '/')
+			: add_query_arg('argon_comment_oauth', $action . '_callback', home_url('/'));
 		if ($action == 'clogin'){
 			$login_response = wp_remote_get(add_query_arg(array(
 				'act' => 'login',
