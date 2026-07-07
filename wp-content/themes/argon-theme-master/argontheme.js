@@ -956,7 +956,7 @@ if (argonConfig.waterflow_columns != "1") {
 	function postComment(){
 		let commentContent = $("#post_comment_content").val();
 		let commentName = $("#post_comment_name").val();
-		let commentEmail = $("#post_comment_email").val();
+		let commentEmail = "";
 		let commentLink = $("#post_comment_link").val();
 		let commentIdentityType = $("#post_comment_identity_type").val();
 		let hasOauthIdentity = commentIdentityType == "github" || commentIdentityType == "clogin";
@@ -974,9 +974,7 @@ if (argonConfig.waterflow_columns != "1") {
 		if ($("#comment_post_privatemode").length > 0){
 			privateMode = $("#comment_post_privatemode")[0].checked;
 		}
-		if ($("#comment_post_mailnotice").length > 0){
-			mailNotice = $("#comment_post_mailnotice")[0].checked;
-		}
+		mailNotice = false;
 
 		let postID = $("#post_comment_post_id").val();
 		let commentCaptchaSeed = $("#post_comment_captcha_seed").val();

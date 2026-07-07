@@ -5945,21 +5945,35 @@ html.darkmode .comment-oauth-panel {
 }
 
 @media screen and (max-width: 768px) {
+	html.is-home.banner-as-cover.banner-as-cover .banner,
 	body.home #banner.banner {
-		height: 205px !important;
-		min-height: 190px !important;
-		max-height: 220px !important;
+		display: block !important;
+		height: 92px !important;
+		min-height: 92px !important;
+		max-height: 92px !important;
 		padding: 0 !important;
+		margin: 0 !important;
+		overflow: hidden !important;
 	}
+	html.is-home.banner-as-cover.banner-as-cover .banner-container,
 	body.home #banner_container {
+		height: 92px !important;
 		min-height: 0 !important;
+		padding: 0 !important;
 	}
 	body.home .banner-title {
 		top: 50% !important;
-		font-size: clamp(18px, 5.4vw, 24px) !important;
+		font-size: clamp(16px, 4.8vw, 20px) !important;
 	}
+	html.is-home.banner-as-cover #content,
 	body.home #content {
-		margin-top: -8px !important;
+		margin-top: 0 !important;
+		padding-top: 0 !important;
+	}
+	body.home #main,
+	body.home #leftbar,
+	body.home article.post-preview-layout-2:first-of-type {
+		margin-top: 0 !important;
 		padding-top: 0 !important;
 	}
 	body:not(.home) #banner.banner {
@@ -5978,5 +5992,16 @@ html.darkmode .comment-oauth-panel {
 	body:not(.home) article.post-full,
 	body:not(.home) #comments {
 		margin-top: 12px !important;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	html.is-home.banner-as-cover.banner-as-cover .cover-scroll-down,
+	html.is-home.banner-as-cover.banner-as-cover .banner::after,
+	html.is-home.banner-as-cover.banner-as-cover .banner::before {
+		display: none !important;
+	}
+	html.is-home.banner-as-cover.banner-as-cover #content {
+		transform: none !important;
 	}
 }

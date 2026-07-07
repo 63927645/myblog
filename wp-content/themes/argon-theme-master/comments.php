@@ -180,7 +180,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="<?php echo $col2_class;?>">
+				<div class="d-none">
 					<div class="form-group">
 						<div class="input-group input-group-alternative mb-4">
 							<div class="input-group-prepend">
@@ -243,12 +243,6 @@
 						<div class="custom-control custom-checkbox comment-post-checkbox comment-post-privatemode" tooltip="<?php _e('评论仅发送者和博主可见', 'argon'); ?>">
 							<input class="custom-control-input" id="comment_post_privatemode" type="checkbox">
 							<label class="custom-control-label" for="comment_post_privatemode"><?php _e('悄悄话', 'argon');?></label>
-						</div>
-					<?php } ?>
-					<?php if (get_option("argon_comment_allow_mailnotice") == "true") {?>
-						<div class="custom-control custom-checkbox comment-post-checkbox comment-post-mailnotice" tooltip="<?php _e('有回复时邮件通知我', 'argon'); ?>">
-							<input class="custom-control-input" id="comment_post_mailnotice" type="checkbox"<?php if (get_option("argon_comment_mailnotice_checkbox_checked") == 'true'){echo ' checked';}?>>
-							<label class="custom-control-label" for="comment_post_mailnotice"><?php _e('邮件提醒', 'argon');?></label>
 						</div>
 					<?php } ?>
 					<button id="post_comment_send" class="btn btn-icon btn-primary comment-btn pull-right mr-0" type="button">
