@@ -157,13 +157,13 @@
 		.banner .shape {
 			z-index: -1;
 		}
-		html.is-home:not(.no-banner) .banner {
+		body.home #banner.banner {
 			background-image: url("<?php echo $home_city_hero_url; ?>") !important;
 			background-position: center top;
 			background-size: cover;
 			background-repeat: no-repeat;
 		}
-		html.is-home:not(.no-banner) .banner .shape {
+		body.home #banner.banner .shape {
 			display: none;
 		}
 		.banner::before {
@@ -190,9 +190,9 @@
 		html.darkmode .banner::after {
 			background: linear-gradient(180deg, rgba(40, 40, 40, 0), rgba(40, 40, 40, 0.78) 58%, var(--color-background) 100%);
 		}
-		html.is-home #content,
-		html.is-home #main,
-		html.is-home #leftbar {
+		body.home #content,
+		body.home #main,
+		body.home #leftbar {
 			position: relative;
 			z-index: 4;
 		}
