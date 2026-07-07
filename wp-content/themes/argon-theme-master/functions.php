@@ -1133,8 +1133,8 @@ function argon_get_comment_identity_badges($comment_id = 0){
 	$clogin_id = get_comment_meta($comment_id, "clogin_id", true);
 	if ($clogin_id != ""){
 		$clogin_type = get_comment_meta($comment_id, "clogin_type", true);
-		$clogin_label = $clogin_type != "" ? strtoupper($clogin_type) : "彩虹";
-		$html .= '<span class="badge badge-comment-identity badge-comment-clogin" title="彩虹聚合登录：' . esc_attr($clogin_id) . '"><i class="fa fa-user-circle" aria-hidden="true"></i> ' . esc_html($clogin_label) . '</span>';
+		$clogin_label = $clogin_type != "" ? strtoupper($clogin_type) : "UR";
+		$html .= '<span class="badge badge-comment-identity badge-comment-clogin" title="UR互联登录：' . esc_attr($clogin_id) . '"><i class="fa fa-user-circle" aria-hidden="true"></i> ' . esc_html($clogin_label) . '</span>';
 	}
 	return $html;
 }
@@ -1147,10 +1147,10 @@ function argon_comment_oauth_config($provider){
 	}
 	if ($provider == "clogin"){
 		return array(
-			'client_id' => defined('ARGON_CLOGIN_APPID') ? ARGON_CLOGIN_APPID : '',
-			'client_secret' => defined('ARGON_CLOGIN_APPKEY') ? ARGON_CLOGIN_APPKEY : '',
-			'endpoint' => defined('ARGON_CLOGIN_ENDPOINT') ? ARGON_CLOGIN_ENDPOINT : 'https://login.uz6.cn/connect.php',
-			'type' => defined('ARGON_CLOGIN_TYPE') ? ARGON_CLOGIN_TYPE : 'qq'
+			'client_id' => defined('ARGON_URLOGIN_APPID') ? ARGON_URLOGIN_APPID : (defined('ARGON_CLOGIN_APPID') ? ARGON_CLOGIN_APPID : ''),
+			'client_secret' => defined('ARGON_URLOGIN_APPKEY') ? ARGON_URLOGIN_APPKEY : (defined('ARGON_CLOGIN_APPKEY') ? ARGON_CLOGIN_APPKEY : ''),
+			'endpoint' => defined('ARGON_URLOGIN_ENDPOINT') ? ARGON_URLOGIN_ENDPOINT : (defined('ARGON_CLOGIN_ENDPOINT') ? ARGON_CLOGIN_ENDPOINT : 'https://uniqueker.top/connect.php'),
+			'type' => defined('ARGON_URLOGIN_TYPE') ? ARGON_URLOGIN_TYPE : (defined('ARGON_CLOGIN_TYPE') ? ARGON_CLOGIN_TYPE : 'qq')
 		);
 	}
 	return array('client_id' => '', 'client_secret' => '');
@@ -1233,7 +1233,7 @@ function argon_handle_comment_oauth(){
 	}
 	if ($action == 'github' || $action == 'clogin'){
 		if (!argon_comment_oauth_is_configured($action)){
-			argon_comment_oauth_fail($action == 'github' ? 'GitHub 登录尚未配置 Client ID/Secret' : '彩虹聚合登录尚未配置 APPID/APPKEY', !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/'));
+			argon_comment_oauth_fail($action == 'github' ? 'GitHub 登录尚未配置 Client ID/Secret' : 'UR互联登录尚未配置 APPID/APPKEY', !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/'));
 		}
 		$state = wp_generate_password(24, false, false);
 		$redirect_to = !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode($_GET['redirect_to'])) : home_url('/');
@@ -1254,17 +1254,17 @@ function argon_handle_comment_oauth(){
 				'redirect_uri' => $callback
 			), $config['endpoint']), array('timeout' => 15));
 			if (is_wp_error($login_response)){
-				argon_comment_oauth_fail('彩虹聚合登录请求失败：' . $login_response->get_error_message(), $redirect_to);
+				argon_comment_oauth_fail('UR互联登录请求失败：' . $login_response->get_error_message(), $redirect_to);
 			}
 			$login_body = json_decode(wp_remote_retrieve_body($login_response), true);
 			if (!is_array($login_body)){
 				$raw_body = wp_remote_retrieve_body($login_response);
-				$msg = $raw_body != '' ? '彩虹聚合登录返回非 JSON：' . wp_trim_words(wp_strip_all_tags($raw_body), 20) : '彩虹聚合登录返回为空';
+				$msg = $raw_body != '' ? 'UR互联登录返回非 JSON：' . wp_trim_words(wp_strip_all_tags($raw_body), 20) : 'UR互联登录返回为空';
 				argon_comment_oauth_fail($msg, $redirect_to);
 			}
 			$login_url = !empty($login_body['url']) ? $login_body['url'] : (!empty($login_body['qrcode']) ? $login_body['qrcode'] : '');
 			if (!isset($login_body['code']) || intval($login_body['code']) !== 0 || $login_url == ''){
-				$msg = !empty($login_body['msg']) ? sanitize_text_field($login_body['msg']) : '彩虹聚合登录跳转地址获取失败';
+				$msg = !empty($login_body['msg']) ? sanitize_text_field($login_body['msg']) : 'UR互联登录跳转地址获取失败';
 				$msg .= isset($login_body['code']) ? '（错误码：' . intval($login_body['code']) . '）' : '';
 				argon_comment_oauth_fail($msg, $redirect_to);
 			}
@@ -1302,10 +1302,10 @@ function argon_handle_comment_oauth(){
 		), $config['endpoint']), array('timeout' => 15));
 		$user = json_decode(wp_remote_retrieve_body($user_response), true);
 		if (!isset($user['code']) || intval($user['code']) !== 0 || empty($user['social_uid'])){
-			$msg = !empty($user['msg']) ? sanitize_text_field($user['msg']) : '彩虹聚合登录失败，请重试';
+			$msg = !empty($user['msg']) ? sanitize_text_field($user['msg']) : 'UR互联登录失败，请重试';
 			argon_comment_oauth_fail($msg, $state_data['redirect_to']);
 		}
-		$name = !empty($user['nickname']) ? sanitize_text_field($user['nickname']) : '彩虹访客';
+		$name = !empty($user['nickname']) ? sanitize_text_field($user['nickname']) : 'UR访客';
 		argon_set_comment_oauth_identity(array(
 			'provider' => 'clogin',
 			'id' => sanitize_text_field($user['social_uid']),
@@ -1603,7 +1603,7 @@ function ajax_post_comment(){
 	if (!$oauth_identity && !is_user_logged_in()){
 		exit(json_encode(array(
 			'status' => 'failed',
-			'msg' =>  '请先使用 GitHub 或彩虹聚合登录后再评论',
+			'msg' =>  '请先使用 GitHub 或 UR互联登录后再评论',
 			'isAdmin' => current_user_can('level_7')
 		)));
 	}

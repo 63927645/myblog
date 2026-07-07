@@ -991,7 +991,7 @@ if (argonConfig.waterflow_columns != "1") {
 		}
 		if (!hasOauthIdentity){
 			isError = true;
-			errorMsg += "请先使用 GitHub 或彩虹聚合登录后再评论</br>";
+			errorMsg += "请先使用 GitHub 或 UR互联登录后再评论</br>";
 		}else{
 			commentName = commentIdentityType == "github" ? commentGithub : commentCloginName;
 		}
