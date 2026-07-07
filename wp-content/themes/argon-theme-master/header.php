@@ -441,7 +441,7 @@
 			}
 			html.is-home.banner-as-cover #content,
 			body.home #content {
-				margin-top: -18px !important;
+				margin-top: -46px !important;
 				padding-top: 0 !important;
 				position: relative !important;
 				top: auto !important;
@@ -479,18 +479,20 @@
 			}
 			.mobile-home-profile-card {
 				display: flex;
+				flex-direction: column;
 				align-items: center;
-				gap: 16px;
+				gap: 12px;
 				margin: 0 0 14px 0;
-				padding: 18px;
+				padding: 22px 18px 20px;
 				overflow: hidden;
+				text-align: center;
 				background: linear-gradient(105deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 252, 246, 0.94) 100%);
 				box-shadow: 0 8px 22px rgba(50, 50, 93, 0.08), 0 3px 12px rgba(0, 0, 0, 0.04) !important;
 			}
 			.mobile-home-profile-avatar {
-				flex: 0 0 76px;
-				width: 76px;
-				height: 76px;
+				flex: 0 0 82px;
+				width: 82px;
+				height: 82px;
 				border-radius: 50%;
 				background-position: center;
 				background-size: cover;
@@ -513,18 +515,14 @@
 				font-size: 14px;
 				line-height: 1.65;
 			}
-			.mobile-home-profile-stats {
-				display: flex;
-				gap: 14px;
-				margin-top: 12px;
-				color: #7b8193;
-				font-size: 13px;
-			}
-			.mobile-home-profile-stats strong {
-				display: block;
-				color: #32325d;
-				font-size: 18px;
-				line-height: 1.1;
+			.mobile-home-profile-motto {
+				max-width: 84%;
+				margin: 0 auto;
+				color: #6f7590;
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 1.75;
+				letter-spacing: 0;
 			}
 			body:not(.home) #banner.banner {
 				display: none !important;
@@ -550,6 +548,24 @@
 			}
 			html.is-home.banner-as-cover.banner-as-cover #content {
 				transform: none !important;
+			}
+		}
+		@media screen and (max-width: 420px) {
+			.mobile-home-profile-card {
+				align-items: center;
+				padding: 20px 16px 18px;
+			}
+			.mobile-home-profile-avatar {
+				flex-basis: 78px;
+				width: 78px;
+				height: 78px;
+			}
+			.mobile-home-profile-name {
+				font-size: 20px;
+			}
+			.mobile-home-profile-motto {
+				max-width: 90%;
+				font-size: 13.5px;
 			}
 		}
 	</style>

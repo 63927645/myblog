@@ -3328,15 +3328,6 @@ function argon_render_mobile_home_profile_card(){
 		$name = get_bloginfo('name');
 	}
 	$description = get_option('argon_sidebar_author_description');
-	$posts_count = wp_count_posts() -> publish;
-	$categories_count = wp_count_terms('category');
-	$tags_count = wp_count_terms('post_tag');
-	if (is_wp_error($categories_count)){
-		$categories_count = 0;
-	}
-	if (is_wp_error($tags_count)){
-		$tags_count = 0;
-	}
 	$author_links = '';
 	if (has_nav_menu('leftbar_author_links')){
 		$author_links = wp_nav_menu(array(
@@ -3355,11 +3346,7 @@ function argon_render_mobile_home_profile_card(){
 			<?php if (!empty($description)){ ?>
 				<div class="mobile-home-profile-description"><?php echo wp_kses_post($description); ?></div>
 			<?php } ?>
-			<nav class="mobile-home-profile-stats" aria-label="站点概览">
-				<span><strong><?php echo esc_html($posts_count); ?></strong>文章</span>
-				<span><strong><?php echo esc_html($categories_count); ?></strong>分类</span>
-				<span><strong><?php echo esc_html($tags_count); ?></strong>标签</span>
-			</nav>
+			<div class="mobile-home-profile-motto">桂棹兰桨，溯流远上，不惧劲风勇搏浪</div>
 			<?php echo $author_links; ?>
 		</div>
 	</section>
