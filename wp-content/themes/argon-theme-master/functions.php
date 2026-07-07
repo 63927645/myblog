@@ -451,6 +451,48 @@ function get_seo_description(){
 	}
 }
 //页面 Keywords
+function argon_get_post_home_preview($post_id = null){
+	global $post;
+	$post_id = $post_id ? intval($post_id) : get_the_ID();
+	$post_obj = get_post($post_id);
+	if (!$post_obj){
+		return "";
+	}
+
+	$custom_preview = get_post_meta($post_id, 'argon_home_preview', true);
+	$custom_limit = intval(get_post_meta($post_id, 'argon_home_preview_limit', true));
+	if (trim($custom_preview) !== ""){
+		$preview = wp_kses_post($custom_preview);
+		if ($custom_limit > 0){
+			$plain_preview = wp_strip_all_tags($preview);
+			if (mb_strlen($plain_preview) > $custom_limit){
+				$preview = esc_html(mb_substr($plain_preview, 0, $custom_limit)) . "...";
+			}
+		}
+		return $preview;
+	}
+
+	$trim_words_count = intval(get_option('argon_trim_words_count', 175));
+	if ($trim_words_count <= 0){
+		return "";
+	}
+	if (get_option("argon_hide_shortcode_in_preview") == 'true'){
+		$preview = wp_trim_words(do_shortcode(get_the_content('...')), $trim_words_count);
+	}else{
+		$preview = wp_trim_words(get_the_content('...'), $trim_words_count);
+	}
+	if (post_password_required($post_obj)){
+		$preview = __("这篇文章受密码保护，输入密码才能阅读", 'argon');
+	}
+	if ($preview == ""){
+		$preview = __("这篇文章没有摘要", 'argon');
+	}
+	if ($post_obj -> post_excerpt){
+		$preview = $post_obj -> post_excerpt;
+	}
+	return $preview;
+}
+
 function get_seo_keywords(){
 	if (is_single()){
 		global $post;
@@ -2188,7 +2230,15 @@ function argon_meta_box_1(){
 			<button id="apply_show_post_outdated_info" type="button" class="components-button is-primary" style="height: 22px; display: none;"><?php _e("应用", 'argon');?></button>
 		</div>
 		<p style="margin-top: 15px;"><?php _e("单独控制该文章的过时信息显示。", 'argon');?></p>
-		<h4><?php _e("文末附加内容", 'argon');?></h4>
+		<h4>首页展示摘要</h4>
+		<?php $argon_home_preview = get_post_meta($post->ID, "argon_home_preview", true);?>
+		<textarea name="argon_home_preview" id="argon_home_preview" rows="4" cols="30" style="width:100%;"><?php if (!empty($argon_home_preview)){echo esc_textarea($argon_home_preview);} ?></textarea>
+		<p style="margin-top: 15px;">只显示在首页文章卡片中。留空则继续使用主题默认摘要或 WordPress 摘要。</p>
+		<h4>首页摘要字数上限</h4>
+		<?php $argon_home_preview_limit = get_post_meta($post->ID, "argon_home_preview_limit", true);?>
+		<input type="number" name="argon_home_preview_limit" id="argon_home_preview_limit" min="0" max="2000" step="1" value="<?php echo esc_attr($argon_home_preview_limit); ?>" style="width:100%;" />
+		<p style="margin-top: 15px;">填 0 或留空表示不额外截断；这里按字符数截断。</p>
+		<h4>文末附加内容</h4>
 		<?php $argon_after_post = get_post_meta($post->ID, "argon_after_post", true);?>
 		<textarea name="argon_after_post" id="argon_after_post" rows="3" cols="30" style="width:100%;"><?php if (!empty($argon_after_post)){echo $argon_after_post;} ?></textarea>
 		<p style="margin-top: 15px;"><?php _e("给该文章设置单独的文末附加内容，留空则跟随全局，设为 <code>--none--</code> 则不显示。", 'argon');?></p>
@@ -2276,6 +2326,8 @@ function argon_save_meta_data($post_id){
 	update_post_meta($post_id, 'argon_meta_simple', $_POST['argon_meta_simple']);
 	update_post_meta($post_id, 'argon_first_image_as_thumbnail', $_POST['argon_first_image_as_thumbnail']);
 	update_post_meta($post_id, 'argon_show_post_outdated_info', $_POST['argon_show_post_outdated_info']);
+	update_post_meta($post_id, 'argon_home_preview', isset($_POST['argon_home_preview']) ? wp_kses_post($_POST['argon_home_preview']) : '');
+	update_post_meta($post_id, 'argon_home_preview_limit', isset($_POST['argon_home_preview_limit']) ? max(0, intval($_POST['argon_home_preview_limit'])) : 0);
 	update_post_meta($post_id, 'argon_after_post', $_POST['argon_after_post']);
 	update_post_meta($post_id, 'argon_custom_css', $_POST['argon_custom_css']);
 }

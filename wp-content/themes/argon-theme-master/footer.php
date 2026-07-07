@@ -2,8 +2,40 @@
 						<?php
 							echo get_option('argon_footer_html');
 						?>
-						<div>Theme <a href="https://github.com/solstice23/argon-theme" target="_blank"><strong>Argon</strong></a><?php if (get_option('argon_hide_footer_author') != 'true') {echo " By solstice23"; }?></div>
+						<div class="footer-signature">桂棹兰桨，溯流远上，不惧进风勇搏浪！</div>
+						<div class="footer-beijing-time">
+							<span class="footer-time-label">北京时间</span>
+							<time id="footer_beijing_time" datetime=""></time>
+						</div>
 					</footer>
+					<script>
+						(function(){
+							var timeNode = document.getElementById("footer_beijing_time");
+							if (!timeNode){
+								return;
+							}
+							function updateBeijingTime(){
+								var parts = new Intl.DateTimeFormat("zh-CN", {
+									timeZone: "Asia/Shanghai",
+									year: "numeric",
+									month: "2-digit",
+									day: "2-digit",
+									hour: "2-digit",
+									minute: "2-digit",
+									second: "2-digit",
+									hour12: false
+								}).formatToParts(new Date()).reduce(function(result, part){
+									result[part.type] = part.value;
+									return result;
+								}, {});
+								var text = parts.year + "-" + parts.month + "-" + parts.day + " " + parts.hour + ":" + parts.minute + ":" + parts.second;
+								timeNode.textContent = text;
+								timeNode.setAttribute("datetime", text);
+							}
+							updateBeijingTime();
+							setInterval(updateBeijingTime, 1000);
+						})();
+					</script>
 				</main>
 			</div>
 		</div>

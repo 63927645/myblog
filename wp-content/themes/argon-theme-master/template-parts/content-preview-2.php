@@ -15,30 +15,7 @@
 	<div class="post-content-container">
 		<a class="post-title" href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 		<?php
-			$trim_words_count = get_option('argon_trim_words_count', 175);
-		?>
-		<?php if ($trim_words_count > 0){ ?>
-			<div class="post-content">
-				<?php
-					if (get_option("argon_hide_shortcode_in_preview") == 'true'){
-						$preview = wp_trim_words(do_shortcode(get_the_content('...')), $trim_words_count);
-					}else{
-						$preview = wp_trim_words(get_the_content('...'), $trim_words_count);
-					}
-					if (post_password_required()){
-						$preview = __("这篇文章受密码保护，输入密码才能阅读", 'argon');
-					}
-					if ($preview == ""){
-						$preview = __("这篇文章没有摘要", 'argon');
-					}
-					if ($post -> post_excerpt){
-						$preview = $post -> post_excerpt;
-					}
-					echo $preview;
-				?>
-			</div>
-		<?php
-			}
+			$preview = argon_get_post_home_preview();
 		?>
 		<div class="post-meta">
 			<?php
@@ -65,6 +42,15 @@
 				echo get_article_reading_time_meta($post_content_full);
 			} ?>
 		</div>
+		<?php if ($preview !== ""){ ?>
+			<div class="post-content">
+				<?php
+					echo $preview;
+				?>
+			</div>
+		<?php
+			}
+		?>
 		<?php if (has_tag()) { ?>
 			<div class="post-tags">
 				<i class="fa fa-tags" aria-hidden="true"></i>
