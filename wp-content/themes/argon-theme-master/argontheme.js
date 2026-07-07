@@ -959,6 +959,8 @@ if (argonConfig.waterflow_columns != "1") {
 		let commentName = $("#post_comment_name").val();
 		let commentEmail = $("#post_comment_email").val();
 		let commentLink = $("#post_comment_link").val();
+		let commentWechat = $("#post_comment_wechat").val();
+		let commentGithub = $("#post_comment_github").val();
 		let commentCaptcha = $("#post_comment_captcha").val();
 		let useMarkdown = false;
 		let privateMode = false;
@@ -989,19 +991,23 @@ if (argonConfig.waterflow_columns != "1") {
 				isError = true;
 				errorMsg += __("昵称不能为空") + "</br>";
 			}
-			if ($("#post_comment").hasClass("enable-qq-avatar")){
+			if (commentEmail.match(/^\s*$/) && commentWechat.match(/^\s*$/) && commentGithub.match(/^\s*$/)){
+				isError = true;
+				errorMsg += __("邮箱、微信号、GitHub 用户名至少填写一项") + "</br>";
+			}
+			if (!commentEmail.match(/^\s*$/) && $("#post_comment").hasClass("enable-qq-avatar")){
 				if (!(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(commentEmail) && !(/^[1-9][0-9]{4,10}$/).test(commentEmail)){
 					isError = true;
 					errorMsg += __("邮箱或 QQ 号格式错误") + "</br>";
 				}
-			}else{
+			}else if (!commentEmail.match(/^\s*$/)){
 				if (!(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(commentEmail)){
 					isError = true;
 					errorMsg += __("邮箱格式错误") + "</br>";
 				}
 			}
 		}else{
-			if (commentEmail.length || (document.getElementById("comment_post_mailnotice") != null && document.getElementById("comment_post_mailnotice").checked == true)){
+			if (commentEmail.length){
 				if ($("#post_comment").hasClass("enable-qq-avatar")){
 					if (!(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(commentEmail) && !(/^[1-9][0-9]{4,10}$/).test(commentEmail)){
 						isError = true;
@@ -1018,6 +1024,10 @@ if (argonConfig.waterflow_columns != "1") {
 		if (commentLink != "" && !(/https?:\/\//).test(commentLink)){
 			isError = true;
 			errorMsg += __("网站格式错误 (不是 http(s):// 开头)") + "</br>";
+		}
+		if (mailNotice && commentEmail.match(/^\s*$/)){
+			isError = true;
+			errorMsg += __("开启邮件通知时需要填写邮箱") + "</br>";
 		}
 		if (!$("#post_comment").hasClass("no-need-captcha")){
 			if (commentCaptcha == ""){
@@ -1053,6 +1063,8 @@ if (argonConfig.waterflow_columns != "1") {
 		$("#post_comment_email").attr("disabled","disabled");
 		$("#post_comment_captcha").attr("disabled","disabled");
 		$("#post_comment_link").attr("disabled","disabled");
+		$("#post_comment_wechat").attr("disabled","disabled");
+		$("#post_comment_github").attr("disabled","disabled");
 		$("#post_comment_send").attr("disabled","disabled");
 		$("#post_comment_reply_cancel").attr("disabled","disabled");
 		$("#post_comment_send .btn-inner--icon.hide-on-comment-editing").html("<i class='fa fa-spinner fa-spin'></i>");
@@ -1090,7 +1102,9 @@ if (argonConfig.waterflow_columns != "1") {
 				"wp-comment-cookies-consent": "yes",
 				use_markdown: useMarkdown,
 				private_mode: privateMode,
-				enable_mailnotice: mailNotice
+				enable_mailnotice: mailNotice,
+				wechat_id: commentWechat,
+				github_id: commentGithub
 			},
 			success: function(result){
 				$("#post_comment").removeClass("sending");
@@ -1098,6 +1112,8 @@ if (argonConfig.waterflow_columns != "1") {
 				$("#post_comment_name").removeAttr("disabled");
 				$("#post_comment_email").removeAttr("disabled");
 				$("#post_comment_link").removeAttr("disabled");
+				$("#post_comment_wechat").removeAttr("disabled");
+				$("#post_comment_github").removeAttr("disabled");
 				$("#post_comment_send").removeAttr("disabled");
 				$("#post_comment_reply_cancel").removeAttr("disabled");
 				$("#post_comment_send .btn-inner--icon.hide-on-comment-editing").html("<i class='fa fa-send'></i>");
@@ -1181,6 +1197,8 @@ if (argonConfig.waterflow_columns != "1") {
 				$("#post_comment_name").removeAttr("disabled");
 				$("#post_comment_email").removeAttr("disabled");
 				$("#post_comment_link").removeAttr("disabled");
+				$("#post_comment_wechat").removeAttr("disabled");
+				$("#post_comment_github").removeAttr("disabled");
 				$("#post_comment_send").removeAttr("disabled");
 				$("#post_comment_reply_cancel").removeAttr("disabled");
 				$("#post_comment_send .btn-inner--icon.hide-on-comment-editing").html("<i class='fa fa-send'></i>");

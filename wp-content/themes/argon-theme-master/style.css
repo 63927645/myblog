@@ -2457,9 +2457,41 @@ html.darkmode .has-thumbnail .related-post-title.clamp {
 .comment-item-title .badge-admin,
 .comment-item-title .badge-pinned,
 .comment-item-title .badge-private-comment,
-.comment-item-title .badge-unapproved {
+.comment-item-title .badge-unapproved,
+.comment-item-title .badge-comment-identity {
 	transform: translateY(-2px);
 	margin-left: 5px;
+}
+
+.comment-item-title .badge-comment-identity {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	border-radius: 999px;
+	padding: 3px 8px;
+	border: 1px solid rgba(94, 114, 228, 0.16);
+	background: rgba(94, 114, 228, 0.08);
+	color: var(--themecolor);
+	font-size: 11px;
+	font-weight: 600;
+	vertical-align: middle;
+}
+
+.comment-item-title a.badge-comment-identity:hover {
+	color: #fff;
+	background: var(--themecolor);
+	border-color: var(--themecolor);
+}
+
+.comment-item-title .badge-comment-wechat {
+	color: #18a058;
+	background: rgba(24, 160, 88, 0.09);
+	border-color: rgba(24, 160, 88, 0.18);
+}
+
+html.darkmode .comment-item-title .badge-comment-identity {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.12);
 }
 .comment-item-text p:last-child {
 	margin-bottom: 0;
@@ -2946,6 +2978,24 @@ html.darkmode .comment-edit-history-item {
 .show-extra-input #post_comment_toggle_extra_input i {
 	transform: rotateZ(180deg);
 }
+
+#post_comment_extra_input .input-group-text {
+	min-width: 42px;
+	justify-content: center;
+}
+
+#post_comment_extra_input .fa-weixin {
+	color: #18a058;
+}
+
+#post_comment_extra_input .fa-github {
+	color: #24292f;
+}
+
+html.darkmode #post_comment_extra_input .fa-github {
+	color: rgba(255, 255, 255, 0.86);
+}
+
 #post_comment.logged #post_comment_name,
 #post_comment.logged #post_comment_email {
 	opacity: 1;

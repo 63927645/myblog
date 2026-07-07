@@ -1102,6 +1102,36 @@ $GLOBALS['argon_comment_options']['enable_upvote'] = (get_option("argon_enable_c
 $GLOBALS['argon_comment_options']['enable_pinning'] = (get_option("argon_enable_comment_pinning", "false") == "true");
 $GLOBALS['argon_comment_options']['current_user_can_moderate_comments'] = current_user_can('moderate_comments');
 $GLOBALS['argon_comment_options']['show_comment_parent_info'] = (get_option("argon_show_comment_parent_info", "true") == "true");
+function argon_sanitize_comment_wechat_id($wechat_id){
+	$wechat_id = sanitize_text_field($wechat_id);
+	$wechat_id = preg_replace('/[^\w\-\.]/u', '', $wechat_id);
+	return substr($wechat_id, 0, 40);
+}
+function argon_sanitize_comment_github_id($github_id){
+	$github_id = trim(sanitize_text_field($github_id));
+	$github_id = preg_replace('/^@/', '', $github_id);
+	if (preg_match('/github\.com\/([^\/\?\#]+)/i', $github_id, $matches)){
+		$github_id = $matches[1];
+	}
+	$github_id = preg_replace('/[^A-Za-z0-9\-]/', '', $github_id);
+	return substr($github_id, 0, 39);
+}
+function argon_get_comment_identity_badges($comment_id = 0){
+	if ($comment_id == 0){
+		$comment_id = get_comment_ID();
+	}
+	$wechat_id = get_comment_meta($comment_id, "wechat_id", true);
+	$github_id = get_comment_meta($comment_id, "github_id", true);
+	$html = "";
+	if ($wechat_id != ""){
+		$html .= '<span class="badge badge-comment-identity badge-comment-wechat" title="微信号：' . esc_attr($wechat_id) . '"><i class="fa fa-weixin" aria-hidden="true"></i> ' . esc_html($wechat_id) . '</span>';
+	}
+	if ($github_id != ""){
+		$github_url = 'https://github.com/' . rawurlencode($github_id);
+		$html .= '<a class="badge badge-comment-identity badge-comment-github" href="' . esc_url($github_url) . '" target="_blank" rel="nofollow noopener" title="GitHub：' . esc_attr($github_id) . '"><i class="fa fa-github" aria-hidden="true"></i> ' . esc_html($github_id) . '</a>';
+	}
+	return $html;
+}
 function argon_comment_format($comment, $args, $depth){
 	global $comment_enable_upvote, $comment_enable_pinning;
 	$GLOBALS['comment'] = $comment;
@@ -1127,6 +1157,7 @@ function argon_comment_format($comment, $args, $depth){
 			<div class="comment-item-title">
 				<div class="comment-name">
 					<div class="comment-author"><?php echo get_comment_author_link();?></div>
+					<?php echo argon_get_comment_identity_badges(get_comment_ID()); ?>
 					<?php if (user_can($comment -> user_id , "update_core")){
 						echo '<span class="badge badge-primary badge-admin">' . __('博主', 'argon') . '</span>';}
 					?>
@@ -1347,6 +1378,13 @@ function ajax_post_comment(){
 				'isAdmin' => current_user_can('level_7')
 			)));
 		}
+	}
+	$wechat_id = isset($_POST['wechat_id']) ? argon_sanitize_comment_wechat_id(wp_unslash($_POST['wechat_id'])) : "";
+	$github_id = isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
+	if (empty($_POST['email']) && ($wechat_id != "" || $github_id != "")){
+		$identity_source = $github_id != "" ? "github-" . $github_id : "wechat-" . md5($wechat_id);
+		$_POST['email'] = $identity_source . "@comments.local";
+		$_POST['enable_mailnotice'] = "false";
 	}
 	if (get_option('argon_comment_enable_qq_avatar') == 'true'){
 		if (check_qqnumber($_POST['email'])){
@@ -1589,6 +1627,15 @@ function post_comment_updatemetas($id){
 		if (!empty($_POST['qq'])){
 			update_comment_meta($id, "qq_number", $_POST['qq']);
 		}
+	}
+	//保存访客微信号 / GitHub 账号
+	$wechat_id = isset($_POST['wechat_id']) ? argon_sanitize_comment_wechat_id(wp_unslash($_POST['wechat_id'])) : "";
+	$github_id = isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
+	if ($wechat_id != ""){
+		update_comment_meta($id, "wechat_id", $wechat_id);
+	}
+	if ($github_id != ""){
+		update_comment_meta($id, "github_id", $github_id);
 	}
 }
 add_action('comment_post' , 'post_comment_updatemetas');

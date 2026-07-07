@@ -173,13 +173,33 @@
 				</div>
 			</div>
 			<div class="row hide-on-comment-editing" id="post_comment_extra_input" style="display: none";>
-				<div class="col-md-12" style="margin-bottom: -10px;">
+				<div class="col-md-4" style="margin-bottom: -10px;">
 					<div class="form-group">
 						<div class="input-group input-group-alternative mb-4 post-comment-link-container">
 							<div class="input-group-prepend">
 								<span class="input-group-text"><i class="fa fa-link"></i></span>
 							</div>
 							<input id="post_comment_link" class="form-control" placeholder="<?php _e('网站', 'argon'); ?>" type="text" name="url" value="<?php echo htmlspecialchars($current_commenter['comment_author_url']); ?>">
+						</div>
+					</div>
+				</div>
+				<div class="col-md-4" style="margin-bottom: -10px;">
+					<div class="form-group">
+						<div class="input-group input-group-alternative mb-4 post-comment-wechat-container">
+							<div class="input-group-prepend">
+								<span class="input-group-text"><i class="fa fa-weixin"></i></span>
+							</div>
+							<input id="post_comment_wechat" class="form-control" placeholder="微信号" type="text" name="wechat_id" value="">
+						</div>
+					</div>
+				</div>
+				<div class="col-md-4" style="margin-bottom: -10px;">
+					<div class="form-group">
+						<div class="input-group input-group-alternative mb-4 post-comment-github-container">
+							<div class="input-group-prepend">
+								<span class="input-group-text"><i class="fa fa-github"></i></span>
+							</div>
+							<input id="post_comment_github" class="form-control" placeholder="GitHub 用户名" type="text" name="github_id" value="">
 						</div>
 					</div>
 				</div>
