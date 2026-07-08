@@ -171,6 +171,9 @@
 	}
 
 	function createHomePreviewField() {
+		if (document.body.classList.contains("post-type-page")) {
+			return;
+		}
 		var titleWrap = document.getElementById("titlediv");
 		if (!titleWrap || document.getElementById("argon_home_preview_inline")) {
 			return;

@@ -52,6 +52,70 @@ body.argon-markdown-editor-enabled #post-status-info {
 	outline: 0;
 }
 
+body.post-type-page #argon_composite_banner_meta_box {
+	margin: 14px 0 18px;
+	border: 1px solid #d9def7;
+	border-radius: 12px;
+	background: #fbfcff;
+	box-shadow: 0 10px 26px rgba(44, 54, 96, .06);
+	overflow: hidden;
+}
+
+body.post-type-page #argon_composite_banner_meta_box .postbox-header {
+	border-bottom-color: #d9def7;
+	background: rgba(255, 255, 255, .72);
+}
+
+body.post-type-page #argon_composite_banner_meta_box .inside {
+	margin: 0;
+	padding: 16px;
+}
+
+.argon-composite-banner-fields {
+	display: grid;
+	gap: 16px;
+}
+
+.argon-composite-banner-field label {
+	display: block;
+	margin-bottom: 8px;
+	color: #253052;
+	font-size: 14px;
+}
+
+.argon-composite-banner-field input,
+.argon-composite-banner-field textarea {
+	box-sizing: border-box;
+	width: 100%;
+	border: 1px solid #dfe3f6;
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: inset 0 1px 2px rgba(44, 54, 96, .04);
+}
+
+.argon-composite-banner-field textarea {
+	min-height: 88px;
+	line-height: 1.65;
+	resize: vertical;
+}
+
+.argon-composite-banner-image-row {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.argon-composite-banner-image-row input {
+	flex: 1 1 auto;
+}
+
+.argon-composite-banner-image-row .button {
+	min-height: 34px;
+	border-color: #cbd4ff;
+	color: #5060d6;
+	background: #eef1ff;
+}
+
 .argon-markdown-helper {
 	display: flex;
 	align-items: center;

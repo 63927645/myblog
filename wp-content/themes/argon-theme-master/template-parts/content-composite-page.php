@@ -1,6 +1,5 @@
 <?php
 $composite_page_id = get_the_ID();
-$composite_category = function_exists('argon_get_or_create_composite_page_category') ? argon_get_or_create_composite_page_category($composite_page_id) : intval(get_post_meta($composite_page_id, 'argon_composite_category', true));
 $composite_posts_per_page = intval(get_option('posts_per_page', 10));
 $composite_paged = max(1, intval(get_query_var('paged')), intval(get_query_var('page')));
 
@@ -9,13 +8,16 @@ $composite_args = array(
 	'post_status' => 'publish',
 	'posts_per_page' => $composite_posts_per_page,
 	'paged' => $composite_paged,
-	'ignore_sticky_posts' => false
+	'ignore_sticky_posts' => false,
+	'meta_query' => array(
+		array(
+			'key' => 'argon_parent_composite_page',
+			'value' => $composite_page_id,
+			'compare' => '=',
+			'type' => 'NUMERIC'
+		)
+	)
 );
-if ($composite_category > 0) {
-	$composite_args['cat'] = $composite_category;
-} else {
-	$composite_args['post__in'] = array(0);
-}
 
 $composite_query = new WP_Query($composite_args);
 if ($composite_query -> have_posts()) :
@@ -49,7 +51,7 @@ else :
 ?>
 	<article class="post card bg-white shadow-sm border-0">
 		<div class="post-content">
-			<p>这个复合页面暂时没有可展示的文章。写文章时，请把文章放入和该复合页面同名的分类。</p>
+			<p>这个复合页面暂时没有可展示的文章。写文章时，请在右侧「归属页面」里选择这个页面。</p>
 		</div>
 	</article>
 <?php endif; ?>

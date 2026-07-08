@@ -4,9 +4,11 @@
 						?>
 						<div class="footer-signature">桂棹兰桨，溯流远上，不惧劲风勇搏浪！</div>
 						<div class="footer-credit">
-							Powered by <a href="https://wordpress.org/" target="_blank" rel="nofollow noopener">WordPress</a>.
-							Theme <a href="https://github.com/solstice23/argon-theme" target="_blank" rel="nofollow noopener">Argon</a> by solstice23.
-							本站图片仅用于个人博客展示与学习记录；如涉及版权，请联系处理。
+							<div class="footer-credit-line footer-credit-source">
+								Powered by <a href="https://wordpress.org/" target="_blank" rel="nofollow noopener">WordPress</a>.
+								Theme <a href="https://github.com/solstice23/argon-theme" target="_blank" rel="nofollow noopener">Argon</a> by solstice23.
+							</div>
+							<div class="footer-credit-line footer-credit-notice">本站图片仅用于个人博客展示与学习记录；如涉及版权，请联系处理。</div>
 						</div>
 						<div class="footer-beijing-time">
 							<span class="footer-time-label">北京时间</span>

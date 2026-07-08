@@ -2528,28 +2528,16 @@ function argon_meta_box_1(){
 			<button id="apply_show_post_outdated_info" type="button" class="components-button is-primary" style="height: 22px; display: none;"><?php _e("应用", 'argon');?></button>
 		</div>
 		<p style="margin-top: 15px;"><?php _e("单独控制该文章的过时信息显示。", 'argon');?></p>
-		<?php if ($post -> post_type === 'post' && function_exists('argon_get_composite_pages_for_settings')) { ?>
-			<h4>归属页面</h4>
-			<?php
-				$composite_pages = argon_get_composite_pages_for_settings();
-				$assigned_page = intval(get_post_meta($post -> ID, 'argon_parent_composite_page', true));
-			?>
-			<select name="argon_parent_composite_page" id="argon_parent_composite_page" style="width:100%;">
-				<option value="0">不归属复合页面</option>
-				<?php foreach ($composite_pages as $composite_page) { ?>
-					<option value="<?php echo esc_attr($composite_page -> ID); ?>" <?php selected($assigned_page, intval($composite_page -> ID)); ?>><?php echo esc_html(get_the_title($composite_page -> ID)); ?></option>
-				<?php } ?>
-			</select>
-			<p style="margin-top: 15px;">选择后，文章会自动加入同名分类，并显示在对应复合页面里。</p>
+		<?php if ($post -> post_type === 'post') { ?>
+			<h4>首页展示摘要</h4>
+			<?php $argon_home_preview = get_post_meta($post->ID, "argon_home_preview", true);?>
+			<textarea name="argon_home_preview" id="argon_home_preview" rows="4" cols="30" style="width:100%;"><?php if (!empty($argon_home_preview)){echo esc_textarea($argon_home_preview);} ?></textarea>
+			<p style="margin-top: 15px;">只显示在首页文章卡片中。留空则继续使用主题默认摘要或 WordPress 摘要。</p>
+			<h4>首页摘要字数上限</h4>
+			<?php $argon_home_preview_limit = get_post_meta($post->ID, "argon_home_preview_limit", true);?>
+			<input type="number" name="argon_home_preview_limit" id="argon_home_preview_limit" min="0" max="2000" step="1" value="<?php echo esc_attr($argon_home_preview_limit); ?>" style="width:100%;" />
+			<p style="margin-top: 15px;">填 0 或留空表示不额外截断；这里按字符数截断。</p>
 		<?php } ?>
-		<h4>首页展示摘要</h4>
-		<?php $argon_home_preview = get_post_meta($post->ID, "argon_home_preview", true);?>
-		<textarea name="argon_home_preview" id="argon_home_preview" rows="4" cols="30" style="width:100%;"><?php if (!empty($argon_home_preview)){echo esc_textarea($argon_home_preview);} ?></textarea>
-		<p style="margin-top: 15px;">只显示在首页文章卡片中。留空则继续使用主题默认摘要或 WordPress 摘要。</p>
-		<h4>首页摘要字数上限</h4>
-		<?php $argon_home_preview_limit = get_post_meta($post->ID, "argon_home_preview_limit", true);?>
-		<input type="number" name="argon_home_preview_limit" id="argon_home_preview_limit" min="0" max="2000" step="1" value="<?php echo esc_attr($argon_home_preview_limit); ?>" style="width:100%;" />
-		<p style="margin-top: 15px;">填 0 或留空表示不额外截断；这里按字符数截断。</p>
 		<h4>文末附加内容</h4>
 		<?php $argon_after_post = get_post_meta($post->ID, "argon_after_post", true);?>
 		<textarea name="argon_after_post" id="argon_after_post" rows="3" cols="30" style="width:100%;"><?php if (!empty($argon_after_post)){echo $argon_after_post;} ?></textarea>
@@ -2611,8 +2599,81 @@ function argon_meta_box_1(){
 }
 function argon_add_meta_boxes(){
 	add_meta_box('argon_meta_box_1', __("文章设置", 'argon'), 'argon_meta_box_1', array('post', 'page'), 'side', 'low');
+	add_meta_box('argon_parent_composite_page_box', '归属页面', 'argon_parent_composite_page_meta_box', 'post', 'side', 'core');
+	add_meta_box('argon_post_privacy_box', '文章开放程度', 'argon_post_privacy_meta_box', 'post', 'side', 'core');
 }
 add_action('admin_menu', 'argon_add_meta_boxes');
+
+function argon_parent_composite_page_meta_box($post){
+	wp_nonce_field('argon_parent_composite_page_nonce_action', 'argon_parent_composite_page_nonce');
+	$composite_pages = function_exists('argon_get_composite_pages_for_settings') ? argon_get_composite_pages_for_settings() : array();
+	$assigned_page = intval(get_post_meta($post -> ID, 'argon_parent_composite_page', true));
+	?>
+		<select name="argon_parent_composite_page" id="argon_parent_composite_page" style="width:100%;">
+			<option value="0">不归属复合页面</option>
+			<?php foreach ($composite_pages as $composite_page) { ?>
+				<option value="<?php echo esc_attr($composite_page -> ID); ?>" <?php selected($assigned_page, intval($composite_page -> ID)); ?>><?php echo esc_html(get_the_title($composite_page -> ID)); ?></option>
+			<?php } ?>
+		</select>
+		<p style="margin-top: 10px; color:#646970;">这里只决定文章显示在哪个复合页面里，不会写入分类目录。</p>
+	<?php
+}
+
+function argon_get_privacy_visibility_values(){
+	return array('public', 'private', 'logged_in', 'ip_allowlist', 'password');
+}
+
+function argon_normalize_privacy_visibility($visibility){
+	return in_array($visibility, argon_get_privacy_visibility_values(), true) ? $visibility : 'public';
+}
+
+function argon_post_privacy_meta_box($post){
+	wp_nonce_field('argon_post_privacy_nonce_action', 'argon_post_privacy_nonce');
+	$visibility = argon_normalize_privacy_visibility(get_post_meta($post -> ID, 'argon_post_visibility', true));
+	$allowed_ips = get_post_meta($post -> ID, 'argon_post_allowed_ips', true);
+	$password = get_post_meta($post -> ID, 'argon_post_password', true);
+	?>
+		<p>
+			<label for="argon_post_visibility"><strong>开放程度</strong></label>
+			<select name="argon_post_visibility" id="argon_post_visibility" class="widefat" style="margin-top:6px;">
+				<option value="public" <?php selected($visibility, 'public'); ?>>公开</option>
+				<option value="private" <?php selected($visibility, 'private'); ?>>私密，仅管理员/编辑可看</option>
+				<option value="logged_in" <?php selected($visibility, 'logged_in'); ?>>登录后才能查看</option>
+				<option value="ip_allowlist" <?php selected($visibility, 'ip_allowlist'); ?>>指定 IP 才能查看</option>
+				<option value="password" <?php selected($visibility, 'password'); ?>>指定密码才能查看</option>
+			</select>
+		</p>
+		<p id="argon_post_allowed_ips_wrap" style="<?php echo $visibility === 'ip_allowlist' ? '' : 'display:none;'; ?>">
+			<label for="argon_post_allowed_ips"><strong>允许访问的 IP</strong></label>
+			<textarea name="argon_post_allowed_ips" id="argon_post_allowed_ips" rows="3" class="widefat" placeholder="每行一个 IP"><?php echo esc_textarea($allowed_ips); ?></textarea>
+		</p>
+		<p id="argon_post_password_wrap" style="<?php echo $visibility === 'password' ? '' : 'display:none;'; ?>">
+			<label for="argon_post_password"><strong>访问密码</strong></label>
+			<input type="text" name="argon_post_password" id="argon_post_password" value="<?php echo esc_attr($password); ?>" class="widefat" autocomplete="off" placeholder="由你设置访问密码">
+		</p>
+		<script>
+			(function(){
+				var visibility = document.getElementById('argon_post_visibility');
+				var ipWrap = document.getElementById('argon_post_allowed_ips_wrap');
+				var passwordWrap = document.getElementById('argon_post_password_wrap');
+				if (!visibility) {
+					return;
+				}
+				function syncPostPrivacyFields(){
+					if (ipWrap) {
+						ipWrap.style.display = visibility.value === 'ip_allowlist' ? '' : 'none';
+					}
+					if (passwordWrap) {
+						passwordWrap.style.display = visibility.value === 'password' ? '' : 'none';
+					}
+				}
+				visibility.addEventListener('change', syncPostPrivacyFields);
+				syncPostPrivacyFields();
+			})();
+		</script>
+	<?php
+}
+
 function argon_save_meta_data($post_id){
 	if (!isset($_POST['argon_meta_box_nonce'])){
 		return $post_id;
@@ -2642,11 +2703,64 @@ function argon_save_meta_data($post_id){
 	update_post_meta($post_id, 'argon_home_preview_limit', isset($_POST['argon_home_preview_limit']) ? max(0, intval($_POST['argon_home_preview_limit'])) : 0);
 	update_post_meta($post_id, 'argon_after_post', $_POST['argon_after_post']);
 	update_post_meta($post_id, 'argon_custom_css', $_POST['argon_custom_css']);
-	if ($_POST['post_type'] == 'post' && function_exists('argon_save_post_composite_page_assignment')) {
+}
+add_action('save_post', 'argon_save_meta_data');
+
+function argon_save_parent_composite_page_meta($post_id){
+	if (!isset($_POST['argon_parent_composite_page_nonce']) || !wp_verify_nonce($_POST['argon_parent_composite_page_nonce'], 'argon_parent_composite_page_nonce_action')){
+		return;
+	}
+	if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE){
+		return;
+	}
+	if (get_post_type($post_id) !== 'post' || !current_user_can('edit_post', $post_id)){
+		return;
+	}
+	if (function_exists('argon_save_post_composite_page_assignment')){
 		argon_save_post_composite_page_assignment($post_id, isset($_POST['argon_parent_composite_page']) ? intval($_POST['argon_parent_composite_page']) : 0);
 	}
 }
-add_action('save_post', 'argon_save_meta_data');
+add_action('save_post_post', 'argon_save_parent_composite_page_meta');
+
+function argon_save_post_privacy_meta($post_id){
+	if (!isset($_POST['argon_post_privacy_nonce']) || !wp_verify_nonce($_POST['argon_post_privacy_nonce'], 'argon_post_privacy_nonce_action')){
+		return;
+	}
+	if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE){
+		return;
+	}
+	if (get_post_type($post_id) !== 'post' || !current_user_can('edit_post', $post_id)){
+		return;
+	}
+	update_post_meta($post_id, 'argon_post_visibility', isset($_POST['argon_post_visibility']) ? argon_normalize_privacy_visibility(sanitize_text_field(wp_unslash($_POST['argon_post_visibility']))) : 'public');
+	update_post_meta($post_id, 'argon_post_allowed_ips', isset($_POST['argon_post_allowed_ips']) ? sanitize_textarea_field(wp_unslash($_POST['argon_post_allowed_ips'])) : '');
+	update_post_meta($post_id, 'argon_post_password', isset($_POST['argon_post_password']) ? sanitize_text_field(wp_unslash($_POST['argon_post_password'])) : '');
+}
+add_action('save_post_post', 'argon_save_post_privacy_meta');
+
+function argon_move_parent_composite_page_box_below_categories(){
+	if (!function_exists('get_current_screen')){
+		return;
+	}
+	$screen = get_current_screen();
+	if (empty($screen -> post_type) || $screen -> post_type !== 'post'){
+		return;
+	}
+	?>
+	<script>
+		jQuery(function($){
+			var pageBox = $('#argon_parent_composite_page_box');
+			var categoryBox = $('#categorydiv');
+			if (pageBox.length && categoryBox.length) {
+				pageBox.insertAfter(categoryBox);
+			}
+		});
+	</script>
+	<?php
+}
+add_action('admin_footer-post.php', 'argon_move_parent_composite_page_box_below_categories');
+add_action('admin_footer-post-new.php', 'argon_move_parent_composite_page_box_below_categories');
+
 function update_post_meta_ajax(){
 	if (!isset($_POST['argon_meta_box_nonce'])){
 		return;
@@ -3427,7 +3541,6 @@ function argon_render_mobile_home_profile_card(){
 			<?php } ?>
 			<div class="mobile-home-profile-motto">桂棹兰桨，溯流远上，不惧劲风勇搏浪</div>
 			<a class="mobile-home-profile-about-link" href="<?php echo esc_url(argon_get_profile_page_url()); ?>">关于我 <span aria-hidden="true">→</span></a>
-			<?php argon_render_homepage_page_links('mobile-home-page-links'); ?>
 			<?php echo $author_links; ?>
 		</div>
 	</section>
@@ -3887,59 +4000,14 @@ function argon_is_composite_page($post_id = null) {
 	return get_post_meta($post_id, 'argon_page_mode', true) === 'composite';
 }
 
-function argon_get_composite_page_category_name($page_id) {
-	$page_id = intval($page_id);
-	$category_name = trim(get_the_title($page_id));
-	return $category_name !== '' ? $category_name : '复合页面 ' . $page_id;
-}
-
-function argon_get_or_create_composite_page_category($page_id) {
-	$page_id = intval($page_id);
-	if (!$page_id || get_post_type($page_id) !== 'page') {
-		return 0;
-	}
-
-	$category_name = argon_get_composite_page_category_name($page_id);
-	$stored_category = intval(get_post_meta($page_id, 'argon_composite_category', true));
-	if ($stored_category > 0) {
-		$stored_term = get_term($stored_category, 'category');
-		if ($stored_term && !is_wp_error($stored_term)) {
-			if ($stored_term -> name !== $category_name) {
-				wp_update_term($stored_category, 'category', array(
-					'name' => $category_name
-				));
-			}
-			return $stored_category;
-		}
-	}
-
-	$existing_term = get_term_by('name', $category_name, 'category');
-	if ($existing_term && !is_wp_error($existing_term)) {
-		update_post_meta($page_id, 'argon_composite_category', intval($existing_term -> term_id));
-		return intval($existing_term -> term_id);
-	}
-
-	$created_term = wp_insert_term($category_name, 'category', array(
-		'slug' => sanitize_title($category_name . '-' . $page_id)
-	));
-	if (is_wp_error($created_term) || empty($created_term['term_id'])) {
-		return 0;
-	}
-	update_post_meta($page_id, 'argon_composite_category', intval($created_term['term_id']));
-	return intval($created_term['term_id']);
-}
-
 function argon_composite_page_meta_box($post) {
 	wp_nonce_field('argon_composite_page_nonce_action', 'argon_composite_page_nonce');
 	$page_mode = get_post_meta($post -> ID, 'argon_page_mode', true);
 	$page_mode = $page_mode === 'composite' ? 'composite' : 'single';
-	$category_name = argon_get_composite_page_category_name($post -> ID);
-	$banner_title = get_post_meta($post -> ID, 'argon_composite_banner_title', true);
-	$banner_background = get_post_meta($post -> ID, 'argon_composite_banner_background', true);
-	$banner_summary = get_post_meta($post -> ID, 'argon_composite_banner_summary', true);
 	$visibility = get_post_meta($post -> ID, 'argon_composite_visibility', true);
-	$visibility = in_array($visibility, array('public', 'private', 'logged_in', 'ip_allowlist'), true) ? $visibility : 'public';
+	$visibility = argon_normalize_privacy_visibility($visibility);
 	$allowed_ips = get_post_meta($post -> ID, 'argon_composite_allowed_ips', true);
+	$password = get_post_meta($post -> ID, 'argon_composite_password', true);
 	?>
 		<div class="argon-composite-page-settings">
 			<p>
@@ -3951,53 +4019,85 @@ function argon_composite_page_meta_box($post) {
 			</p>
 			<div id="argon_composite_page_options" style="<?php echo $page_mode === 'composite' ? '' : 'display:none;'; ?>">
 				<p>
-					<label for="argon_composite_banner_title"><strong>顶部 Banner 标题</strong></label>
-					<input type="text" name="argon_composite_banner_title" id="argon_composite_banner_title" value="<?php echo esc_attr($banner_title); ?>" class="widefat" placeholder="留空则使用页面标题">
-				</p>
-				<p>
-					<label for="argon_composite_banner_background"><strong>顶部 Banner 图片</strong></label>
-					<input type="url" name="argon_composite_banner_background" id="argon_composite_banner_background" value="<?php echo esc_attr($banner_background); ?>" class="widefat" placeholder="图片 URL，留空则使用页面特色图或全局背景">
-					<button type="button" class="button argon-composite-page-image-select" style="margin-top:6px;">选择图片</button>
-				</p>
-				<p>
-					<label for="argon_composite_banner_summary"><strong>页面摘要简介</strong></label>
-					<textarea name="argon_composite_banner_summary" id="argon_composite_banner_summary" rows="3" class="widefat" placeholder="显示在 Banner 标题下方，留空则不显示"><?php echo esc_textarea($banner_summary); ?></textarea>
-				</p>
-				<p>
 					<label for="argon_composite_visibility"><strong>页面开放程度</strong></label>
 					<select name="argon_composite_visibility" id="argon_composite_visibility" class="widefat" style="margin-top:6px;">
 						<option value="public" <?php selected($visibility, 'public'); ?>>公开</option>
 						<option value="private" <?php selected($visibility, 'private'); ?>>私密，仅管理员/编辑可看</option>
 						<option value="logged_in" <?php selected($visibility, 'logged_in'); ?>>登录后才能查看</option>
 						<option value="ip_allowlist" <?php selected($visibility, 'ip_allowlist'); ?>>指定 IP 才能查看</option>
+						<option value="password" <?php selected($visibility, 'password'); ?>>指定密码才能查看</option>
 					</select>
 				</p>
 				<p id="argon_composite_allowed_ips_wrap" style="<?php echo $visibility === 'ip_allowlist' ? '' : 'display:none;'; ?>">
 					<label for="argon_composite_allowed_ips"><strong>允许访问的 IP</strong></label>
 					<textarea name="argon_composite_allowed_ips" id="argon_composite_allowed_ips" rows="3" class="widefat" placeholder="每行一个 IP"><?php echo esc_textarea($allowed_ips); ?></textarea>
 				</p>
-				<p style="color:#646970;">文章分类会自动使用页面名称：<strong><?php echo esc_html($category_name); ?></strong>。写文章时，在「归属页面」里选择这个页面即可。</p>
+				<p id="argon_composite_password_wrap" style="<?php echo $visibility === 'password' ? '' : 'display:none;'; ?>">
+					<label for="argon_composite_password"><strong>访问密码</strong></label>
+					<input type="text" name="argon_composite_password" id="argon_composite_password" value="<?php echo esc_attr($password); ?>" class="widefat" autocomplete="off" placeholder="由你设置访问密码">
+				</p>
 			</div>
 		</div>
 		<script>
 			(function(){
 				var mode = document.getElementById('argon_page_mode');
 				var options = document.getElementById('argon_composite_page_options');
+				var bannerBox = document.getElementById('argon_composite_banner_meta_box');
 				var visibility = document.getElementById('argon_composite_visibility');
 				var ipWrap = document.getElementById('argon_composite_allowed_ips_wrap');
-				var imageButton = document.querySelector('.argon-composite-page-image-select');
-				var imageInput = document.getElementById('argon_composite_banner_background');
+				var passwordWrap = document.getElementById('argon_composite_password_wrap');
 				if (!mode || !options) {
 					return;
 				}
-				mode.addEventListener('change', function(){
-					options.style.display = mode.value === 'composite' ? '' : 'none';
-				});
-				if (visibility && ipWrap) {
-					visibility.addEventListener('change', function(){
-						ipWrap.style.display = visibility.value === 'ip_allowlist' ? '' : 'none';
-					});
+				function syncCompositeFields(){
+					var isComposite = mode.value === 'composite';
+					options.style.display = isComposite ? '' : 'none';
+					if (bannerBox) {
+						bannerBox.style.display = isComposite ? '' : 'none';
+					}
 				}
+				mode.addEventListener('change', function(){
+					syncCompositeFields();
+				});
+				syncCompositeFields();
+				if (visibility) {
+					function syncCompositePrivacyFields(){
+						if (ipWrap) {
+							ipWrap.style.display = visibility.value === 'ip_allowlist' ? '' : 'none';
+						}
+						if (passwordWrap) {
+							passwordWrap.style.display = visibility.value === 'password' ? '' : 'none';
+						}
+					}
+					visibility.addEventListener('change', syncCompositePrivacyFields);
+					syncCompositePrivacyFields();
+				}
+			})();
+		</script>
+	<?php
+}
+
+function argon_composite_page_banner_meta_box($post) {
+	$banner_background = get_post_meta($post -> ID, 'argon_composite_banner_background', true);
+	$banner_summary = get_post_meta($post -> ID, 'argon_composite_banner_summary', true);
+	?>
+		<div class="argon-composite-banner-fields">
+			<div class="argon-composite-banner-field">
+				<label for="argon_composite_banner_background"><strong>顶部 Banner 图片</strong></label>
+				<div class="argon-composite-banner-image-row">
+					<input type="url" name="argon_composite_banner_background" id="argon_composite_banner_background" value="<?php echo esc_attr($banner_background); ?>" class="widefat" placeholder="图片 URL，留空则使用页面特色图或全局背景">
+					<button type="button" class="button argon-composite-page-image-select">选择图片</button>
+				</div>
+			</div>
+			<div class="argon-composite-banner-field">
+				<label for="argon_composite_banner_summary"><strong>页面介绍 / 摘要</strong></label>
+				<textarea name="argon_composite_banner_summary" id="argon_composite_banner_summary" rows="3" class="widefat" placeholder="显示在页面标题下方，留空则不显示"><?php echo esc_textarea($banner_summary); ?></textarea>
+			</div>
+		</div>
+		<script>
+			(function(){
+				var imageButton = document.querySelector('.argon-composite-page-image-select');
+				var imageInput = document.getElementById('argon_composite_banner_background');
 				if (imageButton && imageInput && window.wp && window.wp.media) {
 					imageButton.addEventListener('click', function(){
 						var frame = window.wp.media({
@@ -4012,6 +4112,20 @@ function argon_composite_page_meta_box($post) {
 						frame.open();
 					});
 				}
+				jQuery(function($){
+					var box = $('#argon_composite_banner_meta_box');
+					var title = $('#titlediv');
+					if (box.length && title.length) {
+						box.insertAfter(title);
+					}
+					var mode = $('#argon_page_mode');
+					if (box.length && mode.length) {
+						box.toggle(mode.val() === 'composite');
+						mode.on('change', function(){
+							box.toggle(mode.val() === 'composite');
+						});
+					}
+				});
 			})();
 		</script>
 	<?php
@@ -4019,6 +4133,7 @@ function argon_composite_page_meta_box($post) {
 
 function argon_add_composite_page_meta_box() {
 	add_meta_box('argon_composite_page_meta_box', '页面模式', 'argon_composite_page_meta_box', 'page', 'side', 'high');
+	add_meta_box('argon_composite_banner_meta_box', '复合页面顶部设置', 'argon_composite_page_banner_meta_box', 'page', 'normal', 'high');
 }
 add_action('add_meta_boxes', 'argon_add_composite_page_meta_box');
 
@@ -4037,49 +4152,23 @@ function argon_save_composite_page_meta($post_id) {
 	update_post_meta($post_id, 'argon_page_mode', $page_mode);
 
 	if ($page_mode === 'composite') {
-		update_post_meta($post_id, 'argon_composite_banner_title', isset($_POST['argon_composite_banner_title']) ? sanitize_text_field($_POST['argon_composite_banner_title']) : '');
 		update_post_meta($post_id, 'argon_composite_banner_background', isset($_POST['argon_composite_banner_background']) ? esc_url_raw($_POST['argon_composite_banner_background']) : '');
 		update_post_meta($post_id, 'argon_composite_banner_summary', isset($_POST['argon_composite_banner_summary']) ? sanitize_textarea_field($_POST['argon_composite_banner_summary']) : '');
-		$visibility = isset($_POST['argon_composite_visibility']) && in_array($_POST['argon_composite_visibility'], array('public', 'private', 'logged_in', 'ip_allowlist'), true) ? $_POST['argon_composite_visibility'] : 'public';
+		$visibility = isset($_POST['argon_composite_visibility']) ? argon_normalize_privacy_visibility(sanitize_text_field(wp_unslash($_POST['argon_composite_visibility']))) : 'public';
 		update_post_meta($post_id, 'argon_composite_visibility', $visibility);
-		update_post_meta($post_id, 'argon_composite_allowed_ips', isset($_POST['argon_composite_allowed_ips']) ? sanitize_textarea_field($_POST['argon_composite_allowed_ips']) : '');
-		argon_get_or_create_composite_page_category($post_id);
+		update_post_meta($post_id, 'argon_composite_allowed_ips', isset($_POST['argon_composite_allowed_ips']) ? sanitize_textarea_field(wp_unslash($_POST['argon_composite_allowed_ips'])) : '');
+		update_post_meta($post_id, 'argon_composite_password', isset($_POST['argon_composite_password']) ? sanitize_text_field(wp_unslash($_POST['argon_composite_password'])) : '');
 	}
 }
 add_action('save_post_page', 'argon_save_composite_page_meta');
 
-function argon_get_all_composite_category_ids() {
-	$category_ids = array();
-	$composite_pages = function_exists('argon_get_composite_pages_for_settings') ? argon_get_composite_pages_for_settings() : array();
-	foreach ($composite_pages as $composite_page) {
-		$category_id = argon_get_or_create_composite_page_category($composite_page -> ID);
-		if ($category_id > 0) {
-			$category_ids[] = $category_id;
-		}
-	}
-	return array_unique(array_map('intval', $category_ids));
-}
-
 function argon_save_post_composite_page_assignment($post_id, $page_id) {
 	$page_id = intval($page_id);
-	$composite_category_ids = argon_get_all_composite_category_ids();
-	$current_categories = wp_get_post_categories($post_id);
-	$current_categories = array_map('intval', $current_categories);
-	if (!empty($composite_category_ids)) {
-		$current_categories = array_values(array_diff($current_categories, $composite_category_ids));
-	}
-
 	if ($page_id > 0 && argon_is_composite_page($page_id)) {
-		$category_id = argon_get_or_create_composite_page_category($page_id);
-		if ($category_id > 0) {
-			$current_categories[] = $category_id;
-			update_post_meta($post_id, 'argon_parent_composite_page', $page_id);
-		}
+		update_post_meta($post_id, 'argon_parent_composite_page', $page_id);
 	} else {
 		delete_post_meta($post_id, 'argon_parent_composite_page');
 	}
-
-	wp_set_post_categories($post_id, array_values(array_unique(array_map('intval', $current_categories))), false);
 }
 
 function argon_get_request_ip() {
@@ -4096,40 +4185,135 @@ function argon_get_request_ip() {
 	return '';
 }
 
-function argon_ip_is_allowed_for_composite_page($page_id) {
-	$allowed_ips = get_post_meta($page_id, 'argon_composite_allowed_ips', true);
+function argon_ip_is_allowed_for_list($allowed_ips) {
 	$allowed_ips = preg_split('/[\s,;]+/', $allowed_ips);
 	$allowed_ips = array_filter(array_map('trim', $allowed_ips));
 	$current_ip = argon_get_request_ip();
 	return $current_ip !== '' && in_array($current_ip, $allowed_ips, true);
 }
 
-function argon_protect_composite_page_access() {
-	$page_id = get_queried_object_id();
-	if (!$page_id || !argon_is_composite_page($page_id)) {
+function argon_get_privacy_settings_for_content($post_id) {
+	$post_id = intval($post_id);
+	if (!$post_id) {
+		return array('enabled' => false, 'visibility' => 'public', 'allowed_ips' => '', 'password' => '');
+	}
+	if (get_post_type($post_id) === 'post') {
+		return array(
+			'enabled' => true,
+			'visibility' => argon_normalize_privacy_visibility(get_post_meta($post_id, 'argon_post_visibility', true)),
+			'allowed_ips' => get_post_meta($post_id, 'argon_post_allowed_ips', true),
+			'password' => get_post_meta($post_id, 'argon_post_password', true)
+		);
+	}
+	if (argon_is_composite_page($post_id)) {
+		return array(
+			'enabled' => true,
+			'visibility' => argon_normalize_privacy_visibility(get_post_meta($post_id, 'argon_composite_visibility', true)),
+			'allowed_ips' => get_post_meta($post_id, 'argon_composite_allowed_ips', true),
+			'password' => get_post_meta($post_id, 'argon_composite_password', true)
+		);
+	}
+	return array('enabled' => false, 'visibility' => 'public', 'allowed_ips' => '', 'password' => '');
+}
+
+function argon_privacy_password_cookie_name($post_id) {
+	return 'argon_privacy_pass_' . intval($post_id);
+}
+
+function argon_privacy_password_token($post_id, $password) {
+	return wp_hash(intval($post_id) . '|' . (string)$password . '|argon_privacy_password');
+}
+
+function argon_privacy_password_is_unlocked($post_id, $password) {
+	if ($password === '') {
+		return true;
+	}
+	$cookie_name = argon_privacy_password_cookie_name($post_id);
+	if (empty($_COOKIE[$cookie_name])) {
+		return false;
+	}
+	return hash_equals(argon_privacy_password_token($post_id, $password), sanitize_text_field(wp_unslash($_COOKIE[$cookie_name])));
+}
+
+function argon_privacy_password_form($post_id, $has_error = false) {
+	$title = get_the_title($post_id);
+	ob_start();
+	?>
+		<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#eef2ff,#fff7ed);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#32325d;">
+			<form method="post" style="width:min(420px,100%);background:rgba(255,255,255,.92);border:1px solid rgba(94,114,228,.18);border-radius:18px;padding:28px;box-shadow:0 24px 60px rgba(50,50,93,.16);">
+				<h1 style="margin:0 0 10px;font-size:26px;line-height:1.3;">请输入访问密码</h1>
+				<p style="margin:0 0 20px;color:#667085;">访问「<?php echo esc_html($title); ?>」需要密码。</p>
+				<?php if ($has_error) { ?>
+					<div style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:#fff1f2;color:#e11d48;font-weight:600;">密码不正确，请再试一次。</div>
+				<?php } ?>
+				<?php wp_nonce_field('argon_privacy_password_' . intval($post_id), 'argon_privacy_password_nonce'); ?>
+				<input type="hidden" name="argon_privacy_post_id" value="<?php echo esc_attr($post_id); ?>">
+				<input type="password" name="argon_privacy_password" autofocus placeholder="访问密码" style="width:100%;height:46px;border:1px solid #d6dcff;border-radius:12px;padding:0 14px;font-size:16px;box-sizing:border-box;">
+				<button type="submit" style="width:100%;margin-top:16px;height:46px;border:0;border-radius:12px;background:#5e72e4;color:#fff;font-size:16px;font-weight:700;cursor:pointer;">进入</button>
+				<a href="<?php echo esc_url(home_url('/')); ?>" style="display:block;margin-top:14px;text-align:center;color:#667085;text-decoration:none;">返回首页</a>
+			</form>
+		</div>
+	<?php
+	return ob_get_clean();
+}
+
+function argon_handle_privacy_password_submit($post_id, $password) {
+	if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['argon_privacy_post_id'])) {
+		return false;
+	}
+	if (intval($_POST['argon_privacy_post_id']) !== intval($post_id)) {
+		return false;
+	}
+	if (empty($_POST['argon_privacy_password_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['argon_privacy_password_nonce'])), 'argon_privacy_password_' . intval($post_id))) {
+		wp_die(argon_privacy_password_form($post_id, true), '请输入访问密码', array('response' => 403));
+	}
+	$submitted_password = isset($_POST['argon_privacy_password']) ? sanitize_text_field(wp_unslash($_POST['argon_privacy_password'])) : '';
+	if (hash_equals((string)$password, (string)$submitted_password)) {
+		$cookie_name = argon_privacy_password_cookie_name($post_id);
+		$cookie_value = argon_privacy_password_token($post_id, $password);
+		setcookie($cookie_name, $cookie_value, time() + MONTH_IN_SECONDS, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
+		$_COOKIE[$cookie_name] = $cookie_value;
+		wp_safe_redirect(get_permalink($post_id));
+		exit;
+	}
+	wp_die(argon_privacy_password_form($post_id, true), '请输入访问密码', array('response' => 403));
+}
+
+function argon_protect_private_content_access() {
+	if (!is_singular()) {
 		return;
 	}
-	$visibility = get_post_meta($page_id, 'argon_composite_visibility', true);
-	$visibility = in_array($visibility, array('public', 'private', 'logged_in', 'ip_allowlist'), true) ? $visibility : 'public';
-	if ($visibility === 'public') {
+	$post_id = get_queried_object_id();
+	$settings = argon_get_privacy_settings_for_content($post_id);
+	if (empty($settings['enabled']) || $settings['visibility'] === 'public') {
 		return;
 	}
-	if ($visibility === 'logged_in' && !is_user_logged_in()) {
+	if ($settings['visibility'] === 'logged_in' && !is_user_logged_in()) {
 		auth_redirect();
 	}
-	if ($visibility === 'private') {
+	if ($settings['visibility'] === 'private') {
 		if (!is_user_logged_in()) {
 			auth_redirect();
 		}
-		if (!current_user_can('read_private_pages')) {
-			wp_die('这个页面是私密页面，当前账号没有访问权限。', '访问受限', array('response' => 403));
+		if (!current_user_can('edit_post', $post_id)) {
+			wp_die('这是私密内容，当前账号没有访问权限。', '访问受限', array('response' => 403));
 		}
 	}
-	if ($visibility === 'ip_allowlist' && !argon_ip_is_allowed_for_composite_page($page_id)) {
-		wp_die('当前 IP 不在这个页面的允许访问范围内。', '访问受限', array('response' => 403));
+	if ($settings['visibility'] === 'ip_allowlist' && !argon_ip_is_allowed_for_list($settings['allowed_ips'])) {
+		wp_die('当前 IP 不在允许访问范围内。', '访问受限', array('response' => 403));
+	}
+	if ($settings['visibility'] === 'password') {
+		$password = (string)$settings['password'];
+		if ($password === '') {
+			return;
+		}
+		argon_handle_privacy_password_submit($post_id, $password);
+		if (!argon_privacy_password_is_unlocked($post_id, $password)) {
+			wp_die(argon_privacy_password_form($post_id), '请输入访问密码', array('response' => 403));
+		}
 	}
 }
-add_action('template_redirect', 'argon_protect_composite_page_access');
+add_action('template_redirect', 'argon_protect_private_content_access');
 
 function argon_get_composite_pages_for_settings() {
 	return get_posts(array(
@@ -4167,10 +4351,8 @@ function argon_render_composite_page_settings() {
 		foreach ($composite_pages as $composite_page) {
 			$page_id = intval($composite_page -> ID);
 			$page_settings = isset($posted_pages[$page_id]) && is_array($posted_pages[$page_id]) ? $posted_pages[$page_id] : array();
-			update_post_meta($page_id, 'argon_composite_banner_title', isset($page_settings['banner_title']) ? sanitize_text_field($page_settings['banner_title']) : '');
 			update_post_meta($page_id, 'argon_composite_banner_background', isset($page_settings['banner_background']) ? esc_url_raw($page_settings['banner_background']) : '');
 			update_post_meta($page_id, 'argon_composite_banner_summary', isset($page_settings['banner_summary']) ? sanitize_textarea_field($page_settings['banner_summary']) : '');
-			argon_get_or_create_composite_page_category($page_id);
 		}
 		echo '<div class="notice notice-success is-dismissible"><p>复合页面设置已保存。</p></div>';
 		$composite_pages = argon_get_composite_pages_for_settings();
@@ -4178,7 +4360,7 @@ function argon_render_composite_page_settings() {
 	?>
 		<div class="wrap argon-composite-admin">
 			<h1>复合页面设置</h1>
-			<p>这里专门管理所有复合页面的 Banner 标题、Banner 背景图，以及对应的同名文章分类。</p>
+			<p>这里专门管理所有复合页面的 Banner 背景图和 Banner 摘要。页面标题直接使用页面自己的标题。</p>
 			<?php if (empty($composite_pages)) : ?>
 				<div class="notice notice-info"><p>当前还没有复合页面。请先新建或编辑一个页面，在「页面模式」里选择「复合页面」并保存。</p></div>
 			<?php else : ?>
@@ -4188,9 +4370,6 @@ function argon_render_composite_page_settings() {
 						<?php foreach ($composite_pages as $composite_page) : ?>
 							<?php
 								$page_id = intval($composite_page -> ID);
-								$category_id = argon_get_or_create_composite_page_category($page_id);
-								$category = $category_id > 0 ? get_term($category_id, 'category') : null;
-								$banner_title = get_post_meta($page_id, 'argon_composite_banner_title', true);
 								$banner_background = get_post_meta($page_id, 'argon_composite_banner_background', true);
 								$banner_summary = get_post_meta($page_id, 'argon_composite_banner_summary', true);
 							?>
@@ -4199,12 +4378,8 @@ function argon_render_composite_page_settings() {
 									<h2><?php echo esc_html(get_the_title($page_id)); ?></h2>
 									<a href="<?php echo esc_url(get_edit_post_link($page_id)); ?>">编辑页面</a>
 								</div>
-								<p class="description">对应文章分类：<strong><?php echo $category && !is_wp_error($category) ? esc_html($category -> name) : esc_html(argon_get_composite_page_category_name($page_id)); ?></strong></p>
+								<p class="description">文章归属方式：写文章时在右侧「归属页面」中选择「<?php echo esc_html(get_the_title($page_id)); ?>」。</p>
 								<table class="form-table" role="presentation">
-									<tr>
-										<th scope="row"><label for="argon_composite_banner_title_<?php echo esc_attr($page_id); ?>">Banner 标题</label></th>
-										<td><input type="text" class="regular-text" id="argon_composite_banner_title_<?php echo esc_attr($page_id); ?>" name="argon_composite_pages[<?php echo esc_attr($page_id); ?>][banner_title]" value="<?php echo esc_attr($banner_title); ?>" placeholder="留空则使用页面标题"></td>
-									</tr>
 									<tr>
 										<th scope="row"><label for="argon_composite_banner_background_<?php echo esc_attr($page_id); ?>">Banner 背景图</label></th>
 										<td>
@@ -4214,7 +4389,7 @@ function argon_render_composite_page_settings() {
 									</tr>
 									<tr>
 										<th scope="row"><label for="argon_composite_banner_summary_<?php echo esc_attr($page_id); ?>">Banner 摘要</label></th>
-										<td><textarea class="large-text" rows="3" id="argon_composite_banner_summary_<?php echo esc_attr($page_id); ?>" name="argon_composite_pages[<?php echo esc_attr($page_id); ?>][banner_summary]" placeholder="显示在 Banner 标题下方，留空则不显示"><?php echo esc_textarea($banner_summary); ?></textarea></td>
+										<td><textarea class="large-text" rows="3" id="argon_composite_banner_summary_<?php echo esc_attr($page_id); ?>" name="argon_composite_pages[<?php echo esc_attr($page_id); ?>][banner_summary]" placeholder="显示在页面标题下方，留空则不显示"><?php echo esc_textarea($banner_summary); ?></textarea></td>
 									</tr>
 								</table>
 							</section>
@@ -4258,8 +4433,7 @@ function argon_composite_page_banner_title($title) {
 	if (!argon_is_composite_page($page_id)) {
 		return $title;
 	}
-	$custom_title = get_post_meta($page_id, 'argon_composite_banner_title', true);
-	return $custom_title !== '' ? $custom_title : get_the_title($page_id);
+	return get_the_title($page_id);
 }
 add_filter('argon_banner_title', 'argon_composite_page_banner_title');
 
