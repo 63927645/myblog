@@ -4598,8 +4598,7 @@ function argon_oauth_access_page_handler() {
 		$redirect_to = home_url('/');
 	}
 	nocache_headers();
-	echo argon_oauth_login_required_page(0, $redirect_to);
-	exit;
+	wp_die(argon_oauth_login_required_page(0, $redirect_to), '需要登录', array('response' => 200));
 }
 add_action('template_redirect', 'argon_oauth_access_page_handler', 1);
 
