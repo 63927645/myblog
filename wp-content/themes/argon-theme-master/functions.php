@@ -4390,7 +4390,7 @@ function argon_get_privacy_settings_for_content($post_id) {
 			'password' => get_post_meta($post_id, 'argon_post_password', true)
 		);
 	}
-	if (argon_is_composite_page($post_id)) {
+	if (get_post_type($post_id) === 'page' && (argon_is_composite_page($post_id) || get_post_meta($post_id, 'argon_composite_visibility', true) !== '')) {
 		return array(
 			'enabled' => true,
 			'visibility' => argon_normalize_privacy_visibility(get_post_meta($post_id, 'argon_composite_visibility', true)),
@@ -4444,6 +4444,32 @@ function argon_privacy_password_form($post_id, $has_error = false) {
 	return ob_get_clean();
 }
 
+function argon_oauth_login_required_page($post_id) {
+	$title = get_the_title($post_id);
+	$github_ready = function_exists('argon_comment_oauth_is_configured') && argon_comment_oauth_is_configured('github');
+	$ur_ready = function_exists('argon_comment_oauth_is_configured') && argon_comment_oauth_is_configured('clogin');
+	ob_start();
+	?>
+		<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#eef2ff,#fff7ed);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#32325d;">
+			<div style="width:min(460px,100%);background:rgba(255,255,255,.94);border:1px solid rgba(94,114,228,.18);border-radius:20px;padding:30px;box-shadow:0 24px 60px rgba(50,50,93,.16);">
+				<h1 style="margin:0 0 10px;font-size:26px;line-height:1.3;">需要登录后查看</h1>
+				<p style="margin:0 0 22px;color:#667085;line-height:1.7;">访问“<?php echo esc_html($title); ?>”需要使用 GitHub 或 UR互联（微信）登录。</p>
+				<?php if ($github_ready) { ?>
+					<a href="<?php echo esc_url(argon_comment_oauth_login_url('github')); ?>" style="display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:13px;background:#5e72e4;color:#fff;text-decoration:none;font-weight:800;margin-bottom:12px;">GitHub 登录</a>
+				<?php } ?>
+				<?php if ($ur_ready) { ?>
+					<a href="<?php echo esc_url(argon_comment_oauth_login_url('clogin')); ?>" style="display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:13px;border:1px solid #6d7ee8;color:#5e72e4;background:#fff;text-decoration:none;font-weight:800;margin-bottom:12px;">UR互联（微信）登录</a>
+				<?php } ?>
+				<?php if (!$github_ready && !$ur_ready) { ?>
+					<div style="padding:12px 14px;border-radius:12px;background:#fff7ed;color:#c2410c;font-weight:700;">第三方登录尚未配置，请联系站点管理员。</div>
+				<?php } ?>
+				<a href="<?php echo esc_url(home_url('/')); ?>" style="display:block;margin-top:14px;text-align:center;color:#667085;text-decoration:none;">返回首页</a>
+			</div>
+		</div>
+	<?php
+	return ob_get_clean();
+}
+
 function argon_handle_privacy_password_submit($post_id, $password) {
 	if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['argon_privacy_post_id'])) {
 		return false;
@@ -4467,17 +4493,42 @@ function argon_handle_privacy_password_submit($post_id, $password) {
 	wp_die(argon_privacy_password_form($post_id, true), '请输入访问密码', array('response' => 403));
 }
 
+function argon_get_current_privacy_content_id() {
+	if (is_admin() || is_feed() || is_robots() || is_trackback()) {
+		return 0;
+	}
+	$post_id = intval(get_queried_object_id());
+	if ($post_id && in_array(get_post_type($post_id), array('post', 'page'), true)) {
+		return $post_id;
+	}
+	if (!empty($_SERVER['REQUEST_URI'])) {
+		$scheme = is_ssl() ? 'https://' : 'http://';
+		$host = !empty($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : wp_parse_url(home_url(), PHP_URL_HOST);
+		$request_uri = strtok(sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])), '?');
+		$url_post_id = url_to_postid($scheme . $host . $request_uri);
+		if ($url_post_id && in_array(get_post_type($url_post_id), array('post', 'page'), true)) {
+			return intval($url_post_id);
+		}
+	}
+	return 0;
+}
+
 function argon_protect_private_content_access() {
-	if (!is_singular()) {
+	$post_id = argon_get_current_privacy_content_id();
+	if (!$post_id) {
 		return;
 	}
-	$post_id = get_queried_object_id();
 	$settings = argon_get_privacy_settings_for_content($post_id);
 	if (empty($settings['enabled']) || $settings['visibility'] === 'public') {
 		return;
 	}
-	if ($settings['visibility'] === 'logged_in' && !is_user_logged_in()) {
-		auth_redirect();
+	nocache_headers();
+	if ($settings['visibility'] === 'logged_in') {
+		$oauth_identity = function_exists('argon_get_comment_oauth_identity') ? argon_get_comment_oauth_identity() : false;
+		if (!$oauth_identity) {
+			wp_die(argon_oauth_login_required_page($post_id), '需要登录后查看', array('response' => 403));
+		}
+		return;
 	}
 	if ($settings['visibility'] === 'private') {
 		if (!is_user_logged_in()) {
