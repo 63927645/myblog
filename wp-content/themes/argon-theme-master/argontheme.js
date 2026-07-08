@@ -4,6 +4,29 @@ if (typeof(argonConfig) == "undefined"){
 if (typeof(argonConfig.wp_path) == "undefined"){
 	argonConfig.wp_path = "/";
 }
+function argonRefreshHomeBanner(){
+	var banner = document.getElementById("banner");
+	var main = document.getElementById("main");
+	if (!banner || !main || !main.classList.contains("article-list-home") || !argonConfig.home_banner_background_url){
+		return;
+	}
+	document.body.classList.add("home");
+	document.documentElement.classList.add("is-home");
+	banner.style.setProperty("background-image", 'url("' + argonConfig.home_banner_background_url + '")', "important");
+	banner.style.setProperty("background-position", "center top", "important");
+	banner.style.setProperty("background-size", "cover", "important");
+	banner.style.setProperty("background-repeat", "no-repeat", "important");
+	var shape = banner.querySelector(".shape");
+	if (shape){
+		shape.style.setProperty("display", "none", "important");
+	}
+}
+if (document.readyState === "loading"){
+	document.addEventListener("DOMContentLoaded", argonRefreshHomeBanner);
+}else{
+	argonRefreshHomeBanner();
+}
+window.addEventListener("pageshow", argonRefreshHomeBanner);
 /*Cookies 操作*/
 function setCookie(cname, cvalue, exdays) {
 	let d = new Date();
@@ -1926,6 +1949,7 @@ $(document).pjax("a[href]:not([no-pjax]):not(.no-pjax):not([target='_blank']):no
 }).on('pjax:complete', function() {
 	pjaxLoading = false;
 	NProgress.inc();
+	argonRefreshHomeBanner();
 	try{
 		if (MathJax != undefined){
 			if (MathJax.Hub != undefined){
@@ -1960,6 +1984,7 @@ $(document).pjax("a[href]:not([no-pjax]):not(.no-pjax):not([target='_blank']):no
 	foldLongComments();
 	foldLongShuoshuo();
 	$("html").trigger("resize");
+	argonRefreshHomeBanner();
 
 	if (typeof(window.pjaxLoaded) == "function"){
 		try{
@@ -1973,6 +1998,7 @@ $(document).pjax("a[href]:not([no-pjax]):not(.no-pjax):not([target='_blank']):no
 }).on('pjax:end', function() {
 	waterflowInit();
 	lazyloadInit();
+	argonRefreshHomeBanner();
 });
 
 /*Reference 跳转*/

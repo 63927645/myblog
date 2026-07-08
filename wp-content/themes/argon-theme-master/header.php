@@ -711,6 +711,7 @@
 		document.documentElement.classList.remove("no-js");
 		var argonConfig = {
 			wp_path: "<?php echo $GLOBALS['wp_path']; ?>",
+			home_banner_background_url: "<?php echo esc_js($home_city_hero_url); ?>",
 			language: "<?php echo argon_get_locate(); ?>",
 			dateFormat: "<?php echo get_option('argon_dateformat', 'YMD'); ?>",
 			<?php if (get_option('argon_enable_zoomify') == 'true'){ ?>
