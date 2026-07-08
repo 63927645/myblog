@@ -67,6 +67,12 @@
 			uploadButton.classList.remove("active", "argon-upload-open");
 			uploadButton.blur();
 		}
+		window.setTimeout(function () {
+			if (uploadButton) {
+				uploadButton.classList.remove("active", "argon-upload-open");
+				uploadButton.blur();
+			}
+		}, 0);
 		var frameOptions = {
 			title: "\u672c\u5730\u4e0a\u4f20",
 			button: {
@@ -93,6 +99,12 @@
 			closeUploadMenu(editor);
 		});
 		frame.open();
+		window.setTimeout(function () {
+			if (uploadButton) {
+				uploadButton.classList.remove("active", "argon-upload-open");
+				uploadButton.blur();
+			}
+		}, 120);
 	}
 
 	function closeUploadMenu(editor) {
@@ -111,6 +123,12 @@
 			uploadButton.classList.remove("active", "argon-upload-open");
 			uploadButton.blur();
 		}
+		window.setTimeout(function () {
+			if (uploadButton) {
+				uploadButton.classList.remove("active", "argon-upload-open");
+				uploadButton.blur();
+			}
+		}, 0);
 	}
 
 	function toggleToolbar(editor) {

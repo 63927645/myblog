@@ -3837,14 +3837,54 @@ function argon_is_composite_page($post_id = null) {
 	return get_post_meta($post_id, 'argon_page_mode', true) === 'composite';
 }
 
+function argon_get_composite_page_category_name($page_id) {
+	$page_id = intval($page_id);
+	$category_name = trim(get_the_title($page_id));
+	return $category_name !== '' ? $category_name : '复合页面 ' . $page_id;
+}
+
+function argon_get_or_create_composite_page_category($page_id) {
+	$page_id = intval($page_id);
+	if (!$page_id || get_post_type($page_id) !== 'page') {
+		return 0;
+	}
+
+	$category_name = argon_get_composite_page_category_name($page_id);
+	$stored_category = intval(get_post_meta($page_id, 'argon_composite_category', true));
+	if ($stored_category > 0) {
+		$stored_term = get_term($stored_category, 'category');
+		if ($stored_term && !is_wp_error($stored_term)) {
+			if ($stored_term -> name !== $category_name) {
+				wp_update_term($stored_category, 'category', array(
+					'name' => $category_name
+				));
+			}
+			return $stored_category;
+		}
+	}
+
+	$existing_term = get_term_by('name', $category_name, 'category');
+	if ($existing_term && !is_wp_error($existing_term)) {
+		update_post_meta($page_id, 'argon_composite_category', intval($existing_term -> term_id));
+		return intval($existing_term -> term_id);
+	}
+
+	$created_term = wp_insert_term($category_name, 'category', array(
+		'slug' => sanitize_title($category_name . '-' . $page_id)
+	));
+	if (is_wp_error($created_term) || empty($created_term['term_id'])) {
+		return 0;
+	}
+	update_post_meta($page_id, 'argon_composite_category', intval($created_term['term_id']));
+	return intval($created_term['term_id']);
+}
+
 function argon_composite_page_meta_box($post) {
 	wp_nonce_field('argon_composite_page_nonce_action', 'argon_composite_page_nonce');
 	$page_mode = get_post_meta($post -> ID, 'argon_page_mode', true);
 	$page_mode = $page_mode === 'composite' ? 'composite' : 'single';
-	$category = intval(get_post_meta($post -> ID, 'argon_composite_category', true));
 	$posts_per_page = intval(get_post_meta($post -> ID, 'argon_composite_posts_per_page', true));
-	$banner_title = get_post_meta($post -> ID, 'argon_composite_banner_title', true);
-	$banner_background = get_post_meta($post -> ID, 'argon_composite_banner_background', true);
+	$category_name = argon_get_composite_page_category_name($post -> ID);
 	?>
 		<div class="argon-composite-page-settings">
 			<p>
@@ -3856,32 +3896,14 @@ function argon_composite_page_meta_box($post) {
 			</p>
 			<div id="argon_composite_page_options" style="<?php echo $page_mode === 'composite' ? '' : 'display:none;'; ?>">
 				<p>
-					<label for="argon_composite_category"><strong>聚合文章分类</strong></label>
-					<?php
-						wp_dropdown_categories(array(
-							'name' => 'argon_composite_category',
-							'id' => 'argon_composite_category',
-							'selected' => $category,
-							'show_option_all' => '全部文章',
-							'hide_empty' => false,
-							'hierarchical' => true,
-							'class' => 'widefat'
-						));
-					?>
-				</p>
-				<p>
 					<label for="argon_composite_posts_per_page"><strong>每页文章数</strong></label>
 					<input type="number" name="argon_composite_posts_per_page" id="argon_composite_posts_per_page" min="1" max="100" step="1" value="<?php echo esc_attr($posts_per_page); ?>" class="widefat" placeholder="留空则跟随 WordPress 设置">
 				</p>
-				<p>
-					<label for="argon_composite_banner_title"><strong>Banner 标题</strong></label>
-					<input type="text" name="argon_composite_banner_title" id="argon_composite_banner_title" value="<?php echo esc_attr($banner_title); ?>" class="widefat" placeholder="留空则使用页面标题">
+				<p style="color:#646970;">
+					文章分类会自动使用页面名称：<strong><?php echo esc_html($category_name); ?></strong>。保存复合页面后，系统会自动创建/同步这个同名分类。
 				</p>
-				<p>
-					<label for="argon_composite_banner_background"><strong>Banner 背景 URL</strong></label>
-					<input type="url" name="argon_composite_banner_background" id="argon_composite_banner_background" value="<?php echo esc_attr($banner_background); ?>" class="widefat" placeholder="留空则使用页面特色图片或全局背景">
-				</p>
-				<p style="color:#646970;">复合页面会像首页一样展示多篇文章。新文章发布后，只要放入这里选择的分类，就会显示在这个页面里。</p>
+				<p style="color:#646970;">之后写文章时，只要把文章放进这个同名分类，打开该复合页面时就会像首页一样展示这些文章。</p>
+				<p style="color:#646970;">Banner 标题和背景图请到「外观 → 复合页面设置」里统一管理。</p>
 			</div>
 		</div>
 		<script>
@@ -3914,14 +3936,132 @@ function argon_save_composite_page_meta($post_id) {
 	if (get_post_type($post_id) !== 'page' || !current_user_can('edit_page', $post_id)) {
 		return;
 	}
+
 	$page_mode = isset($_POST['argon_page_mode']) && $_POST['argon_page_mode'] === 'composite' ? 'composite' : 'single';
 	update_post_meta($post_id, 'argon_page_mode', $page_mode);
-	update_post_meta($post_id, 'argon_composite_category', isset($_POST['argon_composite_category']) ? max(0, intval($_POST['argon_composite_category'])) : 0);
 	update_post_meta($post_id, 'argon_composite_posts_per_page', isset($_POST['argon_composite_posts_per_page']) ? max(0, intval($_POST['argon_composite_posts_per_page'])) : 0);
-	update_post_meta($post_id, 'argon_composite_banner_title', isset($_POST['argon_composite_banner_title']) ? sanitize_text_field($_POST['argon_composite_banner_title']) : '');
-	update_post_meta($post_id, 'argon_composite_banner_background', isset($_POST['argon_composite_banner_background']) ? esc_url_raw($_POST['argon_composite_banner_background']) : '');
+
+	if ($page_mode === 'composite') {
+		argon_get_or_create_composite_page_category($post_id);
+	}
 }
 add_action('save_post_page', 'argon_save_composite_page_meta');
+
+function argon_get_composite_pages_for_settings() {
+	return get_posts(array(
+		'post_type' => 'page',
+		'post_status' => array('publish', 'draft', 'pending', 'private'),
+		'numberposts' => -1,
+		'orderby' => 'menu_order title',
+		'order' => 'ASC',
+		'meta_key' => 'argon_page_mode',
+		'meta_value' => 'composite'
+	));
+}
+
+function argon_add_composite_page_settings_page() {
+	add_theme_page('复合页面设置', '复合页面设置', 'edit_pages', 'argon-composite-pages', 'argon_render_composite_page_settings');
+}
+add_action('admin_menu', 'argon_add_composite_page_settings_page');
+
+function argon_composite_page_settings_assets($hook) {
+	if ($hook !== 'appearance_page_argon-composite-pages') {
+		return;
+	}
+	wp_enqueue_media();
+}
+add_action('admin_enqueue_scripts', 'argon_composite_page_settings_assets');
+
+function argon_render_composite_page_settings() {
+	if (!current_user_can('edit_pages')) {
+		return;
+	}
+
+	$composite_pages = argon_get_composite_pages_for_settings();
+	if (!empty($_POST['argon_composite_page_settings_nonce']) && wp_verify_nonce($_POST['argon_composite_page_settings_nonce'], 'argon_composite_page_settings_action')) {
+		$posted_pages = isset($_POST['argon_composite_pages']) && is_array($_POST['argon_composite_pages']) ? $_POST['argon_composite_pages'] : array();
+		foreach ($composite_pages as $composite_page) {
+			$page_id = intval($composite_page -> ID);
+			$page_settings = isset($posted_pages[$page_id]) && is_array($posted_pages[$page_id]) ? $posted_pages[$page_id] : array();
+			update_post_meta($page_id, 'argon_composite_banner_title', isset($page_settings['banner_title']) ? sanitize_text_field($page_settings['banner_title']) : '');
+			update_post_meta($page_id, 'argon_composite_banner_background', isset($page_settings['banner_background']) ? esc_url_raw($page_settings['banner_background']) : '');
+			argon_get_or_create_composite_page_category($page_id);
+		}
+		echo '<div class="notice notice-success is-dismissible"><p>复合页面设置已保存。</p></div>';
+		$composite_pages = argon_get_composite_pages_for_settings();
+	}
+	?>
+		<div class="wrap argon-composite-admin">
+			<h1>复合页面设置</h1>
+			<p>这里专门管理所有复合页面的 Banner 标题、Banner 背景图，以及对应的同名文章分类。</p>
+			<?php if (empty($composite_pages)) : ?>
+				<div class="notice notice-info"><p>当前还没有复合页面。请先新建或编辑一个页面，在「页面模式」里选择「复合页面」并保存。</p></div>
+			<?php else : ?>
+				<form method="post">
+					<?php wp_nonce_field('argon_composite_page_settings_action', 'argon_composite_page_settings_nonce'); ?>
+					<div class="argon-composite-admin-list">
+						<?php foreach ($composite_pages as $composite_page) : ?>
+							<?php
+								$page_id = intval($composite_page -> ID);
+								$category_id = argon_get_or_create_composite_page_category($page_id);
+								$category = $category_id > 0 ? get_term($category_id, 'category') : null;
+								$banner_title = get_post_meta($page_id, 'argon_composite_banner_title', true);
+								$banner_background = get_post_meta($page_id, 'argon_composite_banner_background', true);
+							?>
+							<section class="argon-composite-admin-card">
+								<div class="argon-composite-admin-head">
+									<h2><?php echo esc_html(get_the_title($page_id)); ?></h2>
+									<a href="<?php echo esc_url(get_edit_post_link($page_id)); ?>">编辑页面</a>
+								</div>
+								<p class="description">对应文章分类：<strong><?php echo $category && !is_wp_error($category) ? esc_html($category -> name) : esc_html(argon_get_composite_page_category_name($page_id)); ?></strong></p>
+								<table class="form-table" role="presentation">
+									<tr>
+										<th scope="row"><label for="argon_composite_banner_title_<?php echo esc_attr($page_id); ?>">Banner 标题</label></th>
+										<td><input type="text" class="regular-text" id="argon_composite_banner_title_<?php echo esc_attr($page_id); ?>" name="argon_composite_pages[<?php echo esc_attr($page_id); ?>][banner_title]" value="<?php echo esc_attr($banner_title); ?>" placeholder="留空则使用页面标题"></td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="argon_composite_banner_background_<?php echo esc_attr($page_id); ?>">Banner 背景图</label></th>
+										<td>
+											<input type="url" class="regular-text argon-composite-banner-input" id="argon_composite_banner_background_<?php echo esc_attr($page_id); ?>" name="argon_composite_pages[<?php echo esc_attr($page_id); ?>][banner_background]" value="<?php echo esc_attr($banner_background); ?>" placeholder="图片 URL，留空则使用页面特色图或全局背景">
+											<button type="button" class="button argon-composite-banner-select">选择图片</button>
+										</td>
+									</tr>
+								</table>
+							</section>
+						<?php endforeach; ?>
+					</div>
+					<?php submit_button('保存复合页面设置'); ?>
+				</form>
+			<?php endif; ?>
+		</div>
+		<style>
+			.argon-composite-admin-list { max-width: 980px; }
+			.argon-composite-admin-card { margin: 18px 0; padding: 18px 20px; background: #fff; border: 1px solid #dcdcde; border-radius: 8px; box-shadow: 0 2px 8px rgba(15, 23, 42, .04); }
+			.argon-composite-admin-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+			.argon-composite-admin-head h2 { margin: 0; }
+			.argon-composite-admin-card .form-table { margin-top: 8px; }
+			.argon-composite-admin-card .regular-text { max-width: 520px; width: 100%; }
+		</style>
+		<script>
+			(function($){
+				$('.argon-composite-banner-select').on('click', function(){
+					var button = $(this);
+					var input = button.siblings('.argon-composite-banner-input');
+					var frame = wp.media({
+						title: '选择 Banner 背景图',
+						button: { text: '使用这张图片' },
+						multiple: false
+					});
+					frame.on('select', function(){
+						var attachment = frame.state().get('selection').first().toJSON();
+						input.val(attachment.url).trigger('change');
+					});
+					frame.open();
+				});
+			})(jQuery);
+		</script>
+	<?php
+}
 
 function argon_composite_page_banner_title($title) {
 	$page_id = get_queried_object_id();
