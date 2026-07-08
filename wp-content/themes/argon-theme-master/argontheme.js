@@ -1872,6 +1872,11 @@ $(document).pjax("a[href]:not([no-pjax]):not(.no-pjax):not([target='_blank']):no
 		e.preventDefault();
 		return;
 	}
+	if ($(g).closest("#navbar_global, #leftbar").length > 0){
+		e.preventDefault();
+		window.location.href = $(g).attr("href");
+		return;
+	}
 	NProgress.remove();
 	NProgress.start();
 	pjaxLoading = true;

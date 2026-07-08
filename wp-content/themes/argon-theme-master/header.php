@@ -215,6 +215,11 @@
 			text-shadow: 0 5px 22px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.18);
 		}
 		.banner-subtitle {
+			display: block;
+			margin-top: 14px;
+			font-size: clamp(16px, 1.35vw, 21px);
+			font-weight: 400;
+			line-height: 1.7;
 			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
 		}
 		article.post-preview-layout-2 .post-header.post-header-with-thumbnail {

@@ -171,26 +171,45 @@
 	}
 
 	function createHomePreviewField() {
-		if (document.body.classList.contains("post-type-page")) {
-			return;
-		}
-		var titleWrap = document.getElementById("titlediv");
-		if (!titleWrap || document.getElementById("argon_home_preview_inline")) {
-			return;
-		}
-
 		var oldPreview = document.querySelector("textarea[name='argon_home_preview']");
 		var oldLimit = document.querySelector("input[name='argon_home_preview_limit']");
-		var currentValue = oldPreview ? oldPreview.value : "";
+		var inlinePreview = document.getElementById("argon_home_preview_inline");
+		if (inlinePreview) {
+			var inlineWrap = inlinePreview.closest(".argon-home-preview-inline");
+			if (inlineWrap) {
+				inlineWrap.remove();
+			}
+		}
 		removeOldPreviewControls(oldPreview, oldLimit);
+	}
 
-		var wrap = document.createElement("div");
-		wrap.className = "argon-home-preview-inline";
-		wrap.innerHTML =
-			'<label for="argon_home_preview_inline">\u9996\u9875\u5c55\u793a\u6458\u8981</label>' +
-			'<textarea name="argon_home_preview" id="argon_home_preview_inline" rows="3" placeholder="\u8fd9\u91cc\u586b\u5199\u7684\u5185\u5bb9\u4f1a\u5c55\u793a\u5728\u9996\u9875\u6587\u7ae0\u5361\u7247\u91cc\uff1b\u7559\u7a7a\u5219\u9996\u9875\u4e0d\u663e\u793a\u6458\u8981\u3002"></textarea>';
-		titleWrap.parentNode.insertBefore(wrap, titleWrap.nextSibling);
-		document.getElementById("argon_home_preview_inline").value = currentValue;
+	function isCompositePageEditor() {
+		var mode = document.getElementById("argon_page_mode");
+		return document.body.classList.contains("post-type-page") && mode && mode.value === "composite";
+	}
+
+	function syncCompositePageEditor() {
+		var mode = document.getElementById("argon_page_mode");
+		if (!document.body.classList.contains("post-type-page") || !mode) {
+			return false;
+		}
+		var isComposite = mode.value === "composite";
+		document.body.classList.toggle("argon-composite-page-editor", isComposite);
+		return isComposite;
+	}
+
+	function bindCompositePageModeWatcher() {
+		var mode = document.getElementById("argon_page_mode");
+		if (!mode || mode.dataset.argonCompositeWatcherReady) {
+			return;
+		}
+		mode.dataset.argonCompositeWatcherReady = "true";
+		mode.addEventListener("change", function () {
+			var isComposite = syncCompositePageEditor();
+			if (!isComposite) {
+				window.setTimeout(initMarkdownEditor, 0);
+			}
+		});
 	}
 
 	function insertHelper(editor) {
@@ -208,6 +227,10 @@
 
 	function initMarkdownEditor() {
 		createHomePreviewField();
+		bindCompositePageModeWatcher();
+		if (syncCompositePageEditor() || isCompositePageEditor()) {
+			return;
+		}
 
 		var textarea = document.getElementById("content");
 		if (!textarea || textarea.dataset.argonMarkdownReady || typeof window.EasyMDE === "undefined") {

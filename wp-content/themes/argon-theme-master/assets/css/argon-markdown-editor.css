@@ -12,6 +12,12 @@ body.argon-markdown-editor-enabled #post-status-info {
 	display: none;
 }
 
+body.argon-composite-page-editor #postdivrich,
+body.argon-composite-page-editor #wp-content-wrap,
+body.argon-composite-page-editor #post-status-info {
+	display: none !important;
+}
+
 .argon-home-preview-inline {
 	box-sizing: border-box;
 	margin: 12px 0 18px;

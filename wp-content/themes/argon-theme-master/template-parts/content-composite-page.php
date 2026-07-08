@@ -8,7 +8,7 @@ $composite_args = array(
 	'post_status' => 'publish',
 	'posts_per_page' => $composite_posts_per_page,
 	'paged' => $composite_paged,
-	'ignore_sticky_posts' => false,
+	'ignore_sticky_posts' => true,
 	'meta_query' => array(
 		array(
 			'key' => 'argon_parent_composite_page',
