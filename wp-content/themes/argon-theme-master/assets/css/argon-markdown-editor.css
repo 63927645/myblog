@@ -122,6 +122,21 @@ body.post-type-page #argon_composite_banner_meta_box .inside {
 	background: #eef1ff;
 }
 
+.argon-composite-banner-preview {
+	margin-top: 12px;
+	border: 1px solid #dfe3f6;
+	border-radius: 10px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.argon-composite-banner-preview img {
+	display: block;
+	width: 100%;
+	max-height: 180px;
+	object-fit: cover;
+}
+
 .argon-markdown-helper {
 	display: flex;
 	align-items: center;

@@ -222,6 +222,29 @@
 			line-height: 1.7;
 			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
 		}
+		body.argon-is-composite-page .banner-title {
+			top: 50%;
+			transform: translateY(-50%);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+		}
+		body.argon-is-composite-page .banner-title-inner {
+			display: inline-block;
+		}
+		body.argon-is-composite-page .banner-subtitle {
+			position: absolute;
+			top: calc(100% + 22px);
+			left: 50%;
+			transform: translateX(-50%);
+			width: min(760px, 86vw);
+			margin-top: 0 !important;
+			font-size: clamp(14px, 1.05vw, 17px) !important;
+			font-weight: 400 !important;
+			line-height: 1.7 !important;
+			opacity: .92;
+		}
 		article.post-preview-layout-2 .post-header.post-header-with-thumbnail {
 			flex: 0 0 clamp(360px, 48%, 620px);
 			width: clamp(360px, 48%, 620px);
@@ -423,7 +446,7 @@
 			body.home #content {
 				margin-top: -16px !important;
 			}
-			body:not(.home) #banner.banner {
+			body:not(.home):not(.argon-is-composite-page) #banner.banner {
 				display: none !important;
 				height: 0 !important;
 				min-height: 0 !important;
@@ -573,7 +596,7 @@
 				display: inline-block;
 				transform: translateY(-0.5px);
 			}
-			body:not(.home) #banner.banner {
+			body:not(.home):not(.argon-is-composite-page) #banner.banner {
 				display: none !important;
 				height: 0 !important;
 				min-height: 0 !important;
@@ -585,6 +608,43 @@
 			body:not(.home) #content {
 				margin-top: 68px !important;
 				padding-top: 0 !important;
+			}
+			body.argon-is-composite-page #banner.banner {
+				display: block !important;
+				height: 300px !important;
+				min-height: 300px !important;
+				max-height: 300px !important;
+				padding: 0 !important;
+				margin: 0 !important;
+				overflow: hidden !important;
+				background-position: center top !important;
+			}
+			body.argon-is-composite-page #banner_container {
+				height: 300px !important;
+				min-height: 0 !important;
+				padding: 0 !important;
+			}
+			body.argon-is-composite-page .banner-title {
+				top: 43% !important;
+				font-size: clamp(24px, 8vw, 34px) !important;
+				line-height: 1.24 !important;
+				white-space: nowrap !important;
+			}
+			body.argon-is-composite-page .banner-title-inner {
+				white-space: nowrap !important;
+				word-break: keep-all !important;
+				overflow-wrap: normal !important;
+			}
+			body.argon-is-composite-page .banner-subtitle {
+				top: calc(100% + 15px) !important;
+				width: min(82vw, 340px) !important;
+				font-size: clamp(12px, 3.4vw, 14px) !important;
+				line-height: 1.55 !important;
+				white-space: normal !important;
+			}
+			body.argon-is-composite-page #content {
+				margin-top: -22px !important;
+				padding: 0 12px !important;
 			}
 			body:not(.home) article.post-full,
 			body:not(.home) #comments {

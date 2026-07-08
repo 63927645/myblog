@@ -3856,6 +3856,14 @@ function argon_markdown_editor_handles_post_type($post_type){
 	return in_array($post_type, argon_markdown_editor_post_types(), true);
 }
 
+function argon_composite_body_class($classes){
+	if (function_exists('argon_is_composite_page') && argon_is_composite_page()){
+		$classes[] = 'argon-is-composite-page';
+	}
+	return $classes;
+}
+add_filter('body_class', 'argon_composite_body_class');
+
 function argon_disable_block_editor_for_markdown($use_block_editor, $post_type){
 	if (argon_markdown_editor_handles_post_type($post_type)){
 		return false;
@@ -4086,7 +4094,11 @@ function argon_composite_page_banner_meta_box($post) {
 				<label for="argon_composite_banner_background"><strong>顶部 Banner 图片</strong></label>
 				<div class="argon-composite-banner-image-row">
 					<input type="url" name="argon_composite_banner_background" id="argon_composite_banner_background" value="<?php echo esc_attr($banner_background); ?>" class="widefat" placeholder="图片 URL，留空则使用页面特色图或全局背景">
-					<button type="button" class="button argon-composite-page-image-select">选择图片</button>
+					<button type="button" class="button argon-composite-page-image-select">上传/选择图片</button>
+					<button type="button" class="button argon-composite-page-image-clear">清除</button>
+				</div>
+				<div class="argon-composite-banner-preview" id="argon_composite_banner_preview" style="<?php echo $banner_background !== '' ? '' : 'display:none;'; ?>">
+					<img src="<?php echo esc_url($banner_background); ?>" alt="">
 				</div>
 			</div>
 			<div class="argon-composite-banner-field">
@@ -4097,19 +4109,43 @@ function argon_composite_page_banner_meta_box($post) {
 		<script>
 			(function(){
 				var imageButton = document.querySelector('.argon-composite-page-image-select');
+				var clearButton = document.querySelector('.argon-composite-page-image-clear');
 				var imageInput = document.getElementById('argon_composite_banner_background');
+				var imagePreview = document.getElementById('argon_composite_banner_preview');
+				function syncPreview(url){
+					if (!imagePreview) {
+						return;
+					}
+					var image = imagePreview.querySelector('img');
+					if (url && image) {
+						image.src = url;
+						imagePreview.style.display = '';
+					} else {
+						if (image) {
+							image.removeAttribute('src');
+						}
+						imagePreview.style.display = 'none';
+					}
+				}
 				if (imageButton && imageInput && window.wp && window.wp.media) {
 					imageButton.addEventListener('click', function(){
 						var frame = window.wp.media({
-							title: '选择顶部 Banner 图片',
+							title: '上传或选择顶部 Banner 图片',
 							button: { text: '使用这张图片' },
 							multiple: false
 						});
 						frame.on('select', function(){
 							var attachment = frame.state().get('selection').first().toJSON();
 							imageInput.value = attachment.url || '';
+							syncPreview(imageInput.value);
 						});
 						frame.open();
+					});
+				}
+				if (clearButton && imageInput) {
+					clearButton.addEventListener('click', function(){
+						imageInput.value = '';
+						syncPreview('');
 					});
 				}
 				jQuery(function($){
