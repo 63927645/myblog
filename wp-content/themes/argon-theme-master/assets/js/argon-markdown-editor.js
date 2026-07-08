@@ -16,6 +16,93 @@
 		}, 80);
 	}
 
+	function isEscaped(text, position) {
+		var slashes = 0;
+		for (var i = position - 1; i >= 0 && text.charAt(i) === "\\"; i--) {
+			slashes++;
+		}
+		return slashes % 2 === 1;
+	}
+
+	function findUnescapedDelimiter(text, delimiter, offset, singleDollar) {
+		while (offset < text.length) {
+			var position = text.indexOf(delimiter, offset);
+			if (position === -1) {
+				return -1;
+			}
+			if (!isEscaped(text, position)) {
+				if (!singleDollar) {
+					return position;
+				}
+				var previous = position > 0 ? text.charAt(position - 1) : "";
+				var next = position + 1 < text.length ? text.charAt(position + 1) : "";
+				if (previous !== "$" && next !== "$") {
+					return position;
+				}
+			}
+			offset = position + delimiter.length;
+		}
+		return -1;
+	}
+
+	function protectMath(text) {
+		var blocks = [];
+		var result = "";
+		var i = 0;
+		function store(block) {
+			var key = "ARGONMARKDOWNMATH" + blocks.length + "TOKEN";
+			blocks.push({ key: key, value: block });
+			return key;
+		}
+		while (i < text.length) {
+			if (text.substr(i, 2) === "$$" && !isEscaped(text, i)) {
+				var displayEnd = findUnescapedDelimiter(text, "$$", i + 2, false);
+				if (displayEnd !== -1) {
+					result += store(text.slice(i, displayEnd + 2));
+					i = displayEnd + 2;
+					continue;
+				}
+			}
+			if (text.substr(i, 2) === "\\[") {
+				var bracketEnd = text.indexOf("\\]", i + 2);
+				if (bracketEnd !== -1) {
+					result += store(text.slice(i, bracketEnd + 2));
+					i = bracketEnd + 2;
+					continue;
+				}
+			}
+			if (text.substr(i, 2) === "\\(") {
+				var parenEnd = text.indexOf("\\)", i + 2);
+				if (parenEnd !== -1) {
+					result += store(text.slice(i, parenEnd + 2));
+					i = parenEnd + 2;
+					continue;
+				}
+			}
+			if (text.charAt(i) === "$" && !isEscaped(text, i) && text.substr(i, 2) !== "$$") {
+				var inlineEnd = findUnescapedDelimiter(text, "$", i + 1, true);
+				if (inlineEnd !== -1) {
+					var inside = text.slice(i + 1, inlineEnd);
+					if (inside.trim() !== "") {
+						result += store(text.slice(i, inlineEnd + 1));
+						i = inlineEnd + 1;
+						continue;
+					}
+				}
+			}
+			result += text.charAt(i);
+			i++;
+		}
+		return { text: result, blocks: blocks };
+	}
+
+	function restoreMath(html, blocks) {
+		for (var i = 0; i < blocks.length; i++) {
+			html = html.split(blocks[i].key).join(blocks[i].value);
+		}
+		return html;
+	}
+
 	function setToolbarLabels() {
 		var labels = ["B", "I", "#", ">", "-", "1.", "@", "im", "T", "--", "{}", "up", "pv", "2", "[]", "?", "v"];
 		var buttons = document.querySelectorAll(".editor-toolbar button");
@@ -353,9 +440,11 @@
 				codeSyntaxHighlighting: false
 			},
 			previewRender: function (plainText) {
+				var protectedMath = protectMath(plainText);
 				var html = markdownEditor && typeof markdownEditor.markdown === "function"
-					? markdownEditor.markdown(plainText)
-					: plainText;
+					? markdownEditor.markdown(protectedMath.text)
+					: protectedMath.text;
+				html = restoreMath(html, protectedMath.blocks);
 				refreshMathPreview();
 				return html;
 			}

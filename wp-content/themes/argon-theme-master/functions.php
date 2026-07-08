@@ -3898,7 +3898,7 @@ function argon_markdown_disable_visual_editor($can_richedit){
 add_filter('user_can_richedit', 'argon_markdown_disable_visual_editor', 50);
 
 function argon_markdown_mathjax_config(){
-	return 'window.MathJax = window.MathJax || {tex:{inlineMath:[[\'$\',\'$\'],[\'\\\\(\',\'\\\\)\']],displayMath:[[\'$$\',\'$$\'],[\'\\\\[\',\'\\\\]\']],processEscapes:true},options:{skipHtmlTags:[\'script\',\'noscript\',\'style\',\'textarea\',\'pre\',\'code\']}};';
+	return 'window.MathJax = window.MathJax || {tex:{inlineMath:[[\'$\',\'$\'],[\'\\\\(\',\'\\\\)\']],displayMath:[[\'$$\',\'$$\'],[\'\\\\[\',\'\\\\]\']],processEscapes:true,processEnvironments:true},options:{skipHtmlTags:[\'script\',\'noscript\',\'style\',\'textarea\',\'pre\',\'code\'],processHtmlClass:\'markdown-content|post-content\'}};';
 }
 
 function argon_markdown_admin_assets($hook){
@@ -3924,22 +3924,88 @@ function argon_markdown_admin_assets($hook){
 }
 add_action('admin_enqueue_scripts', 'argon_markdown_admin_assets');
 
+function argon_markdown_is_escaped($content, $position){
+	$slashes = 0;
+	for ($i = $position - 1; $i >= 0 && isset($content[$i]) && $content[$i] === '\\'; $i--){
+		$slashes++;
+	}
+	return $slashes % 2 === 1;
+}
+
+function argon_markdown_store_math_block(&$math_blocks, $block){
+	$key = 'ARGONMARKDOWNMATH' . count($math_blocks) . 'TOKEN';
+	$math_blocks[$key] = $block;
+	return $key;
+}
+
+function argon_markdown_find_unescaped_delimiter($content, $delimiter, $offset, $single_dollar = false){
+	$length = strlen($content);
+	$delimiter_length = strlen($delimiter);
+	while ($offset < $length){
+		$position = strpos($content, $delimiter, $offset);
+		if ($position === false){
+			return false;
+		}
+		if (!argon_markdown_is_escaped($content, $position)){
+			if (!$single_dollar){
+				return $position;
+			}
+			$previous = $position > 0 ? $content[$position - 1] : '';
+			$next = ($position + 1) < $length ? $content[$position + 1] : '';
+			if ($previous !== '$' && $next !== '$'){
+				return $position;
+			}
+		}
+		$offset = $position + $delimiter_length;
+	}
+	return false;
+}
+
 function argon_markdown_extract_math($content, &$math_blocks){
 	$math_blocks = array();
-	$patterns = array(
-		'/\$\$(.+?)\$\$/s',
-		'/\\\[(.+?)\\\]/s',
-		'/\\\((.+?)\\\)/s',
-		'/(?<!\\\\)(?<!\$)\$(?!\$)(.+?)(?<!\\\\)\$(?!\$)/s'
-	);
-	foreach ($patterns as $pattern){
-		$content = preg_replace_callback($pattern, function($matches) use (&$math_blocks){
-			$key = 'ARGONMARKDOWNMATH' . count($math_blocks) . 'TOKEN';
-			$math_blocks[$key] = $matches[0];
-			return $key;
-		}, $content);
+	$result = '';
+	$length = strlen($content);
+	$i = 0;
+	while ($i < $length){
+		if (substr($content, $i, 2) === '$$' && !argon_markdown_is_escaped($content, $i)){
+			$end = argon_markdown_find_unescaped_delimiter($content, '$$', $i + 2);
+			if ($end !== false){
+				$result .= argon_markdown_store_math_block($math_blocks, substr($content, $i, $end - $i + 2));
+				$i = $end + 2;
+				continue;
+			}
+		}
+		if (substr($content, $i, 2) === '\\['){
+			$end = strpos($content, '\\]', $i + 2);
+			if ($end !== false){
+				$result .= argon_markdown_store_math_block($math_blocks, substr($content, $i, $end - $i + 2));
+				$i = $end + 2;
+				continue;
+			}
+		}
+		if (substr($content, $i, 2) === '\\('){
+			$end = strpos($content, '\\)', $i + 2);
+			if ($end !== false){
+				$result .= argon_markdown_store_math_block($math_blocks, substr($content, $i, $end - $i + 2));
+				$i = $end + 2;
+				continue;
+			}
+		}
+		if ($content[$i] === '$' && !argon_markdown_is_escaped($content, $i) && substr($content, $i, 2) !== '$$'){
+			$end = argon_markdown_find_unescaped_delimiter($content, '$', $i + 1, true);
+			if ($end !== false){
+				$inside = substr($content, $i + 1, $end - $i - 1);
+				if (trim($inside) !== ''){
+					$result .= argon_markdown_store_math_block($math_blocks, substr($content, $i, $end - $i + 1));
+					$i = $end + 1;
+					continue;
+				}
+			}
+		}
+		$result .= $content[$i];
+		$i++;
 	}
-	return $content;
+	return $result;
 }
 
 function argon_markdown_restore_math($content, $math_blocks){
@@ -3983,6 +4049,7 @@ add_action('wp_enqueue_scripts', 'argon_markdown_latex_assets');
 function argon_add_markdown_wrapper_class($classes) {
 	if (is_singular()) {
 		$classes[] = 'markdown-content';
+		$classes[] = 'tex2jax_process';
 	}
 	return $classes;
 }

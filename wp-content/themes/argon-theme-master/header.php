@@ -802,16 +802,6 @@
 	<?php }else if (get_option('argon_enable_smoothscroll_type') != 'disabled'){?>
 		<script src="<?php echo $GLOBALS['assets_path']; ?>/assets/vendor/smoothscroll/smoothscroll1.js"></script>
 	<?php }?>
-<script>
-MathJax = {
-  tex: {
-    inlineMath: [['$','$']],
-    displayMath: [['$$','$$']],
-    processEscapes: false
-  }
-};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 </head>
 
 <?php echo get_option('argon_custom_html_head'); ?>

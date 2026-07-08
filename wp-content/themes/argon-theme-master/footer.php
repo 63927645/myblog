@@ -52,14 +52,15 @@
 				window.MathJax = {
 					tex: {
 						inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]],
-						displayMath: [['$$','$$']],
+						displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]],
 						processEscapes: true,
+						processEnvironments: true,
 						packages: {'[+]': ['noerrors']}
 					},
 					options: {
 						skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
 						ignoreHtmlClass: 'tex2jax_ignore',
-						processHtmlClass: 'tex2jax_process'
+						processHtmlClass: 'tex2jax_process|markdown-content|post-content'
 					},
 					loader: {
 						load: ['[tex]/noerrors']
@@ -74,7 +75,7 @@
 					messageStyle: "none",
 					tex2jax: {
 						inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]],
-						displayMath: [['$$','$$']],
+						displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]],
 						processEscapes: true,
 						skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
 					},
@@ -98,6 +99,7 @@
 					renderMathInElement(document.body,{
 						delimiters: [
 							{left: "$$", right: "$$", display: true},
+							{left: "\\[", right: "\\]", display: true},
 							{left: "$", right: "$", display: false},
 							{left: "\\(", right: "\\)", display: false}
 						]
