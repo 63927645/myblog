@@ -1,12 +1,12 @@
-/*
+﻿/*
 Theme Name: argon
 Author: solstice23
 Author URI: https://solstice23.top/
-Description: 轻盈、简洁、美观的 Wordpress 主题
+Description: 杞荤泩銆佺畝娲併€佺編瑙傜殑 Wordpress 涓婚
 Version: 1.3.5.1
 License: GNU General Public License v3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
-Tags: 简约, 两栏, 侧栏在左边, 浮动侧栏, 文章目录, 自适应, 夜间模式, 可自定义
+Tags: 绠€绾? 涓ゆ爮, 渚ф爮鍦ㄥ乏杈? 娴姩渚ф爮, 鏂囩珷鐩綍, 鑷€傚簲, 澶滈棿妯″紡, 鍙嚜瀹氫箟
 */
 
 @charset "utf-8";
@@ -475,7 +475,7 @@ html.use-serif body {
 html.use-big-shadow *.shadow-sm {
 	box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07) !important;
 }
-/*标题样式*/
+/*鏍囬鏍峰紡*/
 .article-header-style-1 article h1,
 .article-header-style-1 article h2,
 .article-header-style-1 article h3 {
@@ -564,11 +564,11 @@ html.use-big-shadow *.shadow-sm {
 .no-results header h1:after {
 	display: none !important;
 }
-/*卡片圆角*/
+/*鍗＄墖鍦嗚*/
 .card {
 	border-radius: var(--card-radius);
 }
-/*主题色适配*/
+/*涓婚鑹查€傞厤*/
 .text-primary {
 	color: var(--themecolor) !important;
 }
@@ -619,7 +619,7 @@ a.text-primary:hover {
 	border-color: var(--themecolor) !important;
 	background-color: var(--themecolor);
 }
-/*页面框架*/
+/*椤甸潰妗嗘灦*/
 #content {
 	padding: 0 5px;
 	max-width: 1200px;
@@ -666,14 +666,14 @@ html.is-home.banner-as-cover #content {
 	pointer-events: none;
 }
 
-/*双栏反转布局*/
+/*鍙屾爮鍙嶈浆甯冨眬*/
 html.double-column-reverse #leftbar {
 	float: right;
 }
 html.double-column-reverse #primary {
 	float: left;
 }
-/*单栏布局*/
+/*鍗曟爮甯冨眬*/
 html.single-column #leftbar {
 	display: none;
 }
@@ -701,7 +701,7 @@ html.single-column .page-information-card {
 html.single-column #open_sidebar {
 	visibility: hidden;
 }
-/*三栏布局*/
+/*涓夋爮甯冨眬*/
 #rightbar {
 	padding-left: 0;
 	padding-right: 0;
@@ -751,7 +751,7 @@ html.triple-column #content {
 	}
 }
 
-/*Pjax加载动画 & 卡片动画*/
+/*Pjax鍔犺浇鍔ㄧ敾 & 鍗＄墖鍔ㄧ敾*/
 @keyframes card-show {
 	0% {
 		opacity: 0;
@@ -772,7 +772,7 @@ html.triple-column #content {
 .card .card {
 	animation: none;
 }
-/*顶栏和 Banner 部分*/
+/*椤舵爮鍜?Banner 閮ㄥ垎*/
 #navbar-main {
 	--toolbar-color: var(--themecolor-rgbstr);
 }
@@ -862,6 +862,38 @@ body.leftbar-can-headroom.headroom---unpinned #navbar-main {
 	transition: all 0.5s cubic-bezier(0.4, 0, 0, 1);
 }
 #navbar_search_btn_mobile {
+	display: none;
+}
+.argon-oauth-nav-item {
+	display: flex;
+	align-items: center;
+	margin-right: 10px;
+}
+.argon-oauth-access-topbar-desktop {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	max-width: none;
+}
+.argon-oauth-access-topbar-desktop .argon-oauth-access-action,
+.argon-oauth-access-topbar-desktop .argon-oauth-access-user {
+	min-height: 38px;
+	padding: 8px 12px;
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.13);
+	border-color: rgba(255, 255, 255, 0.2);
+	color: #fff !important;
+	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+.argon-oauth-access-topbar-desktop .argon-oauth-access-github {
+	background: rgba(10, 14, 32, 0.34);
+}
+.argon-oauth-access-topbar-desktop .argon-oauth-access-logout {
+	background: rgba(255, 255, 255, 0.13);
+	color: #fff !important;
+}
+.argon-oauth-access-topbar-mobile {
 	display: none;
 }
 #navbar_menu_mask {
@@ -986,7 +1018,7 @@ html:not(.is-home) .cover-scroll-down {
 	pointer-events: none;
 }
 
-/*左侧栏*/
+/*宸︿晶鏍?/
 .leftbar-banner {
 	/*background: linear-gradient(150deg,#7795f8 15%,#6772e5 70%,#555abf 94%);*/
 	background: var(--themecolor-gradient);
@@ -1273,6 +1305,57 @@ html.darkmode .sidebar-tab-switcher > a.active {
 .leftbar-profile-about-link:hover span {
 	transform: translateX(3px);
 }
+.argon-oauth-access {
+	display: grid;
+	gap: 8px;
+	margin: 12px auto 0;
+	max-width: 230px;
+}
+.argon-oauth-access-action,
+.argon-oauth-access-user {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 36px;
+	padding: 8px 12px;
+	border-radius: 12px;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 1.25;
+	text-decoration: none !important;
+}
+.argon-oauth-access-action {
+	color: var(--themecolor) !important;
+	background: rgba(var(--themecolor-R), var(--themecolor-G), var(--themecolor-B), 0.1);
+	border: 1px solid rgba(var(--themecolor-R), var(--themecolor-G), var(--themecolor-B), 0.2);
+	transition: transform 0.2s ease, background 0.2s ease;
+}
+.argon-oauth-access-action:hover {
+	background: rgba(var(--themecolor-R), var(--themecolor-G), var(--themecolor-B), 0.16);
+	transform: translateY(-1px);
+}
+.argon-oauth-access-github {
+	background: var(--themecolor);
+	color: #fff !important;
+	border-color: var(--themecolor);
+}
+.argon-oauth-access-user {
+	color: #32325d;
+	background: rgba(255, 255, 255, 0.7);
+	border: 1px solid rgba(94, 114, 228, 0.16);
+}
+.argon-oauth-access-user img {
+	width: 22px;
+	height: 22px;
+	border-radius: 999px;
+	object-fit: cover;
+}
+.argon-oauth-access-logout {
+	color: #e11d48 !important;
+	background: rgba(225, 29, 72, 0.08);
+	border-color: rgba(225, 29, 72, 0.18);
+}
 .leftbar-page-links {
 	display: grid;
 	gap: 8px;
@@ -1547,7 +1630,7 @@ html.darkmode .wp-calendar-table caption,
 html.darkmode .wp-block-calendar tbody td {
 	color: #eee;
 }
-/*底栏*/
+/*搴曟爮*/
 #footer {
 	background: var(--themecolor-gradient);
 	color: #fff;
@@ -1563,7 +1646,7 @@ html.darkmode .wp-block-calendar tbody td {
 	color: #fff;
 }
 
-/*浮动按钮栏 (回顶等)*/
+/*娴姩鎸夐挳鏍?(鍥為《绛?*/
 #float_action_buttons {
 	position: fixed;
 	bottom: 35px;
@@ -1932,7 +2015,7 @@ html.filter-grayscale {
 	transform: translateX(-50%);
 	opacity: 0.7;
 }
-/*页码*/
+/*椤电爜*/
 .pagination {
 	width: max-content;
 	width: -moz-max-content;
@@ -1948,7 +2031,7 @@ html.filter-grayscale {
 	transition: background-color 0.2s ease;
 }
 
-/*文章*/
+/*鏂囩珷*/
 .post {
 	margin-bottom: 25px;
 	padding: 30px 30px;
@@ -2096,7 +2179,7 @@ html.filter-grayscale {
 .additional-content-after-post + .post-tags {
 	margin-top: 25px;
 }
-/* 文章预览样式 2 */
+/* 鏂囩珷棰勮鏍峰紡 2 */
 article.post-preview-layout-2 {
 	display: flex;
 	flex-direction: row;
@@ -2131,7 +2214,7 @@ article.post-preview-layout-2 .loading-css-animation {
 	position: absolute;
 	bottom: -8px;
 }
-/* 文章预览样式 3 */
+/* 鏂囩珷棰勮鏍峰紡 3 */
 article.post-preview-layout-3 .post-header {
 	margin-bottom: 10px;
 }
@@ -2226,7 +2309,7 @@ html.darkmode .tippy-box[data-theme~="light"] {
 .reference-list li > div > sup:last-of-type {
 	margin-right: 5px;
 }
-/*文章输入密码界面*/
+/*鏂囩珷杈撳叆瀵嗙爜鐣岄潰*/
 .post-password-form {
 	margin-top: 45px;
 	margin-bottom: 55px;
@@ -2244,7 +2327,7 @@ html.darkmode .tippy-box[data-theme~="light"] {
 	color: var(--themecolor);
 	opacity: 0.9;
 }
-/*侧栏文章目录*/
+/*渚ф爮鏂囩珷鐩綍*/
 #leftbar_catalog {
 	margin-left: -5px;
 	width: calc(100% + 0px);
@@ -2282,7 +2365,7 @@ html.darkmode .tippy-box[data-theme~="light"] {
 	padding-left: 20px;
 }
 
-/*搜索等页面的标题卡片*/
+/*鎼滅储绛夐〉闈㈢殑鏍囬鍗＄墖*/
 .page-information-card {
 	margin: 30px 20px;
 	margin-top: 0px;
@@ -2296,7 +2379,7 @@ html.darkmode .tippy-box[data-theme~="light"] {
 	line-height: 25px;
 }
 
-/*文章导航 (上/下一篇文章)*/
+/*鏂囩珷瀵艰埅 (涓?涓嬩竴绡囨枃绔?*/
 .post-navigation {
 	margin-bottom: 25px;
 	padding: 30px 25px;
@@ -2328,7 +2411,7 @@ html.darkmode .tippy-box[data-theme~="light"] {
 	padding-left: 10px;
 	text-align: right;
 }
-/*相关文章*/
+/*鐩稿叧鏂囩珷*/
 .related-posts {
 	display: block;
 	white-space: nowrap;
@@ -2407,7 +2490,7 @@ html.darkmode .related-post-title.clamp {
 html.darkmode .has-thumbnail .related-post-title.clamp {
 	color: #eee;
 }
-/*文章赞赏*/
+/*鏂囩珷璧炶祻*/
 .post-donate {
 	text-align: center;
 	position: relative;
@@ -2456,7 +2539,7 @@ html.darkmode .has-thumbnail .related-post-title.clamp {
 	z-index: 1;
 	box-shadow: -2px 2px 5px 0px rgba(0, 0, 0, 0.1);
 }
-/*文末附加内容*/
+/*鏂囨湯闄勫姞鍐呭*/
 .additional-content-after-post {
 	border-left: 3px solid var(--themecolor);
 	padding: 15px 20px;
@@ -2464,7 +2547,7 @@ html.darkmode .has-thumbnail .related-post-title.clamp {
 	border-radius: 3px;
 	margin-top: 10px;
 }
-/*评论区*/
+/*璇勮鍖?/
 #comments {
 	margin-bottom: 25px;
 }
@@ -2737,7 +2820,7 @@ html.darkmode .comment-upvote {
 	opacity: 0.5;
 	pointer-events: none;
 }
-/*评论内容*/
+/*璇勮鍐呭*/
 .comment-item-text .comment-sticker {
 	max-height: 60px;
 	transition: all 0.3s ease;
@@ -2878,7 +2961,7 @@ html.darkmode .comment-item-text blockquote {
 .comment-item-text h6 {
 	font-size: 15px;
 }
-/*评论折叠*/
+/*璇勮鎶樺彔*/
 .comment-item-inner.comment-folded {
 	max-height: 200px;
 	overflow: hidden;
@@ -2917,11 +3000,11 @@ html.darkmode .comment-item-text blockquote {
 .comment-item-inner:not(.comment-folded) .show-full-comment {
 	display: none;
 }
-/*评论区页码*/
+/*璇勮鍖洪〉鐮?/
 .comments-navigation .page-item > div {
 	cursor: pointer;
 }
-/*评论区更多*/
+/*璇勮鍖烘洿澶?/
 #comments_more {
 	width: 52px;
 	height: 52px;
@@ -2948,7 +3031,7 @@ html.darkmode .comment-item-text blockquote {
 	margin-bottom: 10px;
 	opacity: 0.6;
 }
-/*评论编辑记录*/
+/*璇勮缂栬緫璁板綍*/
 .comment-edit-history-item {
 	border-bottom: 1px solid #e9ecef;
 	margin-bottom: 22px;
@@ -2981,7 +3064,7 @@ html.darkmode .comment-edit-history-item {
 	border: navajowhite;
 	padding-bottom: 0;
 }
-/*发送评论区域*/
+/*鍙戦€佽瘎璁哄尯鍩?/
 #post_comment {
 	margin-bottom: 25px;
 }
@@ -3184,7 +3267,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	margin-top: 5px;
 	margin-right: 8px;
 }
-/*发送评论区域-编辑评论*/
+/*鍙戦€佽瘎璁哄尯鍩?缂栬緫璇勮*/
 #post_comment:not(.editing) .hide-on-comment-not-editing {
 	display: none !important;
 }
@@ -3198,7 +3281,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 #post_comment.editing .comment-post-mailnotice {
 	display: none;
 }
-/*评论表情*/
+/*璇勮琛ㄦ儏*/
 #comment_emotion_btn {
 	border-radius: 100px;
 	width: 42px;
@@ -3332,8 +3415,8 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	height: 3px;
 	pointer-events: none;
 }
-/*短代码适配*/
-/*短代码-checkbox*/
+/*鐭唬鐮侀€傞厤*/
+/*鐭唬鐮?checkbox*/
 .shortcode-todo {
 	cursor: default;
 	margin: 3px 0;
@@ -3354,7 +3437,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	margin-right: 10px;
 }
 
-/*短代码-警告与折叠块*/
+/*鐭唬鐮?璀﹀憡涓庢姌鍙犲潡*/
 .admonition,
 .collapse-block {
 	border-radius: 3px;
@@ -3455,7 +3538,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	background: #88888833;
 }
 
-/*短代码-友链-简洁*/
+/*鐭唬鐮?鍙嬮摼-绠€娲?/
 .friend-links-simple .friend-category-title {
 	font-size: 22px;
 	text-align: center;
@@ -3485,7 +3568,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	display: none;
 }
 
-/*短代码-友链*/
+/*鐭唬鐮?鍙嬮摼*/
 .friend-links .link {
 	padding-left: 10px;
 	padding-right: 10px;
@@ -3500,7 +3583,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 .friend-links .link a:before {
 	display: none;
 }
-/*短代码-友链-样式 1*/
+/*鐭唬鐮?鍙嬮摼-鏍峰紡 1*/
 .friend-links-style1 .friend-link-avatar {
 	display: inline-block;
 	width: 125px;
@@ -3554,7 +3637,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 .friend-links-style1 .friend-link-links > a {
 	margin-right: 12px;
 }
-/*短代码-友链-样式 1-方形头像*/
+/*鐭唬鐮?鍙嬮摼-鏍峰紡 1-鏂瑰舰澶村儚*/
 .friend-links-style1.friend-links-style1-square .friend-link-avatar {
 	border-radius: 0;
 	width: 130px;
@@ -3565,7 +3648,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 .friend-links-style1.friend-links-style1-square .no-avatar .friend-link-content {
 	width: 100%;
 }
-/*短代码-友链-样式 2*/
+/*鐭唬鐮?鍙嬮摼-鏍峰紡 2*/
 .friend-links-style2 .friend-link-avatar {
 	display: block;
 	width: 100%;
@@ -3602,7 +3685,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 .friend-links-style2 .friend-link-links > a {
 	margin-right: 15px;
 }
-/*短代码-友链-样式 2-大头像*/
+/*鐭唬鐮?鍙嬮摼-鏍峰紡 2-澶уご鍍?/
 .friend-links-style2.friend-links-style2-big .friend-link-avatar {
 	height: calc(100vw * 0.2);
 	min-height: 200px;
@@ -3618,7 +3701,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	}
 }
 
-/*短代码-时间线*/
+/*鐭唬鐮?鏃堕棿绾?/
 .argon-timeline {
 	margin-left: 110px;
 	border-left: 3px solid rgba(var(--themecolor-rgbstr), 0.2);
@@ -3657,7 +3740,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	margin-bottom: 5px;
 }
 
-/*短代码-隐藏文本*/
+/*鐭唬鐮?闅愯棌鏂囨湰*/
 .argon-hidden-text {
 	transition: all 0.3s ease;
 }
@@ -3678,7 +3761,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	border-radius: 0px;
 }
 
-/*短代码-Github*/
+/*鐭唬鐮?Github*/
 .github-info-card {
 	background: #24292e !important;
 	margin-top: 20px;
@@ -3715,7 +3798,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 .github-info-card-bottom .github-info-card-meta i {
 	margin-right: 2px;
 }
-/*短代码-Github-Mini*/
+/*鐭唬鐮?Github-Mini*/
 .github-info-card-mini {
 	display: flex;
 	flex-direction: row;
@@ -3763,11 +3846,11 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	margin-right: 0;
 }
 
-/*短代码-进度条*/
+/*鐭唬鐮?杩涘害鏉?/
 .progress {
 	background: var(--color-border-on-foreground-deeper);
 }
-/*Gutenburg 区块-Tab 面板*/
+/*Gutenburg 鍖哄潡-Tab 闈㈡澘*/
 .argon-tabpanel {
 	margin-bottom: 20px;
 }
@@ -3838,7 +3921,7 @@ html.darkmode .argon-tabpanel .nav-pills .nav-link {
 	background: var(--color-border-on-foreground-deeper);
 }
 
-/*nprogress 加载进度条*/
+/*nprogress 鍔犺浇杩涘害鏉?/
 #nprogress {
 	pointer-events: none;
 }
@@ -3929,7 +4012,7 @@ body.leftbar-can-headroom.headroom---unpinned #nprogress .bar {
 .iziToast.iziToast-noprogressbar .iziToast-progressbar {
 	display: none;
 }
-/*Mathjax 相关*/
+/*Mathjax 鐩稿叧*/
 .MathJax {
 	outline: none !important;
 }
@@ -3945,7 +4028,7 @@ body.leftbar-can-headroom.headroom---unpinned #nprogress .bar {
 	border-radius: 5px !important;
 }
 
-/*LazyLoad 加载样式*/
+/*LazyLoad 鍔犺浇鏍峰紡*/
 article img.lazyload[src^="data:image/svg+xml;base64,PCEtLUFyZ29uTG9hZGluZy0tPg"] {
 	width: 100%;
 	max-height: 60vh;
@@ -3991,7 +4074,7 @@ article img.lazyload[src^="data:image/svg+xml;base64,PCEtLUFyZ29uTG9hZGluZy0tPg"
 	background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDUiIGhlaWdodD0iNDUiIHZpZXdCb3g9IjAgMCA1NyA1NyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBzdHJva2U9IiM1ZTcyZTQiPgogICAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgICAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxIDEpIiBzdHJva2Utd2lkdGg9IjIiPgogICAgICAgICAgICA8Y2lyY2xlIGN4PSI1IiBjeT0iNTAiIHI9IjUiPgogICAgICAgICAgICAgICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iY3kiCiAgICAgICAgICAgICAgICAgICAgIGJlZ2luPSIwcyIgZHVyPSIyLjJzIgogICAgICAgICAgICAgICAgICAgICB2YWx1ZXM9IjUwOzU7NTA7NTAiCiAgICAgICAgICAgICAgICAgICAgIGNhbGNNb2RlPSJsaW5lYXIiCiAgICAgICAgICAgICAgICAgICAgIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiAvPgogICAgICAgICAgICAgICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iY3giCiAgICAgICAgICAgICAgICAgICAgIGJlZ2luPSIwcyIgZHVyPSIyLjJzIgogICAgICAgICAgICAgICAgICAgICB2YWx1ZXM9IjU7Mjc7NDk7NSIKICAgICAgICAgICAgICAgICAgICAgY2FsY01vZGU9ImxpbmVhciIKICAgICAgICAgICAgICAgICAgICAgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIC8+CiAgICAgICAgICAgIDwvY2lyY2xlPgogICAgICAgICAgICA8Y2lyY2xlIGN4PSIyNyIgY3k9IjUiIHI9IjUiPgogICAgICAgICAgICAgICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iY3kiCiAgICAgICAgICAgICAgICAgICAgIGJlZ2luPSIwcyIgZHVyPSIyLjJzIgogICAgICAgICAgICAgICAgICAgICBmcm9tPSI1IiB0bz0iNSIKICAgICAgICAgICAgICAgICAgICAgdmFsdWVzPSI1OzUwOzUwOzUiCiAgICAgICAgICAgICAgICAgICAgIGNhbGNNb2RlPSJsaW5lYXIiCiAgICAgICAgICAgICAgICAgICAgIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiAvPgogICAgICAgICAgICAgICAgPGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iY3giCiAgICAgICAgICAgICAgICAgICAgIGJlZ2luPSIwcyIgZHVyPSIyLjJzIgogICAgICAgICAgICAgICAgICAgICBmcm9tPSIyNyIgdG89IjI3IgogICAgICAgICAgICAgICAgICAgICB2YWx1ZXM9IjI3OzQ5OzU7MjciCiAgICAgICAgICAgICAgICAgICAgIGNhbGNNb2RlPSJsaW5lYXIiCiAgICAgICAgICAgICAgICAgICAgIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiAvPgogICAgICAgICAgICA8L2NpcmNsZT4KICAgICAgICAgICAgPGNpcmNsZSBjeD0iNDkiIGN5PSI1MCIgcj0iNSI+CiAgICAgICAgICAgICAgICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJjeSIKICAgICAgICAgICAgICAgICAgICAgYmVnaW49IjBzIiBkdXI9IjIuMnMiCiAgICAgICAgICAgICAgICAgICAgIHZhbHVlcz0iNTA7NTA7NTs1MCIKICAgICAgICAgICAgICAgICAgICAgY2FsY01vZGU9ImxpbmVhciIKICAgICAgICAgICAgICAgICAgICAgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIC8+CiAgICAgICAgICAgICAgICA8YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJjeCIKICAgICAgICAgICAgICAgICAgICAgZnJvbT0iNDkiIHRvPSI0OSIKICAgICAgICAgICAgICAgICAgICAgYmVnaW49IjBzIiBkdXI9IjIuMnMiCiAgICAgICAgICAgICAgICAgICAgIHZhbHVlcz0iNDk7NTsyNzs0OSIKICAgICAgICAgICAgICAgICAgICAgY2FsY01vZGU9ImxpbmVhciIKICAgICAgICAgICAgICAgICAgICAgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIC8+CiAgICAgICAgICAgIDwvY2lyY2xlPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+);
 }
 
-/*Fancybox 样式*/
+/*Fancybox 鏍峰紡*/
 .fancybox-wrapper {
 	width: max-content;
 	max-width: 100%;
@@ -4009,7 +4092,7 @@ figure > a > .fancybox-wrapper {
 	cursor: -webkit-zoom-in;
 	cursor: zoom-in;
 }
-/*Zoomify 样式*/
+/*Zoomify 鏍峰紡*/
 .zoomify {
 	cursor: pointer;
 	cursor: -webkit-zoom-in;
@@ -4251,7 +4334,7 @@ html[lang] {
 	margin-top: 0 !important;
 }
 
-/*说说*/
+/*璇磋*/
 .shuoshuo-container {
 	margin-bottom: 25px;
 }
@@ -4458,7 +4541,7 @@ html[lang] {
 .shuoshuo-content:not(.shuoshuo-folded) .show-full-shuoshuo {
 	display: none;
 }
-/*归档时间轴*/
+/*褰掓。鏃堕棿杞?/
 .archive-timeline {
 	padding-top: 10px;
 }
@@ -5162,6 +5245,38 @@ html.darkmode.amoled-dark #content:after {
 	.navbar-main .container {
 		margin: 0;
 		max-width: 100vw;
+		position: relative;
+	}
+	.argon-oauth-nav-item {
+		display: none;
+	}
+	.argon-oauth-access-topbar-mobile {
+		display: flex;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		z-index: 4;
+		margin: 0;
+		max-width: none;
+		transform: translate(-50%, -50%);
+	}
+	.argon-oauth-access-topbar-mobile .argon-oauth-access-user {
+		display: none;
+	}
+	.argon-oauth-access-topbar-mobile .argon-oauth-access-action {
+		min-height: 30px;
+		padding: 5px 10px;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.16);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		color: #fff !important;
+		font-size: 12px;
+		box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+		backdrop-filter: blur(8px);
+	}
+	.argon-oauth-access-topbar-mobile .argon-oauth-access-action span {
+		display: inline;
+		font-size: 12px;
 	}
 	.navbar-toggler-icon {
 		width: 20px;
@@ -5297,7 +5412,7 @@ html.darkmode.amoled-dark #content:after {
 	}
 }
 @media screen and (max-width: 450px) {
-	/*Fab 设置菜单*/
+	/*Fab 璁剧疆鑿滃崟*/
 	#fabtn_blog_settings_popup {
 		position: fixed;
 		left: 0 !important;
@@ -5319,7 +5434,7 @@ html.darkmode.amoled-dark #content:after {
 	}
 }
 @media screen and (max-width: 600px) {
-	/*浮动操作按钮透明*/
+	/*娴姩鎿嶄綔鎸夐挳閫忔槑*/
 	#float_action_buttons {
 		opacity: 0.5;
 	}
@@ -5327,12 +5442,12 @@ html.darkmode.amoled-dark #content:after {
 	#float_action_buttons.blog_settings_opened {
 		opacity: 1;
 	}
-	/*文章边界缩小*/
+	/*鏂囩珷杈圭晫缂╁皬*/
 	.post-full {
 		margin-left: -10px;
 		margin-right: -10px;
 	}
-	/*显示更少的页码*/
+	/*鏄剧ず鏇村皯鐨勯〉鐮?/
 	.pagination:not(.pagination-mobile) {
 		display: none;
 	}
@@ -5341,7 +5456,7 @@ html.darkmode.amoled-dark #content:after {
 	}
 }
 @media screen and (max-width: 690px) {
-	/*文章分享的浮动二维码*/
+	/*鏂囩珷鍒嗕韩鐨勬诞鍔ㄤ簩缁寸爜*/
 	#share .icon-wechat .wechat-qrcode {
 		position: fixed;
 		z-index: 2000;
@@ -5388,7 +5503,7 @@ html.darkmode.amoled-dark #content:after {
 	}
 }
 
-/*打印样式优化*/
+/*鎵撳嵃鏍峰紡浼樺寲*/
 @media print {
 	#leftbar,
 	#post_comment,
@@ -5433,7 +5548,7 @@ html.no-js .comment-item-text .comment-sticker.lazyload {
 	display: none;
 }
 
-/*Safari 兼容*/
+/*Safari 鍏煎*/
 html.using-safari #float_action_buttons .fabtn:before,
 html.using-safari #share > a:before,
 html.using-safari #share_show:before,
@@ -5741,6 +5856,15 @@ html.darkmode article.post-preview-layout-2 .post-content {
 .mobile-home-profile-about-link span {
 	display: inline-block;
 	transform: translateY(-0.5px);
+}
+.argon-oauth-access-mobile {
+	width: min(100%, 260px);
+}
+.argon-oauth-access-mobile .argon-oauth-access-action,
+.argon-oauth-access-mobile .argon-oauth-access-user {
+	min-height: 40px;
+	border-radius: 14px;
+	font-size: 14px;
 }
 #footer {
 	position: relative;

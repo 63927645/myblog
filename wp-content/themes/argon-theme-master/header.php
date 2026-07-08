@@ -879,6 +879,7 @@
 					?>
 					<a class="navbar-brand navbar-title" href="<?php bloginfo('url'); ?>"><?php echo $toolbar_title;?></a>
 				</div>
+				<?php if (function_exists('argon_render_oauth_access_button')) { argon_render_oauth_access_button('argon-oauth-access argon-oauth-access-topbar-mobile'); } ?>
 				<div class="navbar-collapse collapse" id="navbar_global">
 					<div class="navbar-collapse-header">
 						<div class="row" style="display: none;">
@@ -948,6 +949,9 @@
 						}
 					?>
 					<ul class="navbar-nav align-items-lg-center ml-lg-auto">
+						<li class="nav-item argon-oauth-nav-item">
+							<?php if (function_exists('argon_render_oauth_access_button')) { argon_render_oauth_access_button('argon-oauth-access argon-oauth-access-topbar-desktop'); } ?>
+						</li>
 						<li id="navbar_search_container" class="nav-item" data-toggle="modal">
 							<div id="navbar_search_input_container">
 								<div class="input-group input-group-alternative">

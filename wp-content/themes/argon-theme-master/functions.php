@@ -1180,9 +1180,20 @@ function argon_comment_oauth_current_url(){
 	return esc_url_raw(remove_query_arg(array('comment_login_error', 'argon_comment_oauth', 'state', 'code', 'type'), $scheme . $host . $uri));
 }
 function argon_comment_oauth_login_url($provider){
+	return argon_comment_oauth_login_url_for_redirect($provider, argon_comment_oauth_current_url());
+}
+function argon_comment_oauth_login_url_for_redirect($provider, $redirect_to = ''){
+	$redirect_to = $redirect_to == '' ? argon_comment_oauth_current_url() : $redirect_to;
 	return add_query_arg(array(
 		'argon_comment_oauth' => $provider,
-		'redirect_to' => rawurlencode(argon_comment_oauth_current_url())
+		'redirect_to' => rawurlencode($redirect_to)
+	), home_url('/'));
+}
+function argon_oauth_access_page_url($redirect_to = ''){
+	$redirect_to = $redirect_to == '' ? argon_comment_oauth_current_url() : $redirect_to;
+	return add_query_arg(array(
+		'argon_oauth_access' => 'login',
+		'redirect_to' => rawurlencode($redirect_to)
 	), home_url('/'));
 }
 function argon_comment_oauth_cookie_name(){
@@ -1192,6 +1203,7 @@ function argon_comment_oauth_sign($payload){
 	return hash_hmac('sha256', $payload, wp_salt('auth'));
 }
 function argon_set_comment_oauth_identity($identity){
+	$identity['last_activity'] = time();
 	$payload = base64_encode(wp_json_encode($identity));
 	$value = $payload . '.' . argon_comment_oauth_sign($payload);
 	setcookie(argon_comment_oauth_cookie_name(), $value, 0, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
@@ -1216,7 +1228,90 @@ function argon_get_comment_oauth_identity(){
 	if (!in_array($identity['provider'], array('github', 'clogin'))){
 		return false;
 	}
+	$last_activity = !empty($identity['last_activity']) ? intval($identity['last_activity']) : 0;
+	if ($last_activity > 0 && time() - $last_activity > DAY_IN_SECONDS) {
+		argon_clear_comment_oauth_identity();
+		return false;
+	}
+	if ($last_activity <= 0 || time() - $last_activity > 60) {
+		$identity['last_activity'] = time();
+		argon_set_comment_oauth_identity($identity);
+	}
 	return $identity;
+}
+function argon_render_oauth_access_button($class_name = 'argon-oauth-access'){
+	$identity = argon_get_comment_oauth_identity();
+	if (strpos($class_name, 'argon-oauth-access-topbar-mobile') !== false) {
+		$classes = trim($class_name . ' ' . ($identity ? 'argon-oauth-access-logged-in' : 'argon-oauth-access-logged-out'));
+		if ($identity) {
+			?>
+			<div class="<?php echo esc_attr($classes); ?>">
+				<a class="argon-oauth-access-action argon-oauth-access-logout" href="<?php echo esc_url(argon_comment_oauth_login_url('logout')); ?>" no-pjax><i class="fa fa-sign-out"></i><span>退出</span></a>
+			</div>
+			<?php
+			return;
+		}
+		if (!$identity) {
+			?>
+			<div class="<?php echo esc_attr($classes); ?>">
+				<a class="argon-oauth-access-action argon-oauth-access-login" href="<?php echo esc_url(argon_oauth_access_page_url()); ?>" no-pjax><i class="fa fa-user-circle-o"></i><span>登录</span></a>
+			</div>
+			<?php
+			return;
+		}
+		?>
+		<div class="<?php echo esc_attr($classes); ?>">
+			<?php if ($identity) { ?>
+				<a class="argon-oauth-access-action argon-oauth-access-logout" href="<?php echo esc_url(argon_comment_oauth_login_url('logout')); ?>" no-pjax><i class="fa fa-sign-out"></i><span>退出</span></a>
+			<?php } elseif (argon_comment_oauth_is_configured('clogin')) { ?>
+				<a class="argon-oauth-access-action argon-oauth-access-clogin" href="<?php echo esc_url(argon_comment_oauth_login_url('clogin')); ?>" no-pjax><i class="fa fa-user-circle-o"></i><span>登录</span></a>
+			<?php } elseif (argon_comment_oauth_is_configured('github')) { ?>
+				<a class="argon-oauth-access-action argon-oauth-access-github" href="<?php echo esc_url(argon_comment_oauth_login_url('github')); ?>" no-pjax><i class="fa fa-github"></i><span>登录</span></a>
+			<?php } ?>
+		</div>
+		<?php
+		return;
+	}
+	if (strpos($class_name, 'argon-oauth-access-topbar-desktop') !== false) {
+		$classes = trim($class_name . ' ' . ($identity ? 'argon-oauth-access-logged-in' : 'argon-oauth-access-logged-out'));
+		?>
+		<div class="<?php echo esc_attr($classes); ?>">
+			<?php if ($identity) { ?>
+				<div class="argon-oauth-access-user">
+					<?php if (!empty($identity['avatar'])) { ?>
+						<img src="<?php echo esc_url($identity['avatar']); ?>" alt="" loading="lazy" referrerpolicy="no-referrer">
+					<?php } ?>
+					<span><?php echo esc_html($identity['name']); ?></span>
+				</div>
+				<a class="argon-oauth-access-action argon-oauth-access-logout" href="<?php echo esc_url(argon_comment_oauth_login_url('logout')); ?>" no-pjax><i class="fa fa-sign-out"></i><span>退出登录</span></a>
+			<?php } else { ?>
+				<a class="argon-oauth-access-action argon-oauth-access-login" href="<?php echo esc_url(argon_oauth_access_page_url()); ?>" no-pjax><i class="fa fa-user-circle-o"></i><span>登录</span></a>
+			<?php } ?>
+		</div>
+		<?php
+		return;
+	}
+	$classes = trim($class_name . ' ' . ($identity ? 'argon-oauth-access-logged-in' : 'argon-oauth-access-logged-out'));
+	?>
+	<div class="<?php echo esc_attr($classes); ?>">
+		<?php if ($identity) { ?>
+			<div class="argon-oauth-access-user">
+				<?php if (!empty($identity['avatar'])) { ?>
+					<img src="<?php echo esc_url($identity['avatar']); ?>" alt="" loading="lazy" referrerpolicy="no-referrer">
+				<?php } ?>
+				<span><?php echo esc_html($identity['name']); ?></span>
+			</div>
+			<a class="argon-oauth-access-action argon-oauth-access-logout" href="<?php echo esc_url(argon_comment_oauth_login_url('logout')); ?>" no-pjax>退出登录</a>
+		<?php } else { ?>
+			<?php if (argon_comment_oauth_is_configured('github')) { ?>
+				<a class="argon-oauth-access-action argon-oauth-access-github" href="<?php echo esc_url(argon_comment_oauth_login_url('github')); ?>" no-pjax><i class="fa fa-github"></i><span>GitHub 登录</span></a>
+			<?php } ?>
+			<?php if (argon_comment_oauth_is_configured('clogin')) { ?>
+				<a class="argon-oauth-access-action argon-oauth-access-clogin" href="<?php echo esc_url(argon_comment_oauth_login_url('clogin')); ?>" no-pjax><i class="fa fa-user-circle-o"></i><span>UR互联（微信）登录</span></a>
+			<?php } ?>
+		<?php } ?>
+	</div>
+	<?php
 }
 function argon_comment_oauth_fail($message, $redirect_to = ''){
 	$redirect_to = $redirect_to == '' ? home_url('/') : $redirect_to;
@@ -4444,8 +4539,9 @@ function argon_privacy_password_form($post_id, $has_error = false) {
 	return ob_get_clean();
 }
 
-function argon_oauth_login_required_page($post_id) {
-	$title = get_the_title($post_id);
+function argon_oauth_login_required_page($post_id = 0, $redirect_to = '') {
+	$title = $post_id ? get_the_title($post_id) : get_bloginfo('name');
+	$redirect_to = $redirect_to == '' ? argon_comment_oauth_current_url() : $redirect_to;
 	$github_ready = function_exists('argon_comment_oauth_is_configured') && argon_comment_oauth_is_configured('github');
 	$ur_ready = function_exists('argon_comment_oauth_is_configured') && argon_comment_oauth_is_configured('clogin');
 	ob_start();
@@ -4455,10 +4551,10 @@ function argon_oauth_login_required_page($post_id) {
 				<h1 style="margin:0 0 10px;font-size:26px;line-height:1.3;">需要登录后查看</h1>
 				<p style="margin:0 0 22px;color:#667085;line-height:1.7;">访问“<?php echo esc_html($title); ?>”需要使用 GitHub 或 UR互联（微信）登录。</p>
 				<?php if ($github_ready) { ?>
-					<a href="<?php echo esc_url(argon_comment_oauth_login_url('github')); ?>" style="display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:13px;background:#5e72e4;color:#fff;text-decoration:none;font-weight:800;margin-bottom:12px;">GitHub 登录</a>
+					<a href="<?php echo esc_url(argon_comment_oauth_login_url_for_redirect('github', $redirect_to)); ?>" style="display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:13px;background:#5e72e4;color:#fff;text-decoration:none;font-weight:800;margin-bottom:12px;">GitHub 登录</a>
 				<?php } ?>
 				<?php if ($ur_ready) { ?>
-					<a href="<?php echo esc_url(argon_comment_oauth_login_url('clogin')); ?>" style="display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:13px;border:1px solid #6d7ee8;color:#5e72e4;background:#fff;text-decoration:none;font-weight:800;margin-bottom:12px;">UR互联（微信）登录</a>
+					<a href="<?php echo esc_url(argon_comment_oauth_login_url_for_redirect('clogin', $redirect_to)); ?>" style="display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:13px;border:1px solid #6d7ee8;color:#5e72e4;background:#fff;text-decoration:none;font-weight:800;margin-bottom:12px;">UR互联（微信）登录</a>
 				<?php } ?>
 				<?php if (!$github_ready && !$ur_ready) { ?>
 					<div style="padding:12px 14px;border-radius:12px;background:#fff7ed;color:#c2410c;font-weight:700;">第三方登录尚未配置，请联系站点管理员。</div>
@@ -4492,6 +4588,20 @@ function argon_handle_privacy_password_submit($post_id, $password) {
 	}
 	wp_die(argon_privacy_password_form($post_id, true), '请输入访问密码', array('response' => 403));
 }
+
+function argon_oauth_access_page_handler() {
+	if (empty($_GET['argon_oauth_access']) || sanitize_key($_GET['argon_oauth_access']) !== 'login') {
+		return;
+	}
+	$redirect_to = !empty($_GET['redirect_to']) ? esc_url_raw(rawurldecode(wp_unslash($_GET['redirect_to']))) : home_url('/');
+	if (strpos($redirect_to, home_url()) !== 0) {
+		$redirect_to = home_url('/');
+	}
+	nocache_headers();
+	echo argon_oauth_login_required_page(0, $redirect_to);
+	exit;
+}
+add_action('template_redirect', 'argon_oauth_access_page_handler', 1);
 
 function argon_get_current_privacy_content_id() {
 	if (is_admin() || is_feed() || is_robots() || is_trackback()) {
