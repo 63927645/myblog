@@ -190,6 +190,9 @@
 		body.home #banner.banner .shape {
 			display: none;
 		}
+		body.argon-is-composite-page #banner.banner .shape {
+			display: none !important;
+		}
 		.banner::before {
 			content: "";
 			position: absolute;

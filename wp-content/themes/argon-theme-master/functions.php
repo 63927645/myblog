@@ -1367,6 +1367,65 @@ function argon_handle_comment_oauth(){
 	exit;
 }
 add_action('init', 'argon_handle_comment_oauth');
+function argon_force_session_only_wp_login() {
+	if (isset($_POST['rememberme'])) {
+		$_POST['rememberme'] = '';
+	}
+	if (isset($_REQUEST['rememberme'])) {
+		$_REQUEST['rememberme'] = '';
+	}
+}
+add_action('login_init', 'argon_force_session_only_wp_login', 1);
+function argon_hide_remember_me_login_option() {
+	?>
+		<style>
+			.forgetmenot,
+			.login-remember {
+				display: none !important;
+			}
+		</style>
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				var remember = document.getElementById('rememberme');
+				if (remember) {
+					remember.checked = false;
+				}
+			});
+		</script>
+	<?php
+}
+add_action('login_enqueue_scripts', 'argon_hide_remember_me_login_option');
+function argon_disable_frontend_remember_login($defaults) {
+	$defaults['remember'] = false;
+	return $defaults;
+}
+add_filter('login_form_defaults', 'argon_disable_frontend_remember_login');
+function argon_rewrite_auth_cookies_as_browser_session() {
+	if (!is_user_logged_in()) {
+		return;
+	}
+	$cookie_domain = (defined('COOKIE_DOMAIN') && COOKIE_DOMAIN) ? COOKIE_DOMAIN : '';
+	$cookie_specs = array();
+	if (defined('LOGGED_IN_COOKIE')) {
+		$cookie_specs[] = array('name' => LOGGED_IN_COOKIE, 'paths' => array(COOKIEPATH, SITECOOKIEPATH), 'secure' => is_ssl());
+	}
+	if (defined('AUTH_COOKIE')) {
+		$cookie_specs[] = array('name' => AUTH_COOKIE, 'paths' => array(ADMIN_COOKIE_PATH, PLUGINS_COOKIE_PATH), 'secure' => false);
+	}
+	if (defined('SECURE_AUTH_COOKIE')) {
+		$cookie_specs[] = array('name' => SECURE_AUTH_COOKIE, 'paths' => array(ADMIN_COOKIE_PATH, PLUGINS_COOKIE_PATH), 'secure' => true);
+	}
+	foreach ($cookie_specs as $spec) {
+		if (empty($_COOKIE[$spec['name']])) {
+			continue;
+		}
+		$paths = array_unique(array_filter($spec['paths']));
+		foreach ($paths as $path) {
+			setcookie($spec['name'], $_COOKIE[$spec['name']], 0, $path, $cookie_domain, $spec['secure'], true);
+		}
+	}
+}
+add_action('init', 'argon_rewrite_auth_cookies_as_browser_session', 20);
 function argon_comment_format($comment, $args, $depth){
 	global $comment_enable_upvote, $comment_enable_pinning;
 	$GLOBALS['comment'] = $comment;
@@ -4364,10 +4423,11 @@ function argon_privacy_password_is_unlocked($post_id, $password) {
 
 function argon_privacy_password_form($post_id, $has_error = false) {
 	$title = get_the_title($post_id);
+	$password_field_name = 'argon_privacy_password_' . wp_generate_password(12, false, false);
 	ob_start();
 	?>
 		<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#eef2ff,#fff7ed);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#32325d;">
-			<form method="post" style="width:min(420px,100%);background:rgba(255,255,255,.92);border:1px solid rgba(94,114,228,.18);border-radius:18px;padding:28px;box-shadow:0 24px 60px rgba(50,50,93,.16);">
+			<form method="post" autocomplete="off" data-form-type="other" style="width:min(420px,100%);background:rgba(255,255,255,.92);border:1px solid rgba(94,114,228,.18);border-radius:18px;padding:28px;box-shadow:0 24px 60px rgba(50,50,93,.16);">
 				<h1 style="margin:0 0 10px;font-size:26px;line-height:1.3;">请输入访问密码</h1>
 				<p style="margin:0 0 20px;color:#667085;">访问「<?php echo esc_html($title); ?>」需要密码。</p>
 				<?php if ($has_error) { ?>
@@ -4375,7 +4435,7 @@ function argon_privacy_password_form($post_id, $has_error = false) {
 				<?php } ?>
 				<?php wp_nonce_field('argon_privacy_password_' . intval($post_id), 'argon_privacy_password_nonce'); ?>
 				<input type="hidden" name="argon_privacy_post_id" value="<?php echo esc_attr($post_id); ?>">
-				<input type="password" name="argon_privacy_password" autofocus placeholder="访问密码" style="width:100%;height:46px;border:1px solid #d6dcff;border-radius:12px;padding:0 14px;font-size:16px;box-sizing:border-box;">
+				<input type="password" name="<?php echo esc_attr($password_field_name); ?>" autofocus autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="访问密码" style="width:100%;height:46px;border:1px solid #d6dcff;border-radius:12px;padding:0 14px;font-size:16px;box-sizing:border-box;">
 				<button type="submit" style="width:100%;margin-top:16px;height:46px;border:0;border-radius:12px;background:#5e72e4;color:#fff;font-size:16px;font-weight:700;cursor:pointer;">进入</button>
 				<a href="<?php echo esc_url(home_url('/')); ?>" style="display:block;margin-top:14px;text-align:center;color:#667085;text-decoration:none;">返回首页</a>
 			</form>
@@ -4394,7 +4454,13 @@ function argon_handle_privacy_password_submit($post_id, $password) {
 	if (empty($_POST['argon_privacy_password_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['argon_privacy_password_nonce'])), 'argon_privacy_password_' . intval($post_id))) {
 		wp_die(argon_privacy_password_form($post_id, true), '请输入访问密码', array('response' => 403));
 	}
-	$submitted_password = isset($_POST['argon_privacy_password']) ? sanitize_text_field(wp_unslash($_POST['argon_privacy_password'])) : '';
+	$submitted_password = '';
+	foreach ($_POST as $field_name => $field_value) {
+		if (strpos((string)$field_name, 'argon_privacy_password_') === 0 && $field_name !== 'argon_privacy_password_nonce') {
+			$submitted_password = sanitize_text_field(wp_unslash($field_value));
+			break;
+		}
+	}
 	if (hash_equals((string)$password, (string)$submitted_password)) {
 		return true;
 	}
@@ -4449,8 +4515,7 @@ function argon_content_is_restricted_for_navigation($post_id) {
 	if ($post -> post_status === 'private' || get_post_field('post_password', $post_id) !== '') {
 		return true;
 	}
-	$settings = argon_get_privacy_settings_for_content($post_id);
-	return !empty($settings['enabled']) && $settings['visibility'] !== 'public';
+	return false;
 }
 
 function argon_hide_restricted_nav_menu_items($items, $args) {
