@@ -988,8 +988,12 @@
 	<?php $argon_banner_background_url = apply_filters('argon_banner_background_url', get_banner_background_url()); ?>
 	<?php if ($argon_banner_background_url != '') { ?>
 		<style>
+			section#banner.banner,
 			section.banner{
-				background-image: url(<?php echo esc_url($argon_banner_background_url); ?>) !important;
+				background-image: url("<?php echo esc_url($argon_banner_background_url); ?>") !important;
+				background-size: cover !important;
+				background-position: center center !important;
+				background-repeat: no-repeat !important;
 			}
 		</style>
 	<?php } ?>
@@ -1003,7 +1007,8 @@
 <?php if (apply_filters('argon_page_background_url', get_option('argon_page_background_url')) != '') { ?>
 	<style>
 		<?php if (get_option('argon_page_background_banner_style', 'false') == 'transparent') { ?>
-			#banner, #banner .shape {
+			body:not(.argon-is-composite-page) #banner,
+			body:not(.argon-is-composite-page) #banner .shape {
 				background: transparent !important;
 			}
 		<?php } ?>

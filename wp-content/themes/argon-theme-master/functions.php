@@ -4154,12 +4154,14 @@ function argon_composite_page_meta_box($post) {
 
 function argon_composite_page_banner_meta_box($post) {
 	$banner_background = get_post_meta($post -> ID, 'argon_composite_banner_background', true);
+	$banner_attachment_id = intval(get_post_meta($post -> ID, 'argon_composite_banner_attachment_id', true));
 	$banner_summary = get_post_meta($post -> ID, 'argon_composite_banner_summary', true);
 	?>
 		<div class="argon-composite-banner-fields">
 			<div class="argon-composite-banner-field">
 				<label for="argon_composite_banner_background"><strong>顶部 Banner 图片</strong></label>
 				<div class="argon-composite-banner-image-row">
+					<input type="hidden" name="argon_composite_banner_attachment_id" id="argon_composite_banner_attachment_id" value="<?php echo esc_attr($banner_attachment_id); ?>">
 					<input type="url" name="argon_composite_banner_background" id="argon_composite_banner_background" value="<?php echo esc_attr($banner_background); ?>" class="widefat" placeholder="图片 URL，留空则使用页面特色图或全局背景">
 					<button type="button" class="button argon-composite-page-image-select">上传/选择图片</button>
 					<button type="button" class="button argon-composite-page-image-clear">清除</button>
@@ -4216,6 +4218,7 @@ function argon_save_composite_page_meta($post_id) {
 
 	if ($page_mode === 'composite') {
 		update_post_meta($post_id, 'argon_composite_banner_background', isset($_POST['argon_composite_banner_background']) ? esc_url_raw($_POST['argon_composite_banner_background']) : '');
+		update_post_meta($post_id, 'argon_composite_banner_attachment_id', isset($_POST['argon_composite_banner_attachment_id']) ? intval($_POST['argon_composite_banner_attachment_id']) : 0);
 		update_post_meta($post_id, 'argon_composite_banner_summary', isset($_POST['argon_composite_banner_summary']) ? sanitize_textarea_field($_POST['argon_composite_banner_summary']) : '');
 		$visibility = isset($_POST['argon_composite_visibility']) ? argon_normalize_privacy_visibility(sanitize_text_field(wp_unslash($_POST['argon_composite_visibility']))) : 'public';
 		update_post_meta($post_id, 'argon_composite_visibility', $visibility);
@@ -4510,16 +4513,38 @@ function argon_composite_page_banner_subtitle($subtitle) {
 }
 add_filter('argon_banner_subtitle', 'argon_composite_page_banner_subtitle');
 
+function argon_get_composite_banner_background_url($page_id) {
+	$page_id = intval($page_id);
+	if (!$page_id) {
+		return '';
+	}
+	$custom_background = trim((string)get_post_meta($page_id, 'argon_composite_banner_background', true));
+	if ($custom_background !== '') {
+		if (is_numeric($custom_background)) {
+			$attachment_url = wp_get_attachment_image_url(intval($custom_background), 'full');
+			if ($attachment_url) {
+				return $attachment_url;
+			}
+		}
+		return esc_url_raw($custom_background);
+	}
+	$attachment_id = intval(get_post_meta($page_id, 'argon_composite_banner_attachment_id', true));
+	if ($attachment_id > 0) {
+		$attachment_url = wp_get_attachment_image_url($attachment_id, 'full');
+		if ($attachment_url) {
+			return $attachment_url;
+		}
+	}
+	$thumbnail = get_the_post_thumbnail_url($page_id, 'full');
+	return $thumbnail ? $thumbnail : '';
+}
+
 function argon_composite_page_banner_background($url) {
 	$page_id = get_queried_object_id();
 	if (!argon_is_composite_page($page_id)) {
 		return $url;
 	}
-	$custom_background = get_post_meta($page_id, 'argon_composite_banner_background', true);
-	if ($custom_background !== '') {
-		return $custom_background;
-	}
-	$thumbnail = get_the_post_thumbnail_url($page_id, 'full');
-	return $thumbnail ? $thumbnail : $url;
+	$composite_background = argon_get_composite_banner_background_url($page_id);
+	return $composite_background !== '' ? $composite_background : $url;
 }
 add_filter('argon_banner_background_url', 'argon_composite_page_banner_background');

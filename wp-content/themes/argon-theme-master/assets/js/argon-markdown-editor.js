@@ -318,6 +318,7 @@
 
 	function openCompositeBannerMediaFrame() {
 		var imageInput = document.getElementById("argon_composite_banner_background");
+		var attachmentInput = document.getElementById("argon_composite_banner_attachment_id");
 		if (!imageInput) {
 			return;
 		}
@@ -338,6 +339,9 @@
 		frame.on("select", function () {
 			var attachment = frame.state().get("selection").first().toJSON();
 			imageInput.value = attachment.url || "";
+			if (attachmentInput) {
+				attachmentInput.value = attachment.id || "";
+			}
 			syncCompositeBannerPreview(imageInput.value);
 			imageInput.dispatchEvent(new Event("change", { bubbles: true }));
 		});
@@ -362,9 +366,13 @@
 				event.preventDefault();
 				event.stopPropagation();
 				var imageInput = document.getElementById("argon_composite_banner_background");
+				var attachmentInput = document.getElementById("argon_composite_banner_attachment_id");
 				if (imageInput) {
 					imageInput.value = "";
 					imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+				}
+				if (attachmentInput) {
+					attachmentInput.value = "";
 				}
 				syncCompositeBannerPreview("");
 			}
