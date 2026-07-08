@@ -97,6 +97,7 @@ body.argon-markdown-editor-enabled #post-status-info {
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 5px;
+	position: relative;
 	border: 1px solid #d9def7;
 	border-bottom: 0;
 	border-radius: 12px 12px 0 0;
@@ -231,13 +232,54 @@ body.argon-markdown-editor-enabled #post-status-info {
 	font-size: 14px;
 }
 
+.EasyMDEContainer .editor-toolbar .argon-md-upload {
+	border-color: #cfd6fb;
+	background: #eef1ff;
+	color: #5968d8 !important;
+}
+
+.EasyMDEContainer .editor-toolbar .argon-upload-menu {
+	position: absolute;
+	z-index: 20;
+	top: 42px;
+	right: 48px;
+	display: grid;
+	grid-template-columns: repeat(4, auto);
+	gap: 6px;
+	padding: 8px;
+	border: 1px solid #d9def7;
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: 0 14px 34px rgba(44, 54, 96, .16);
+}
+
+.EasyMDEContainer .editor-toolbar .argon-upload-menu button {
+	min-width: 46px;
+	height: 28px;
+	padding: 0 9px;
+	border: 1px solid #dfe3f6;
+	border-radius: 8px;
+	background: #f7f8ff;
+	color: #30374f !important;
+	font-size: 12px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.EasyMDEContainer .editor-toolbar .argon-upload-menu button:hover {
+	border-color: #bdc7fb;
+	background: #eef1ff;
+	color: #5968d8 !important;
+}
+
 .EasyMDEContainer .editor-toolbar.argon-toolbar-collapsed {
 	padding: 8px;
 	justify-content: flex-end;
 }
 
 .EasyMDEContainer .editor-toolbar.argon-toolbar-collapsed button:not(.argon-md-collapse),
-.EasyMDEContainer .editor-toolbar.argon-toolbar-collapsed i.separator {
+.EasyMDEContainer .editor-toolbar.argon-toolbar-collapsed i.separator,
+.EasyMDEContainer .editor-toolbar.argon-toolbar-collapsed .argon-upload-menu {
 	display: none;
 }
 

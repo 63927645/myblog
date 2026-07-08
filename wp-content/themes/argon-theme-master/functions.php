@@ -3742,6 +3742,7 @@ function argon_markdown_admin_assets($hook){
 	$markdown_editor_js = get_template_directory() . '/assets/js/argon-markdown-editor.js';
 	$markdown_editor_css_version = file_exists($markdown_editor_css) ? filemtime($markdown_editor_css) : $GLOBALS['theme_version'];
 	$markdown_editor_js_version = file_exists($markdown_editor_js) ? filemtime($markdown_editor_js) : $GLOBALS['theme_version'];
+	wp_enqueue_media();
 	wp_enqueue_style('argon-easymde', 'https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css', array(), '2.18.0');
 	wp_enqueue_style('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/css/argon-markdown-editor.css', array('argon-easymde'), $markdown_editor_css_version);
 	wp_enqueue_script('argon-easymde', 'https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js', array(), '2.18.0', true);
