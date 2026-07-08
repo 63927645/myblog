@@ -1018,7 +1018,7 @@ html:not(.is-home) .cover-scroll-down {
 	pointer-events: none;
 }
 
-/*宸︿晶鏍?/
+/* Left sidebar */
 .leftbar-banner {
 	/*background: linear-gradient(150deg,#7795f8 15%,#6772e5 70%,#555abf 94%);*/
 	background: var(--themecolor-gradient);
@@ -1355,6 +1355,29 @@ html.darkmode .sidebar-tab-switcher > a.active {
 	color: #e11d48 !important;
 	background: rgba(225, 29, 72, 0.08);
 	border-color: rgba(225, 29, 72, 0.18);
+}
+@media screen and (min-width: 1001px) {
+	.argon-oauth-access-topbar-mobile {
+		display: flex;
+		align-items: center;
+		margin: 0 18px 0 8px;
+		max-width: none;
+	}
+	.argon-oauth-access-topbar-mobile .argon-oauth-access-action,
+	.argon-oauth-access-topbar-mobile .argon-oauth-access-user {
+		min-height: 36px;
+		padding: 7px 13px;
+		border-radius: 12px;
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		color: #fff !important;
+		box-shadow: none;
+	}
+	.argon-oauth-access-topbar-mobile .argon-oauth-access-action i,
+	.argon-oauth-access-topbar-mobile .argon-oauth-access-action span,
+	.argon-oauth-access-topbar-mobile .argon-oauth-access-user span {
+		color: #fff !important;
+	}
 }
 .leftbar-page-links {
 	display: grid;
