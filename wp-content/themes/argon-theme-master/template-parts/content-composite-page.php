@@ -1,10 +1,7 @@
 <?php
 $composite_page_id = get_the_ID();
 $composite_category = function_exists('argon_get_or_create_composite_page_category') ? argon_get_or_create_composite_page_category($composite_page_id) : intval(get_post_meta($composite_page_id, 'argon_composite_category', true));
-$composite_posts_per_page = intval(get_post_meta($composite_page_id, 'argon_composite_posts_per_page', true));
-if ($composite_posts_per_page <= 0) {
-	$composite_posts_per_page = intval(get_option('posts_per_page', 10));
-}
+$composite_posts_per_page = intval(get_option('posts_per_page', 10));
 $composite_paged = max(1, intval(get_query_var('paged')), intval(get_query_var('page')));
 
 $composite_args = array(
@@ -18,17 +15,6 @@ if ($composite_category > 0) {
 	$composite_args['cat'] = $composite_category;
 } else {
 	$composite_args['post__in'] = array(0);
-}
-
-$page_intro = trim(get_the_content());
-if ($page_intro !== '') {
-?>
-	<article class="post post-full card bg-white shadow-sm border-0 argon-composite-page-intro" id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-		<div class="post-content" id="post_content">
-			<?php the_content(); ?>
-		</div>
-	</article>
-<?php
 }
 
 $composite_query = new WP_Query($composite_args);

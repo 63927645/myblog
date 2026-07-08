@@ -150,6 +150,7 @@
 							<?php if (function_exists('argon_get_profile_page_url')) { ?>
 								<a class="leftbar-profile-about-link" href="<?php echo esc_url(argon_get_profile_page_url()); ?>">关于我 <span aria-hidden="true">→</span></a>
 							<?php } ?>
+							<?php if (function_exists('argon_render_homepage_page_links')) { argon_render_homepage_page_links('leftbar-page-links'); } ?>
 							<?php
 								/*侧栏作者链接*/
 								class leftbarAuthorLinksWalker extends Walker_Nav_Menu{
