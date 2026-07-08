@@ -7,17 +7,29 @@ if (typeof(argonConfig.wp_path) == "undefined"){
 function argonRefreshHomeBanner(){
 	var banner = document.getElementById("banner");
 	var main = document.getElementById("main");
-	if (!banner || !main || !main.classList.contains("article-list-home") || !argonConfig.home_banner_background_url){
+	if (!banner){
 		return;
 	}
-	document.body.classList.add("home");
-	document.documentElement.classList.add("is-home");
-	banner.style.setProperty("background-image", 'url("' + argonConfig.home_banner_background_url + '")', "important");
-	banner.style.setProperty("background-position", "center top", "important");
+	var pageKind = banner.getAttribute("data-page-kind") || "";
+	var isHome = pageKind === "home" || (main && main.classList.contains("article-list-home"));
+	var isComposite = pageKind === "composite";
+	document.body.classList.toggle("home", isHome);
+	document.documentElement.classList.toggle("is-home", isHome);
+	document.body.classList.toggle("argon-is-composite-page", isComposite);
+	var backgroundUrl = banner.getAttribute("data-banner-background-url") || "";
+	if (isHome && argonConfig.home_banner_background_url){
+		backgroundUrl = argonConfig.home_banner_background_url;
+	}
+	if (!backgroundUrl){
+		banner.style.removeProperty("background-image");
+		return;
+	}
+	banner.style.setProperty("background-image", 'url("' + backgroundUrl + '")', "important");
+	banner.style.setProperty("background-position", banner.getAttribute("data-banner-background-position") || (isHome ? "center top" : "center center"), "important");
 	banner.style.setProperty("background-size", "cover", "important");
 	banner.style.setProperty("background-repeat", "no-repeat", "important");
 	var shape = banner.querySelector(".shape");
-	if (shape){
+	if (shape && (isHome || isComposite || banner.getAttribute("data-banner-hide-shape") === "true")){
 		shape.style.setProperty("display", "none", "important");
 	}
 }
@@ -1887,8 +1899,8 @@ if ($("html").hasClass("banner-as-cover")){
 /*Pjax*/
 var pjaxScrollTop = 0, pjaxLoading = false;
 $.pjax.defaults.timeout = 10000;
-$.pjax.defaults.container = ['#primary', '#leftbar_part1_menu', '#leftbar_part2_inner', '.page-information-card-container', '#rightbar', '#wpadminbar'];
-$.pjax.defaults.fragment = ['#primary', '#leftbar_part1_menu', '#leftbar_part2_inner', '.page-information-card-container', '#rightbar', '#wpadminbar'];
+$.pjax.defaults.container = ['#banner', '#primary', '#leftbar_part1_menu', '#leftbar_part2_inner', '.page-information-card-container', '#rightbar', '#wpadminbar'];
+$.pjax.defaults.fragment = ['#banner', '#primary', '#leftbar_part1_menu', '#leftbar_part2_inner', '.page-information-card-container', '#rightbar', '#wpadminbar'];
 $(document).pjax("a[href]:not([no-pjax]):not(.no-pjax):not([target='_blank']):not([download]):not(.reference-link):not(.reference-list-backlink)")
 .on('pjax:click', function(e, f, g){
 	if (argonConfig.disable_pjax == true){

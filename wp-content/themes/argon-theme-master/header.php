@@ -986,7 +986,14 @@
 	</div>
 </div>
 <!--Banner-->
-<section id="banner" class="banner section section-lg section-shaped">
+<?php
+	$argon_banner_background_url = apply_filters('argon_banner_background_url', get_banner_background_url());
+	$argon_banner_is_home = is_home() || is_front_page();
+	$argon_banner_is_composite = function_exists('argon_is_composite_page') && argon_is_composite_page(get_queried_object_id());
+	$argon_banner_page_kind = $argon_banner_is_home ? 'home' : ($argon_banner_is_composite ? 'composite' : 'default');
+	$argon_banner_dom_background_url = $argon_banner_is_home ? $home_city_hero_url : $argon_banner_background_url;
+?>
+<section id="banner" class="banner section section-lg section-shaped" data-page-kind="<?php echo esc_attr($argon_banner_page_kind); ?>" data-banner-background-url="<?php echo esc_url($argon_banner_dom_background_url); ?>" data-banner-background-position="<?php echo $argon_banner_is_home ? 'center top' : 'center center'; ?>" data-banner-hide-shape="<?php echo $argon_banner_dom_background_url != '' ? 'true' : 'false'; ?>">
 	<div class="shape <?php echo get_option('argon_banner_background_hide_shapes') == 'true' ? '' : 'shape-style-1' ?> <?php echo get_option('argon_banner_background_color_type') == '' ? 'shape-primary' : get_option('argon_banner_background_color_type'); ?>">
 		<span></span>
 		<span></span>
@@ -1014,7 +1021,6 @@
 			<?php echo $banner_subtitle == '' ? '' : '<span data-text="' . $banner_subtitle . '" class="banner-subtitle d-block">&nbsp;</span>'; ?></div>
 		<?php }?>
 	</div>
-	<?php $argon_banner_background_url = apply_filters('argon_banner_background_url', get_banner_background_url()); ?>
 	<?php if ($argon_banner_background_url != '') { ?>
 		<style>
 			section#banner.banner,

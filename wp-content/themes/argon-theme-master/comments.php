@@ -160,14 +160,14 @@
 									<div class="comment-oauth-label">已通过 <?php echo esc_html($comment_oauth_label); ?> 登录</div>
 									<div class="comment-oauth-name"><?php echo esc_html($comment_oauth_name); ?></div>
 								</div>
-								<a class="comment-oauth-logout" href="<?php echo esc_url(add_query_arg(array('argon_comment_oauth' => 'logout', 'redirect_to' => $comment_oauth_redirect), home_url('/'))); ?>">切换账号</a>
+								<a class="comment-oauth-logout" href="<?php echo esc_url(add_query_arg(array('argon_comment_oauth' => 'logout', 'redirect_to' => $comment_oauth_redirect), home_url('/'))); ?>" no-pjax>切换账号</a>
 							</div>
 						<?php }else{ ?>
 							<div class="comment-oauth-actions" aria-label="评论登录">
-								<a class="btn btn-primary comment-oauth-login comment-oauth-github" href="<?php echo esc_url(argon_comment_oauth_login_url('github')); ?>">
+								<a class="btn btn-primary comment-oauth-login comment-oauth-github" href="<?php echo esc_url(argon_comment_oauth_login_url('github')); ?>" no-pjax>
 									<i class="fa fa-github"></i><span>GitHub 登录评论</span>
 								</a>
-								<a class="btn btn-outline-primary comment-oauth-login comment-oauth-clogin" href="<?php echo esc_url(argon_comment_oauth_login_url('clogin')); ?>">
+								<a class="btn btn-outline-primary comment-oauth-login comment-oauth-clogin" href="<?php echo esc_url(argon_comment_oauth_login_url('clogin')); ?>" no-pjax>
 									<i class="fa fa-user-circle"></i><span>UR互联（微信）登录</span>
 								</a>
 							</div>
