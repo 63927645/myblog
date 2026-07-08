@@ -992,9 +992,11 @@
 	$argon_banner_is_composite = function_exists('argon_is_composite_page') && argon_is_composite_page(get_queried_object_id());
 	$argon_banner_page_kind = $argon_banner_is_home ? 'home' : ($argon_banner_is_composite ? 'composite' : 'default');
 	$argon_banner_dom_background_url = $argon_banner_is_home ? $home_city_hero_url : $argon_banner_background_url;
+	$argon_banner_background_position = $argon_banner_is_home ? 'center top' : 'center center';
+	$argon_banner_inline_style = $argon_banner_dom_background_url != '' ? 'background-image: url(' . esc_url($argon_banner_dom_background_url) . ') !important; background-size: cover !important; background-position: ' . $argon_banner_background_position . ' !important; background-repeat: no-repeat !important;' : '';
 ?>
-<section id="banner" class="banner section section-lg section-shaped" data-page-kind="<?php echo esc_attr($argon_banner_page_kind); ?>" data-banner-background-url="<?php echo esc_url($argon_banner_dom_background_url); ?>" data-banner-background-position="<?php echo $argon_banner_is_home ? 'center top' : 'center center'; ?>" data-banner-hide-shape="<?php echo $argon_banner_dom_background_url != '' ? 'true' : 'false'; ?>">
-	<div class="shape <?php echo get_option('argon_banner_background_hide_shapes') == 'true' ? '' : 'shape-style-1' ?> <?php echo get_option('argon_banner_background_color_type') == '' ? 'shape-primary' : get_option('argon_banner_background_color_type'); ?>">
+<section id="banner" class="banner section section-lg section-shaped" data-page-kind="<?php echo esc_attr($argon_banner_page_kind); ?>" data-banner-background-url="<?php echo esc_url($argon_banner_dom_background_url); ?>" data-banner-background-position="<?php echo esc_attr($argon_banner_background_position); ?>" data-banner-hide-shape="<?php echo $argon_banner_dom_background_url != '' ? 'true' : 'false'; ?>" style="<?php echo esc_attr($argon_banner_inline_style); ?>">
+	<div class="shape <?php echo get_option('argon_banner_background_hide_shapes') == 'true' ? '' : 'shape-style-1' ?> <?php echo get_option('argon_banner_background_color_type') == '' ? 'shape-primary' : get_option('argon_banner_background_color_type'); ?>" style="<?php echo $argon_banner_dom_background_url != '' ? 'display:none !important;' : ''; ?>">
 		<span></span>
 		<span></span>
 		<span></span>
@@ -1021,13 +1023,13 @@
 			<?php echo $banner_subtitle == '' ? '' : '<span data-text="' . $banner_subtitle . '" class="banner-subtitle d-block">&nbsp;</span>'; ?></div>
 		<?php }?>
 	</div>
-	<?php if ($argon_banner_background_url != '') { ?>
+	<?php if ($argon_banner_dom_background_url != '') { ?>
 		<style>
 			section#banner.banner,
 			section.banner{
-				background-image: url("<?php echo esc_url($argon_banner_background_url); ?>") !important;
+				background-image: url("<?php echo esc_url($argon_banner_dom_background_url); ?>") !important;
 				background-size: cover !important;
-				background-position: center center !important;
+				background-position: <?php echo esc_html($argon_banner_background_position); ?> !important;
 				background-repeat: no-repeat !important;
 			}
 		</style>
@@ -1042,8 +1044,8 @@
 <?php if (apply_filters('argon_page_background_url', get_option('argon_page_background_url')) != '') { ?>
 	<style>
 		<?php if (get_option('argon_page_background_banner_style', 'false') == 'transparent') { ?>
-			body:not(.argon-is-composite-page) #banner,
-			body:not(.argon-is-composite-page) #banner .shape {
+			body:not(.argon-is-composite-page) #banner[data-banner-background-url=""],
+			body:not(.argon-is-composite-page) #banner[data-banner-background-url=""] .shape {
 				background: transparent !important;
 			}
 		<?php } ?>
