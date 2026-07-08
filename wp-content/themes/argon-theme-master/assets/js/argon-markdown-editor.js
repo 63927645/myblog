@@ -64,7 +64,8 @@
 		var toolbar = editor.codemirror.getWrapperElement().parentNode.querySelector(".editor-toolbar");
 		var uploadButton = toolbar ? toolbar.querySelector(".argon-md-upload") : null;
 		if (uploadButton) {
-			uploadButton.classList.add("active", "argon-upload-open");
+			uploadButton.classList.remove("active", "argon-upload-open");
+			uploadButton.blur();
 		}
 		var frameOptions = {
 			title: "\u672c\u5730\u4e0a\u4f20",

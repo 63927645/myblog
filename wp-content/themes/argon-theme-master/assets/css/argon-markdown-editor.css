@@ -238,6 +238,16 @@ body.argon-markdown-editor-enabled #post-status-info {
 	color: #5968d8 !important;
 }
 
+.EasyMDEContainer .editor-toolbar .argon-md-upload.active,
+.EasyMDEContainer .editor-toolbar .argon-md-upload.argon-upload-open,
+.EasyMDEContainer .editor-toolbar .argon-md-upload:focus {
+	border-color: #cfd6fb !important;
+	background: #eef1ff !important;
+	color: #5968d8 !important;
+	box-shadow: none !important;
+	outline: 0 !important;
+}
+
 .EasyMDEContainer .editor-toolbar.argon-toolbar-collapsed {
 	padding: 8px;
 	justify-content: flex-end;

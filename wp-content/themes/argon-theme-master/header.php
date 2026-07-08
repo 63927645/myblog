@@ -917,21 +917,24 @@ MathJax = {
 
 	<?php
 		$banner_title = get_option('argon_banner_title') == '' ? get_bloginfo('name') : get_option('argon_banner_title');
+		$banner_title = apply_filters('argon_banner_title', $banner_title);
+		$banner_subtitle = apply_filters('argon_banner_subtitle', get_option('argon_banner_subtitle'));
 		$enable_banner_title_typing_effect = get_option('argon_enable_banner_title_typing_effect') != 'true' ? "false" : get_option('argon_enable_banner_title_typing_effect');
 	?>
 	<div id="banner_container" class="banner-container container text-center">
 		<?php if ($enable_banner_title_typing_effect != "true"){?>
 			<div class="banner-title text-white"><span class="banner-title-inner"><?php echo apply_filters('argon_banner_title_html', $banner_title); ?></span>
-			<?php echo get_option('argon_banner_subtitle') == '' ? '' : '<span class="banner-subtitle d-block">' . get_option('argon_banner_subtitle') . '</span>'; ?></div>
+			<?php echo $banner_subtitle == '' ? '' : '<span class="banner-subtitle d-block">' . $banner_subtitle . '</span>'; ?></div>
 		<?php } else {?>
 			<div class="banner-title text-white" data-interval="<?php echo get_option('argon_banner_typing_effect_interval', 100); ?>"><span data-text="<?php echo $banner_title; ?>" class="banner-title-inner">&nbsp;</span>
-			<?php echo get_option('argon_banner_subtitle') == '' ? '' : '<span data-text="' . get_option('argon_banner_subtitle') . '" class="banner-subtitle d-block">&nbsp;</span>'; ?></div>
+			<?php echo $banner_subtitle == '' ? '' : '<span data-text="' . $banner_subtitle . '" class="banner-subtitle d-block">&nbsp;</span>'; ?></div>
 		<?php }?>
 	</div>
-	<?php if (get_option('argon_banner_background_url') != '') { ?>
+	<?php $argon_banner_background_url = apply_filters('argon_banner_background_url', get_banner_background_url()); ?>
+	<?php if ($argon_banner_background_url != '') { ?>
 		<style>
 			section.banner{
-				background-image: url(<?php echo get_banner_background_url(); ?>) !important;
+				background-image: url(<?php echo esc_url($argon_banner_background_url); ?>) !important;
 			}
 		</style>
 	<?php } ?>
