@@ -1138,6 +1138,20 @@ function argon_get_comment_identity_badges($comment_id = 0){
 	}
 	return $html;
 }
+
+function argon_get_comment_oauth_avatar_html($comment, $size = 40){
+	$comment_id = is_object($comment) ? intval($comment -> comment_ID) : intval($comment);
+	if (!$comment_id){
+		return '';
+	}
+	$avatar_url = get_comment_meta($comment_id, 'oauth_avatar', true);
+	if ($avatar_url == ''){
+		return '';
+	}
+	$size = max(16, intval($size));
+	return '<img src="' . esc_url($avatar_url) . '" class="avatar avatar-' . esc_attr($size) . ' photo comment-oauth-image-avatar" width="' . esc_attr($size) . '" height="' . esc_attr($size) . '" loading="lazy" referrerpolicy="no-referrer" alt="">';
+}
+
 function argon_comment_oauth_config($provider){
 	if ($provider == "github"){
 		return array(
@@ -1180,7 +1194,7 @@ function argon_comment_oauth_sign($payload){
 function argon_set_comment_oauth_identity($identity){
 	$payload = base64_encode(wp_json_encode($identity));
 	$value = $payload . '.' . argon_comment_oauth_sign($payload);
-	setcookie(argon_comment_oauth_cookie_name(), $value, time() + MONTH_IN_SECONDS, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
+	setcookie(argon_comment_oauth_cookie_name(), $value, 0, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
 	$_COOKIE[argon_comment_oauth_cookie_name()] = $value;
 }
 function argon_clear_comment_oauth_identity(){
@@ -1346,6 +1360,7 @@ function argon_handle_comment_oauth(){
 		'provider' => 'github',
 		'id' => argon_sanitize_comment_github_id($user['login']),
 		'name' => sanitize_text_field($user['login']),
+		'avatar' => !empty($user['avatar_url']) ? esc_url_raw($user['avatar_url']) : '',
 		'url' => !empty($user['html_url']) ? esc_url_raw($user['html_url']) : ''
 	));
 	wp_safe_redirect($state_data['redirect_to']);
@@ -1361,7 +1376,8 @@ function argon_comment_format($comment, $args, $depth){
 		<div class="comment-item-left-wrapper">
 			<div class="comment-item-avatar">
 				<?php if(function_exists('get_avatar') && get_option('show_avatars')){
-					echo get_avatar($comment, 40);
+					$oauth_avatar = function_exists('argon_get_comment_oauth_avatar_html') ? argon_get_comment_oauth_avatar_html($comment, 40) : '';
+					echo $oauth_avatar != '' ? $oauth_avatar : get_avatar($comment, 40);
 				}?>
 			</div>
 			<?php if ($GLOBALS['argon_comment_options']['enable_upvote']){ ?>
@@ -1620,6 +1636,7 @@ function ajax_post_comment(){
 		$_POST['github_id'] = $github_id;
 		$_POST['clogin_id'] = $clogin_id;
 		$_POST['clogin_type'] = $identity_type == "clogin" && !empty($oauth_identity['type']) ? sanitize_key($oauth_identity['type']) : "";
+		$_POST['oauth_avatar'] = !empty($oauth_identity['avatar']) ? esc_url_raw($oauth_identity['avatar']) : "";
 		$_POST['author'] = sanitize_text_field($oauth_identity['name']);
 		$_POST['url'] = !empty($oauth_identity['url']) ? esc_url_raw($oauth_identity['url']) : "";
 	}
@@ -1876,6 +1893,11 @@ function post_comment_updatemetas($id){
 	$github_id = isset($_POST['github_id']) ? argon_sanitize_comment_github_id(wp_unslash($_POST['github_id'])) : "";
 	if ($github_id != ""){
 		update_comment_meta($id, "github_id", $github_id);
+		if (!empty($_POST['oauth_avatar'])){
+			update_comment_meta($id, "oauth_avatar", esc_url_raw(wp_unslash($_POST['oauth_avatar'])));
+		}else{
+			delete_comment_meta($id, "oauth_avatar");
+		}
 		delete_comment_meta($id, "wechat_id");
 		delete_comment_meta($id, "clogin_id");
 		delete_comment_meta($id, "clogin_type");
@@ -1884,6 +1906,11 @@ function post_comment_updatemetas($id){
 	if ($clogin_id != ""){
 		update_comment_meta($id, "clogin_id", $clogin_id);
 		update_comment_meta($id, "clogin_type", isset($_POST['clogin_type']) ? sanitize_key(wp_unslash($_POST['clogin_type'])) : "");
+		if (!empty($_POST['oauth_avatar'])){
+			update_comment_meta($id, "oauth_avatar", esc_url_raw(wp_unslash($_POST['oauth_avatar'])));
+		}else{
+			delete_comment_meta($id, "oauth_avatar");
+		}
 		delete_comment_meta($id, "github_id");
 		delete_comment_meta($id, "wechat_id");
 	}
@@ -2839,6 +2866,36 @@ function argon_home_hide_categories($query){
 if (get_option("argon_hide_categories") != ""){
 	add_action('pre_get_posts', 'argon_home_hide_categories');
 }
+
+function argon_home_exclude_composite_assigned_posts($query){
+	if (is_admin() || !$query -> is_main_query() || !is_home()){
+		return $query;
+	}
+	$meta_query = $query -> get('meta_query');
+	if (!is_array($meta_query)){
+		$meta_query = array();
+	}
+	$meta_query[] = array(
+		'relation' => 'OR',
+		array(
+			'key' => 'argon_parent_composite_page',
+			'compare' => 'NOT EXISTS'
+		),
+		array(
+			'key' => 'argon_parent_composite_page',
+			'value' => '',
+			'compare' => '='
+		),
+		array(
+			'key' => 'argon_parent_composite_page',
+			'value' => '0',
+			'compare' => '='
+		)
+	);
+	$query -> set('meta_query', $meta_query);
+	return $query;
+}
+add_action('pre_get_posts', 'argon_home_exclude_composite_assigned_posts', 20);
 //文章过时信息显示
 function argon_get_post_outdated_info(){
 	global $post;
@@ -3486,12 +3543,15 @@ function argon_get_homepage_link_pages(){
 	if ($front_page_id > 0){
 		$exclude_ids[] = $front_page_id;
 	}
-	return get_pages(array(
+	$pages = get_pages(array(
 		'sort_column' => 'menu_order,post_title',
 		'sort_order' => 'ASC',
 		'post_status' => 'publish',
 		'exclude' => implode(',', $exclude_ids)
 	));
+	return array_values(array_filter($pages, function($page) {
+		return !function_exists('argon_content_is_restricted_for_navigation') || !argon_content_is_restricted_for_navigation($page -> ID);
+	}));
 }
 
 function argon_render_homepage_page_links($class_name = 'home-page-links'){
@@ -4295,10 +4355,11 @@ function argon_privacy_password_is_unlocked($post_id, $password) {
 		return true;
 	}
 	$cookie_name = argon_privacy_password_cookie_name($post_id);
-	if (empty($_COOKIE[$cookie_name])) {
-		return false;
+	if (!empty($_COOKIE[$cookie_name])) {
+		setcookie($cookie_name, '', time() - HOUR_IN_SECONDS, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
+		unset($_COOKIE[$cookie_name]);
 	}
-	return hash_equals(argon_privacy_password_token($post_id, $password), sanitize_text_field(wp_unslash($_COOKIE[$cookie_name])));
+	return false;
 }
 
 function argon_privacy_password_form($post_id, $has_error = false) {
@@ -4335,12 +4396,7 @@ function argon_handle_privacy_password_submit($post_id, $password) {
 	}
 	$submitted_password = isset($_POST['argon_privacy_password']) ? sanitize_text_field(wp_unslash($_POST['argon_privacy_password'])) : '';
 	if (hash_equals((string)$password, (string)$submitted_password)) {
-		$cookie_name = argon_privacy_password_cookie_name($post_id);
-		$cookie_value = argon_privacy_password_token($post_id, $password);
-		setcookie($cookie_name, $cookie_value, time() + MONTH_IN_SECONDS, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
-		$_COOKIE[$cookie_name] = $cookie_value;
-		wp_safe_redirect(get_permalink($post_id));
-		exit;
+		return true;
 	}
 	wp_die(argon_privacy_password_form($post_id, true), '请输入访问密码', array('response' => 403));
 }
@@ -4373,13 +4429,66 @@ function argon_protect_private_content_access() {
 		if ($password === '') {
 			return;
 		}
-		argon_handle_privacy_password_submit($post_id, $password);
-		if (!argon_privacy_password_is_unlocked($post_id, $password)) {
+		$password_accepted_for_current_request = argon_handle_privacy_password_submit($post_id, $password);
+		if (!$password_accepted_for_current_request && !argon_privacy_password_is_unlocked($post_id, $password)) {
 			wp_die(argon_privacy_password_form($post_id), '请输入访问密码', array('response' => 403));
 		}
 	}
 }
 add_action('template_redirect', 'argon_protect_private_content_access');
+
+function argon_content_is_restricted_for_navigation($post_id) {
+	$post_id = intval($post_id);
+	if (!$post_id) {
+		return false;
+	}
+	$post = get_post($post_id);
+	if (!$post) {
+		return false;
+	}
+	if ($post -> post_status === 'private' || get_post_field('post_password', $post_id) !== '') {
+		return true;
+	}
+	$settings = argon_get_privacy_settings_for_content($post_id);
+	return !empty($settings['enabled']) && $settings['visibility'] !== 'public';
+}
+
+function argon_hide_restricted_nav_menu_items($items, $args) {
+	if (is_admin() || empty($items) || !is_array($items)) {
+		return $items;
+	}
+	$hidden_item_ids = array();
+	foreach ($items as $item) {
+		$post_id = 0;
+		if (!empty($item -> object_id) && in_array($item -> object, array('page', 'post'), true)) {
+			$post_id = intval($item -> object_id);
+		} elseif (!empty($item -> url)) {
+			$post_id = intval(url_to_postid($item -> url));
+		}
+		if ($post_id && argon_content_is_restricted_for_navigation($post_id)) {
+			$hidden_item_ids[] = intval($item -> ID);
+		}
+	}
+	if (empty($hidden_item_ids)) {
+		return $items;
+	}
+	$hidden_item_ids = array_unique($hidden_item_ids);
+	$changed = true;
+	while ($changed) {
+		$changed = false;
+		foreach ($items as $item) {
+			if (!in_array(intval($item -> ID), $hidden_item_ids, true) && in_array(intval($item -> menu_item_parent), $hidden_item_ids, true)) {
+				$hidden_item_ids[] = intval($item -> ID);
+				$changed = true;
+			}
+		}
+		$hidden_item_ids = array_unique($hidden_item_ids);
+	}
+	return array_values(array_filter($items, function($item) use ($hidden_item_ids) {
+		return !in_array(intval($item -> ID), $hidden_item_ids, true);
+	}));
+}
+add_filter('wp_nav_menu_objects', 'argon_hide_restricted_nav_menu_items', 20, 2);
 
 function argon_get_composite_pages_for_settings() {
 	return get_posts(array(
@@ -4418,6 +4527,7 @@ function argon_render_composite_page_settings() {
 			$page_id = intval($composite_page -> ID);
 			$page_settings = isset($posted_pages[$page_id]) && is_array($posted_pages[$page_id]) ? $posted_pages[$page_id] : array();
 			update_post_meta($page_id, 'argon_composite_banner_background', isset($page_settings['banner_background']) ? esc_url_raw($page_settings['banner_background']) : '');
+			update_post_meta($page_id, 'argon_composite_banner_attachment_id', isset($page_settings['banner_attachment_id']) ? intval($page_settings['banner_attachment_id']) : 0);
 			update_post_meta($page_id, 'argon_composite_banner_summary', isset($page_settings['banner_summary']) ? sanitize_textarea_field($page_settings['banner_summary']) : '');
 		}
 		echo '<div class="notice notice-success is-dismissible"><p>复合页面设置已保存。</p></div>';
@@ -4437,6 +4547,7 @@ function argon_render_composite_page_settings() {
 							<?php
 								$page_id = intval($composite_page -> ID);
 								$banner_background = get_post_meta($page_id, 'argon_composite_banner_background', true);
+								$banner_attachment_id = intval(get_post_meta($page_id, 'argon_composite_banner_attachment_id', true));
 								$banner_summary = get_post_meta($page_id, 'argon_composite_banner_summary', true);
 							?>
 							<section class="argon-composite-admin-card">
@@ -4449,6 +4560,7 @@ function argon_render_composite_page_settings() {
 									<tr>
 										<th scope="row"><label for="argon_composite_banner_background_<?php echo esc_attr($page_id); ?>">Banner 背景图</label></th>
 										<td>
+											<input type="hidden" class="argon-composite-banner-attachment-id" name="argon_composite_pages[<?php echo esc_attr($page_id); ?>][banner_attachment_id]" value="<?php echo esc_attr($banner_attachment_id); ?>">
 											<input type="url" class="regular-text argon-composite-banner-input" id="argon_composite_banner_background_<?php echo esc_attr($page_id); ?>" name="argon_composite_pages[<?php echo esc_attr($page_id); ?>][banner_background]" value="<?php echo esc_attr($banner_background); ?>" placeholder="图片 URL，留空则使用页面特色图或全局背景">
 											<button type="button" class="button argon-composite-banner-select">选择图片</button>
 										</td>
@@ -4478,14 +4590,17 @@ function argon_render_composite_page_settings() {
 				$('.argon-composite-banner-select').on('click', function(){
 					var button = $(this);
 					var input = button.siblings('.argon-composite-banner-input');
+					var attachmentInput = button.siblings('.argon-composite-banner-attachment-id');
 					var frame = wp.media({
 						title: '选择 Banner 背景图',
 						button: { text: '使用这张图片' },
+						library: { type: 'image' },
 						multiple: false
 					});
 					frame.on('select', function(){
 						var attachment = frame.state().get('selection').first().toJSON();
 						input.val(attachment.url).trigger('change');
+						attachmentInput.val(attachment.id || '');
 					});
 					frame.open();
 				});

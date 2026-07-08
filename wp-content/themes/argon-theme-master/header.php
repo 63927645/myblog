@@ -145,6 +145,30 @@
 			backdrop-filter: blur(10px);
 			-webkit-backdrop-filter: blur(10px);
 		}
+		@media (min-width: 992px) {
+			html:not(.no-banner) #navbar-main #navbar_search_input_container.open .input-group,
+			html:not(.no-banner) #navbar-main #navbar_search_input_container.open .input-group-alternative,
+			html:not(.no-banner) #navbar-main #navbar_search_input_container.open .form-control,
+			html:not(.no-banner) #navbar-main #navbar_search_input_container.open .input-group-text {
+				box-shadow: none !important;
+				border-color: transparent !important;
+				outline: none !important;
+			}
+			html:not(.no-banner) #navbar-main #navbar_search_input_container.open .input-group {
+				background: rgba(255, 255, 250, 0.92) !important;
+				border: 1px solid rgba(255, 255, 255, 0.48) !important;
+			}
+			html:not(.no-banner) #navbar-main #navbar_search_input_container.open input.form-control {
+				background: transparent !important;
+				color: #32325d !important;
+				text-shadow: none !important;
+			}
+			html:not(.no-banner) #navbar-main #navbar_search_input_container.open .input-group-text {
+				background: transparent !important;
+				color: rgba(var(--themecolor-R), var(--themecolor-G), var(--themecolor-B), 0.65) !important;
+				text-shadow: none !important;
+			}
+		}
 		.banner {
 			position: relative;
 			isolation: isolate;

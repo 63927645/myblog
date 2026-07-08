@@ -122,6 +122,7 @@
 				$comment_oauth_name = $comment_oauth_identity ? $comment_oauth_identity['name'] : '';
 				$comment_oauth_id = $comment_oauth_identity ? $comment_oauth_identity['id'] : '';
 				$comment_oauth_url = $comment_oauth_identity && !empty($comment_oauth_identity['url']) ? $comment_oauth_identity['url'] : '';
+				$comment_oauth_avatar = $comment_oauth_identity && !empty($comment_oauth_identity['avatar']) ? $comment_oauth_identity['avatar'] : '';
 				$comment_oauth_label = $comment_oauth_provider == 'clogin' ? 'UR互联（微信）登录' : 'GitHub';
 				$comment_oauth_icon = $comment_oauth_provider == 'clogin' ? 'fa-user-circle' : 'fa-github';
 				$comment_oauth_redirect = rawurlencode(argon_comment_oauth_current_url());
@@ -148,7 +149,13 @@
 						<?php } ?>
 						<?php if ($comment_oauth_identity){ ?>
 							<div class="comment-oauth-status">
-								<div class="comment-oauth-avatar"><i class="fa <?php echo esc_attr($comment_oauth_icon); ?>"></i></div>
+								<div class="comment-oauth-avatar">
+									<?php if ($comment_oauth_avatar != ''){ ?>
+										<img src="<?php echo esc_url($comment_oauth_avatar); ?>" alt="" loading="lazy" referrerpolicy="no-referrer">
+									<?php }else{ ?>
+										<i class="fa <?php echo esc_attr($comment_oauth_icon); ?>"></i>
+									<?php } ?>
+								</div>
 								<div class="comment-oauth-copy">
 									<div class="comment-oauth-label">已通过 <?php echo esc_html($comment_oauth_label); ?> 登录</div>
 									<div class="comment-oauth-name"><?php echo esc_html($comment_oauth_name); ?></div>
