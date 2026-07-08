@@ -1,0 +1,189 @@
+body.argon-markdown-editor-enabled #wp-content-editor-tools,
+body.argon-markdown-editor-enabled #wp-content-media-buttons {
+	display: none;
+}
+
+body.argon-markdown-editor-enabled #postdivrich {
+	background: transparent;
+	border: 0;
+}
+
+body.argon-markdown-editor-enabled #post-status-info {
+	display: none;
+}
+
+.argon-markdown-helper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	box-sizing: border-box;
+	margin: 0 0 12px;
+	padding: 12px 16px;
+	border: 1px solid #d9def7;
+	border-radius: 10px;
+	background: #f8f9ff;
+	color: #27304d;
+	box-shadow: 0 8px 24px rgba(41, 50, 91, .06);
+}
+
+.argon-markdown-helper strong {
+	flex: 0 0 auto;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.argon-markdown-helper span {
+	color: #5f6680;
+	font-size: 13px;
+	line-height: 1.7;
+}
+
+.argon-markdown-helper code {
+	padding: 2px 5px;
+	border-radius: 5px;
+	background: #ecefff;
+	color: #5060c9;
+	font-family: Consolas, Monaco, "Courier New", monospace;
+}
+
+.EasyMDEContainer {
+	border-radius: 12px;
+	box-shadow: 0 14px 38px rgba(44, 54, 96, .08);
+}
+
+.EasyMDEContainer .editor-toolbar {
+	border: 1px solid #d9def7;
+	border-bottom: 0;
+	border-radius: 12px 12px 0 0;
+	background: linear-gradient(180deg, #fbfcff 0%, #f2f4ff 100%);
+}
+
+.EasyMDEContainer .editor-toolbar button {
+	color: #30374f;
+}
+
+.EasyMDEContainer .editor-toolbar button:hover,
+.EasyMDEContainer .editor-toolbar button.active {
+	border-color: #cbd2f5;
+	background: #e9edff;
+}
+
+.EasyMDEContainer .CodeMirror {
+	min-height: 560px;
+	border: 1px solid #d9def7;
+	border-radius: 0 0 12px 12px;
+	color: #27304d;
+	font-family: Consolas, Monaco, "Courier New", monospace;
+	font-size: 15px;
+	line-height: 1.72;
+}
+
+.EasyMDEContainer .CodeMirror-cursor {
+	border-left-color: #5d6fd7;
+}
+
+.EasyMDEContainer .CodeMirror-selected {
+	background: #dfe5ff;
+}
+
+.EasyMDEContainer .editor-statusbar {
+	padding: 10px 2px 0;
+	color: #7a8094;
+}
+
+.EasyMDEContainer .editor-preview,
+.EasyMDEContainer .editor-preview-side {
+	box-sizing: border-box;
+	padding: 26px;
+	background: #fffefa;
+	color: #2b314a;
+	font-size: 16px;
+	line-height: 1.78;
+}
+
+.EasyMDEContainer .editor-preview h1,
+.EasyMDEContainer .editor-preview h2,
+.EasyMDEContainer .editor-preview h3,
+.EasyMDEContainer .editor-preview-side h1,
+.EasyMDEContainer .editor-preview-side h2,
+.EasyMDEContainer .editor-preview-side h3 {
+	margin: 1.1em 0 .55em;
+	color: #263052;
+	font-weight: 800;
+	line-height: 1.25;
+}
+
+.EasyMDEContainer .editor-preview p,
+.EasyMDEContainer .editor-preview-side p {
+	margin: 0 0 1em;
+}
+
+.EasyMDEContainer .editor-preview blockquote,
+.EasyMDEContainer .editor-preview-side blockquote {
+	margin: 1em 0;
+	padding: 10px 16px;
+	border-left: 4px solid #6f7fe3;
+	background: #f4f6ff;
+	color: #4f5775;
+}
+
+.EasyMDEContainer .editor-preview code,
+.EasyMDEContainer .editor-preview-side code {
+	padding: 2px 5px;
+	border-radius: 5px;
+	background: #eef1ff;
+	color: #4e5ecc;
+}
+
+.EasyMDEContainer .editor-preview pre,
+.EasyMDEContainer .editor-preview-side pre {
+	overflow: auto;
+	padding: 14px 16px;
+	border-radius: 10px;
+	background: #22283c;
+	color: #f4f6ff;
+}
+
+.EasyMDEContainer .editor-preview pre code,
+.EasyMDEContainer .editor-preview-side pre code {
+	padding: 0;
+	background: transparent;
+	color: inherit;
+}
+
+.EasyMDEContainer .editor-preview table,
+.EasyMDEContainer .editor-preview-side table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.2em 0;
+}
+
+.EasyMDEContainer .editor-preview th,
+.EasyMDEContainer .editor-preview td,
+.EasyMDEContainer .editor-preview-side th,
+.EasyMDEContainer .editor-preview-side td {
+	padding: 9px 11px;
+	border: 1px solid #dfe3f6;
+}
+
+.EasyMDEContainer .editor-preview th,
+.EasyMDEContainer .editor-preview-side th {
+	background: #f3f5ff;
+}
+
+@media (max-width: 782px) {
+	.argon-markdown-helper {
+		display: block;
+	}
+
+	.argon-markdown-helper span {
+		display: block;
+		margin-top: 6px;
+	}
+
+	.EasyMDEContainer .CodeMirror {
+		min-height: 420px;
+		font-size: 14px;
+	}
+}

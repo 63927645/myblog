@@ -3680,3 +3680,134 @@ function add_markdown_wrapper_class($classes) {
     return $classes;
 }
 add_filter('post_class', 'add_markdown_wrapper_class');
+
+remove_filter('the_content', 'convert_markdown_content', 9);
+remove_action('wp_enqueue_scripts', 'add_markdown_latex_assets');
+remove_filter('post_class', 'add_markdown_wrapper_class');
+
+function argon_markdown_editor_post_types(){
+	return array('post', 'page');
+}
+
+function argon_markdown_editor_handles_post_type($post_type){
+	return in_array($post_type, argon_markdown_editor_post_types(), true);
+}
+
+function argon_disable_block_editor_for_markdown($use_block_editor, $post_type){
+	if (argon_markdown_editor_handles_post_type($post_type)){
+		return false;
+	}
+	return $use_block_editor;
+}
+add_filter('use_block_editor_for_post_type', 'argon_disable_block_editor_for_markdown', 20, 2);
+
+function argon_disable_block_editor_for_markdown_post($use_block_editor, $post){
+	if (!empty($post) && argon_markdown_editor_handles_post_type($post -> post_type)){
+		return false;
+	}
+	return $use_block_editor;
+}
+add_filter('use_block_editor_for_post', 'argon_disable_block_editor_for_markdown_post', 20, 2);
+
+function argon_markdown_default_editor($editor){
+	return 'html';
+}
+add_filter('wp_default_editor', 'argon_markdown_default_editor');
+
+function argon_markdown_disable_visual_editor($can_richedit){
+	if (!is_admin() || !function_exists('get_current_screen')){
+		return $can_richedit;
+	}
+	$screen = get_current_screen();
+	if (!empty($screen -> post_type) && argon_markdown_editor_handles_post_type($screen -> post_type)){
+		return false;
+	}
+	return $can_richedit;
+}
+add_filter('user_can_richedit', 'argon_markdown_disable_visual_editor', 50);
+
+function argon_markdown_mathjax_config(){
+	return 'window.MathJax = window.MathJax || {tex:{inlineMath:[[\'$\',\'$\'],[\'\\\\(\',\'\\\\)\']],displayMath:[[\'$$\',\'$$\'],[\'\\\\[\',\'\\\\]\']],processEscapes:true},options:{skipHtmlTags:[\'script\',\'noscript\',\'style\',\'textarea\',\'pre\',\'code\']}};';
+}
+
+function argon_markdown_admin_assets($hook){
+	if (!in_array($hook, array('post.php', 'post-new.php'), true) || !function_exists('get_current_screen')){
+		return;
+	}
+	$screen = get_current_screen();
+	if (empty($screen -> post_type) || !argon_markdown_editor_handles_post_type($screen -> post_type)){
+		return;
+	}
+	wp_enqueue_style('argon-easymde', 'https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css', array(), '2.18.0');
+	wp_enqueue_style('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/css/argon-markdown-editor.css', array('argon-easymde'), $GLOBALS['theme_version']);
+	wp_enqueue_script('argon-easymde', 'https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js', array(), '2.18.0', true);
+	wp_register_script('argon-markdown-editor-mathjax', 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js', array(), '3.2.2', true);
+	wp_add_inline_script('argon-markdown-editor-mathjax', argon_markdown_mathjax_config(), 'before');
+	wp_enqueue_script('argon-markdown-editor-mathjax');
+	wp_enqueue_script('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/js/argon-markdown-editor.js', array('argon-easymde'), $GLOBALS['theme_version'], true);
+}
+add_action('admin_enqueue_scripts', 'argon_markdown_admin_assets');
+
+function argon_markdown_extract_math($content, &$math_blocks){
+	$math_blocks = array();
+	$patterns = array(
+		'/\$\$(.+?)\$\$/s',
+		'/\\\[(.+?)\\\]/s',
+		'/\\\((.+?)\\\)/s',
+		'/(?<!\\\\)(?<!\$)\$(?!\$)(.+?)(?<!\\\\)\$(?!\$)/s'
+	);
+	foreach ($patterns as $pattern){
+		$content = preg_replace_callback($pattern, function($matches) use (&$math_blocks){
+			$key = 'ARGONMARKDOWNMATH' . count($math_blocks) . 'TOKEN';
+			$math_blocks[$key] = $matches[0];
+			return $key;
+		}, $content);
+	}
+	return $content;
+}
+
+function argon_markdown_restore_math($content, $math_blocks){
+	if (empty($math_blocks)){
+		return $content;
+	}
+	return str_replace(array_keys($math_blocks), array_values($math_blocks), $content);
+}
+
+function argon_convert_markdown_content($content) {
+	if (is_admin() || !is_singular() || !class_exists('Parsedown')){
+		return $content;
+	}
+	$math_blocks = array();
+	$content = argon_markdown_extract_math($content, $math_blocks);
+	$parsedown = new Parsedown();
+	$parsedown -> setBreaksEnabled(false);
+	$content = $parsedown -> text($content);
+	return argon_markdown_restore_math($content, $math_blocks);
+}
+add_filter('the_content', 'argon_convert_markdown_content', 9);
+
+function argon_markdown_latex_assets() {
+	if (!is_singular()){
+		return;
+	}
+	wp_enqueue_style(
+		'markdown-latex-style',
+		get_template_directory_uri() . '/markdown-latex.css',
+		array(),
+		$GLOBALS['theme_version']
+	);
+	if (get_option('argon_math_render', 'none') == 'none'){
+		wp_register_script('argon-markdown-mathjax', 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js', array(), '3.2.2', true);
+		wp_add_inline_script('argon-markdown-mathjax', argon_markdown_mathjax_config(), 'before');
+		wp_enqueue_script('argon-markdown-mathjax');
+	}
+}
+add_action('wp_enqueue_scripts', 'argon_markdown_latex_assets');
+
+function argon_add_markdown_wrapper_class($classes) {
+	if (is_singular()) {
+		$classes[] = 'markdown-content';
+	}
+	return $classes;
+}
+add_filter('post_class', 'argon_add_markdown_wrapper_class');
