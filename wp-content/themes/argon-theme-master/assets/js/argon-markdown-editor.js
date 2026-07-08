@@ -17,55 +17,13 @@
 	}
 
 	function setToolbarLabels() {
-		var titleLabels = {
-			"Bold": "B",
-			"Italic": "I",
-			"Heading": "#",
-			"Quote": ">",
-			"Generic List": "-",
-			"Numbered List": "1.",
-			"Create Link": "link",
-			"Insert Image": "img",
-			"Insert Table": "table",
-			"Insert Horizontal Line": "--",
-			"Code": "{}",
-			"Toggle Preview": "eye",
-			"Toggle Side by Side": "split",
-			"Toggle Fullscreen": "full",
-			"Markdown Guide": "?"
-		};
-		var classLabels = {
-			"fa-bold": "B",
-			"fa-italic": "I",
-			"fa-header": "#",
-			"fa-quote-left": ">",
-			"fa-list-ul": "-",
-			"fa-list-ol": "1.",
-			"fa-link": "link",
-			"fa-picture-o": "img",
-			"fa-table": "table",
-			"fa-minus": "--",
-			"fa-code": "{}",
-			"fa-eye": "eye",
-			"fa-columns": "split",
-			"fa-arrows-alt": "full",
-			"fa-question-circle": "?"
-		};
+		var labels = ["B", "I", "#", ">", "-", "1.", "@", "im", "T", "--", "{}", "pv", "2", "[]", "?", "v"];
 		var buttons = document.querySelectorAll(".editor-toolbar button");
 		for (var i = 0; i < buttons.length; i++) {
-			var title = buttons[i].getAttribute("title") || "";
-			var label = titleLabels[title] || "";
-			if (!label) {
-				for (var className in classLabels) {
-					if (Object.prototype.hasOwnProperty.call(classLabels, className) && buttons[i].classList.contains(className)) {
-						label = classLabels[className];
-						break;
-					}
-				}
-			}
+			var label = labels[i] || "";
 			if (label) {
 				buttons[i].textContent = label;
-				buttons[i].setAttribute("aria-label", title);
+				buttons[i].setAttribute("data-argon-label", label);
 			}
 		}
 	}

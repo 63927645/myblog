@@ -128,21 +128,21 @@ body.argon-markdown-editor-enabled #post-status-info {
 	content: "" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-bold::after,
-.EasyMDEContainer .editor-toolbar button.fa-italic::after,
-.EasyMDEContainer .editor-toolbar button.fa-header::after,
-.EasyMDEContainer .editor-toolbar button.fa-quote-left::after,
-.EasyMDEContainer .editor-toolbar button.fa-list-ul::after,
-.EasyMDEContainer .editor-toolbar button.fa-list-ol::after,
-.EasyMDEContainer .editor-toolbar button.fa-link::after,
-.EasyMDEContainer .editor-toolbar button.fa-picture-o::after,
-.EasyMDEContainer .editor-toolbar button.fa-table::after,
-.EasyMDEContainer .editor-toolbar button.fa-minus::after,
-.EasyMDEContainer .editor-toolbar button.fa-code::after,
-.EasyMDEContainer .editor-toolbar button.fa-eye::after,
-.EasyMDEContainer .editor-toolbar button.fa-columns::after,
-.EasyMDEContainer .editor-toolbar button.fa-arrows-alt::after,
-.EasyMDEContainer .editor-toolbar button.fa-question-circle::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-bold::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-italic::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-header::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-quote-left::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-list-ul::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-list-ol::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-link::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-picture-o::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-table::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-minus::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-code::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-eye::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-columns::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-arrows-alt::after,
+.EasyMDEContainer .editor-toolbar button:empty.fa-question-circle::after {
 	display: block !important;
 	color: inherit;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
@@ -151,63 +151,63 @@ body.argon-markdown-editor-enabled #post-status-info {
 	line-height: 1;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-bold::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-bold::after {
 	content: "B" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-italic::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-italic::after {
 	content: "I" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-header::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-header::after {
 	content: "#" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-quote-left::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-quote-left::after {
 	content: ">" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-list-ul::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-list-ul::after {
 	content: "-" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-list-ol::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-list-ol::after {
 	content: "1." !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-link::after {
-	content: "link" !important;
+.EasyMDEContainer .editor-toolbar button:empty.fa-link::after {
+	content: "@" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-picture-o::after {
-	content: "img" !important;
+.EasyMDEContainer .editor-toolbar button:empty.fa-picture-o::after {
+	content: "im" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-table::after {
-	content: "table" !important;
+.EasyMDEContainer .editor-toolbar button:empty.fa-table::after {
+	content: "T" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-minus::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-minus::after {
 	content: "--" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-code::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-code::after {
 	content: "{}" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-eye::after {
-	content: "eye" !important;
+.EasyMDEContainer .editor-toolbar button:empty.fa-eye::after {
+	content: "pv" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-columns::after {
-	content: "split" !important;
+.EasyMDEContainer .editor-toolbar button:empty.fa-columns::after {
+	content: "2" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-arrows-alt::after {
-	content: "full" !important;
+.EasyMDEContainer .editor-toolbar button:empty.fa-arrows-alt::after {
+	content: "[]" !important;
 }
 
-.EasyMDEContainer .editor-toolbar button.fa-question-circle::after {
+.EasyMDEContainer .editor-toolbar button:empty.fa-question-circle::after {
 	content: "?" !important;
 }
 
