@@ -3738,13 +3738,17 @@ function argon_markdown_admin_assets($hook){
 	if (empty($screen -> post_type) || !argon_markdown_editor_handles_post_type($screen -> post_type)){
 		return;
 	}
+	$markdown_editor_css = get_template_directory() . '/assets/css/argon-markdown-editor.css';
+	$markdown_editor_js = get_template_directory() . '/assets/js/argon-markdown-editor.js';
+	$markdown_editor_css_version = file_exists($markdown_editor_css) ? filemtime($markdown_editor_css) : $GLOBALS['theme_version'];
+	$markdown_editor_js_version = file_exists($markdown_editor_js) ? filemtime($markdown_editor_js) : $GLOBALS['theme_version'];
 	wp_enqueue_style('argon-easymde', 'https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css', array(), '2.18.0');
-	wp_enqueue_style('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/css/argon-markdown-editor.css', array('argon-easymde'), $GLOBALS['theme_version']);
+	wp_enqueue_style('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/css/argon-markdown-editor.css', array('argon-easymde'), $markdown_editor_css_version);
 	wp_enqueue_script('argon-easymde', 'https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js', array(), '2.18.0', true);
 	wp_register_script('argon-markdown-editor-mathjax', 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js', array(), '3.2.2', true);
 	wp_add_inline_script('argon-markdown-editor-mathjax', argon_markdown_mathjax_config(), 'before');
 	wp_enqueue_script('argon-markdown-editor-mathjax');
-	wp_enqueue_script('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/js/argon-markdown-editor.js', array('argon-easymde'), $GLOBALS['theme_version'], true);
+	wp_enqueue_script('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/js/argon-markdown-editor.js', array('argon-easymde'), $markdown_editor_js_version, true);
 }
 add_action('admin_enqueue_scripts', 'argon_markdown_admin_assets');
 

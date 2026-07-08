@@ -128,6 +128,89 @@ body.argon-markdown-editor-enabled #post-status-info {
 	content: "" !important;
 }
 
+.EasyMDEContainer .editor-toolbar button.fa-bold::after,
+.EasyMDEContainer .editor-toolbar button.fa-italic::after,
+.EasyMDEContainer .editor-toolbar button.fa-header::after,
+.EasyMDEContainer .editor-toolbar button.fa-quote-left::after,
+.EasyMDEContainer .editor-toolbar button.fa-list-ul::after,
+.EasyMDEContainer .editor-toolbar button.fa-list-ol::after,
+.EasyMDEContainer .editor-toolbar button.fa-link::after,
+.EasyMDEContainer .editor-toolbar button.fa-picture-o::after,
+.EasyMDEContainer .editor-toolbar button.fa-table::after,
+.EasyMDEContainer .editor-toolbar button.fa-minus::after,
+.EasyMDEContainer .editor-toolbar button.fa-code::after,
+.EasyMDEContainer .editor-toolbar button.fa-eye::after,
+.EasyMDEContainer .editor-toolbar button.fa-columns::after,
+.EasyMDEContainer .editor-toolbar button.fa-arrows-alt::after,
+.EasyMDEContainer .editor-toolbar button.fa-question-circle::after {
+	display: block !important;
+	color: inherit;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+	font-size: 12px;
+	font-weight: 800;
+	line-height: 1;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-bold::after {
+	content: "B" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-italic::after {
+	content: "I" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-header::after {
+	content: "#" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-quote-left::after {
+	content: ">" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-list-ul::after {
+	content: "-" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-list-ol::after {
+	content: "1." !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-link::after {
+	content: "link" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-picture-o::after {
+	content: "img" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-table::after {
+	content: "table" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-minus::after {
+	content: "--" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-code::after {
+	content: "{}" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-eye::after {
+	content: "eye" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-columns::after {
+	content: "split" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-arrows-alt::after {
+	content: "full" !important;
+}
+
+.EasyMDEContainer .editor-toolbar button.fa-question-circle::after {
+	content: "?" !important;
+}
+
 .EasyMDEContainer .editor-toolbar i.separator {
 	height: 22px;
 	margin: 0 3px;

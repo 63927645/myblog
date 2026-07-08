@@ -53,7 +53,7 @@
 		};
 		var buttons = document.querySelectorAll(".editor-toolbar button");
 		for (var i = 0; i < buttons.length; i++) {
-			var title = buttons[i].getAttribute("title");
+			var title = buttons[i].getAttribute("title") || "";
 			var label = titleLabels[title] || "";
 			if (!label) {
 				for (var className in classLabels) {
@@ -78,8 +78,34 @@
 		toolbar.classList.toggle("argon-toolbar-collapsed");
 		var toggle = toolbar.querySelector(".argon-md-collapse");
 		if (toggle) {
-			toggle.textContent = toolbar.classList.contains("argon-toolbar-collapsed") ? "▸" : "▾";
-			toggle.setAttribute("title", toolbar.classList.contains("argon-toolbar-collapsed") ? "展开快捷按钮" : "收起快捷按钮");
+			var collapsed = toolbar.classList.contains("argon-toolbar-collapsed");
+			toggle.textContent = collapsed ? ">" : "v";
+			toggle.setAttribute("title", collapsed ? "\u5c55\u5f00\u5feb\u6377\u6309\u94ae" : "\u6536\u8d77\u5feb\u6377\u6309\u94ae");
+		}
+	}
+
+	function removeOldPreviewControls(oldPreview, oldLimit) {
+		if (oldPreview) {
+			var previewTitle = oldPreview.previousElementSibling;
+			var previewNote = oldPreview.nextElementSibling;
+			if (previewTitle && previewTitle.tagName === "H4") {
+				previewTitle.remove();
+			}
+			if (previewNote && previewNote.tagName === "P") {
+				previewNote.remove();
+			}
+			oldPreview.remove();
+		}
+		if (oldLimit) {
+			var limitTitle = oldLimit.previousElementSibling;
+			var limitNote = oldLimit.nextElementSibling;
+			if (limitTitle && limitTitle.tagName === "H4") {
+				limitTitle.remove();
+			}
+			if (limitNote && limitNote.tagName === "P") {
+				limitNote.remove();
+			}
+			oldLimit.remove();
 		}
 	}
 
@@ -92,35 +118,13 @@
 		var oldPreview = document.querySelector("textarea[name='argon_home_preview']");
 		var oldLimit = document.querySelector("input[name='argon_home_preview_limit']");
 		var currentValue = oldPreview ? oldPreview.value : "";
-
-		if (oldPreview) {
-			var previewTitle = oldPreview.previousElementSibling;
-			var previewNote = oldPreview.nextElementSibling;
-			if (previewTitle && previewTitle.tagName === "H4") {
-				previewTitle.remove();
-			}
-			if (previewNote && previewNote.tagName === "P") {
-				previewNote.remove();
-			}
-			oldPreview.remove();
-			if (oldLimit) {
-				var limitTitle = oldLimit.previousElementSibling;
-				var limitNote = oldLimit.nextElementSibling;
-				if (limitTitle && limitTitle.tagName === "H4") {
-					limitTitle.remove();
-				}
-				if (limitNote && limitNote.tagName === "P") {
-					limitNote.remove();
-				}
-				oldLimit.remove();
-			}
-		}
+		removeOldPreviewControls(oldPreview, oldLimit);
 
 		var wrap = document.createElement("div");
 		wrap.className = "argon-home-preview-inline";
 		wrap.innerHTML =
-			'<label for="argon_home_preview_inline">首页展示摘要</label>' +
-			'<textarea name="argon_home_preview" id="argon_home_preview_inline" rows="3" placeholder="这里填写的内容会展示在首页文章卡片里；留空则首页不显示摘要。"></textarea>';
+			'<label for="argon_home_preview_inline">\u9996\u9875\u5c55\u793a\u6458\u8981</label>' +
+			'<textarea name="argon_home_preview" id="argon_home_preview_inline" rows="3" placeholder="\u8fd9\u91cc\u586b\u5199\u7684\u5185\u5bb9\u4f1a\u5c55\u793a\u5728\u9996\u9875\u6587\u7ae0\u5361\u7247\u91cc\uff1b\u7559\u7a7a\u5219\u9996\u9875\u4e0d\u663e\u793a\u6458\u8981\u3002"></textarea>';
 		titleWrap.parentNode.insertBefore(wrap, titleWrap.nextSibling);
 		document.getElementById("argon_home_preview_inline").value = currentValue;
 	}
@@ -133,8 +137,8 @@
 		var helper = document.createElement("div");
 		helper.className = "argon-markdown-helper";
 		helper.innerHTML =
-			"<strong>Markdown 写作模式</strong>" +
-			"<span>标题用 <code>#</code>，代码块用 <code>```</code>，行内公式 <code>$E=mc^2$</code>，块公式 <code>$$...$$</code></span>";
+			"<strong>Markdown \u5199\u4f5c\u6a21\u5f0f</strong>" +
+			"<span>\u6807\u9898\u7528 <code>#</code>\uff0c\u4ee3\u7801\u5757\u7528 <code>```</code>\uff0c\u884c\u5185\u516c\u5f0f <code>$E=mc^2$</code>\uff0c\u5757\u516c\u5f0f <code>$$...$$</code></span>";
 		wrapper.parentNode.insertBefore(helper, wrapper);
 	}
 
@@ -172,7 +176,7 @@
 						toggleToolbar(markdownEditor);
 					},
 					className: "argon-md-collapse",
-					title: "收起快捷按钮"
+					title: "\u6536\u8d77\u5feb\u6377\u6309\u94ae"
 				}
 			],
 			renderingConfig: {
@@ -194,7 +198,7 @@
 
 		var collapseButton = document.querySelector(".editor-toolbar .argon-md-collapse");
 		if (collapseButton) {
-			collapseButton.textContent = "▾";
+			collapseButton.textContent = "v";
 		}
 
 		window.argonMarkdownEditor = markdownEditor;
