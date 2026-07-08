@@ -3920,7 +3920,7 @@ function argon_markdown_admin_assets($hook){
 	wp_register_script('argon-markdown-editor-mathjax', 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js', array(), '3.2.2', true);
 	wp_add_inline_script('argon-markdown-editor-mathjax', argon_markdown_mathjax_config(), 'before');
 	wp_enqueue_script('argon-markdown-editor-mathjax');
-	wp_enqueue_script('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/js/argon-markdown-editor.js', array('argon-easymde'), $markdown_editor_js_version, true);
+	wp_enqueue_script('argon-markdown-editor-admin', get_template_directory_uri() . '/assets/js/argon-markdown-editor.js', array('jquery', 'media-editor', 'media-views'), $markdown_editor_js_version, true);
 }
 add_action('admin_enqueue_scripts', 'argon_markdown_admin_assets');
 
@@ -4108,46 +4108,6 @@ function argon_composite_page_banner_meta_box($post) {
 		</div>
 		<script>
 			(function(){
-				var imageButton = document.querySelector('.argon-composite-page-image-select');
-				var clearButton = document.querySelector('.argon-composite-page-image-clear');
-				var imageInput = document.getElementById('argon_composite_banner_background');
-				var imagePreview = document.getElementById('argon_composite_banner_preview');
-				function syncPreview(url){
-					if (!imagePreview) {
-						return;
-					}
-					var image = imagePreview.querySelector('img');
-					if (url && image) {
-						image.src = url;
-						imagePreview.style.display = '';
-					} else {
-						if (image) {
-							image.removeAttribute('src');
-						}
-						imagePreview.style.display = 'none';
-					}
-				}
-				if (imageButton && imageInput && window.wp && window.wp.media) {
-					imageButton.addEventListener('click', function(){
-						var frame = window.wp.media({
-							title: '上传或选择顶部 Banner 图片',
-							button: { text: '使用这张图片' },
-							multiple: false
-						});
-						frame.on('select', function(){
-							var attachment = frame.state().get('selection').first().toJSON();
-							imageInput.value = attachment.url || '';
-							syncPreview(imageInput.value);
-						});
-						frame.open();
-					});
-				}
-				if (clearButton && imageInput) {
-					clearButton.addEventListener('click', function(){
-						imageInput.value = '';
-						syncPreview('');
-					});
-				}
 				jQuery(function($){
 					var box = $('#argon_composite_banner_meta_box');
 					var title = $('#titlediv');

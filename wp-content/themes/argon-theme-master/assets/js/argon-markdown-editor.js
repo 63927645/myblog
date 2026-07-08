@@ -212,6 +212,78 @@
 		});
 	}
 
+	function syncCompositeBannerPreview(url) {
+		var imagePreview = document.getElementById("argon_composite_banner_preview");
+		if (!imagePreview) {
+			return;
+		}
+		var image = imagePreview.querySelector("img");
+		if (url && image) {
+			image.src = url;
+			imagePreview.style.display = "";
+			return;
+		}
+		if (image) {
+			image.removeAttribute("src");
+		}
+		imagePreview.style.display = "none";
+	}
+
+	function openCompositeBannerMediaFrame() {
+		var imageInput = document.getElementById("argon_composite_banner_background");
+		if (!imageInput) {
+			return;
+		}
+		if (!window.wp || !window.wp.media) {
+			window.alert("\u5a92\u4f53\u5e93\u8fd8\u6ca1\u6709\u52a0\u8f7d\u5b8c\uff0c\u8bf7\u7b49\u4e00\u4e0b\u518d\u70b9\u3002");
+			return;
+		}
+		var frame = window.wp.media({
+			title: "\u4e0a\u4f20\u6216\u9009\u62e9\u9876\u90e8 Banner \u56fe\u7247",
+			button: {
+				text: "\u4f7f\u7528\u8fd9\u5f20\u56fe\u7247"
+			},
+			library: {
+				type: "image"
+			},
+			multiple: false
+		});
+		frame.on("select", function () {
+			var attachment = frame.state().get("selection").first().toJSON();
+			imageInput.value = attachment.url || "";
+			syncCompositeBannerPreview(imageInput.value);
+			imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+		});
+		frame.open();
+	}
+
+	function bindCompositeBannerUploader() {
+		if (document.body.dataset.argonCompositeUploaderReady) {
+			return;
+		}
+		document.body.dataset.argonCompositeUploaderReady = "true";
+		document.addEventListener("click", function (event) {
+			var uploadButton = event.target.closest(".argon-composite-page-image-select");
+			if (uploadButton) {
+				event.preventDefault();
+				event.stopPropagation();
+				openCompositeBannerMediaFrame();
+				return;
+			}
+			var clearButton = event.target.closest(".argon-composite-page-image-clear");
+			if (clearButton) {
+				event.preventDefault();
+				event.stopPropagation();
+				var imageInput = document.getElementById("argon_composite_banner_background");
+				if (imageInput) {
+					imageInput.value = "";
+					imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+				}
+				syncCompositeBannerPreview("");
+			}
+		});
+	}
+
 	function insertHelper(editor) {
 		var wrapper = editor.codemirror.getWrapperElement();
 		if (!wrapper || document.querySelector(".argon-markdown-helper")) {
@@ -227,6 +299,7 @@
 
 	function initMarkdownEditor() {
 		createHomePreviewField();
+		bindCompositeBannerUploader();
 		bindCompositePageModeWatcher();
 		if (syncCompositePageEditor() || isCompositePageEditor()) {
 			return;
