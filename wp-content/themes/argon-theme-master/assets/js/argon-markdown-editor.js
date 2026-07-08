@@ -39,35 +39,33 @@
 		cm.focus();
 	}
 
-	function getUploadSnippet(attachment, mode) {
+	function getUploadSnippet(attachment) {
 		var url = attachment.url || "";
 		var title = attachment.title || attachment.filename || url;
+		var mime = attachment.mime || "";
+		var type = attachment.type || "";
 		if (!url) {
 			return "";
 		}
-		if (mode === "image") {
+		if (type === "image" || mime.indexOf("image/") === 0) {
 			return "![" + title + "](" + url + ")\n";
 		}
-		if (mode === "video") {
+		if (type === "video" || mime.indexOf("video/") === 0) {
 			return '<video controls src="' + url + '"></video>\n';
 		}
 		return "[" + title + "](" + url + ")\n";
 	}
 
-	function openUploader(editor, mode) {
+	function openUploader(editor) {
 		if (!window.wp || !window.wp.media) {
 			window.alert("WordPress media uploader is not available.");
 			return;
 		}
-		var libraryType = null;
-		if (mode === "image") {
-			libraryType = "image";
-		} else if (mode === "video") {
-			libraryType = "video";
-		} else if (mode === "pdf") {
-			libraryType = "application/pdf";
+		var toolbar = editor.codemirror.getWrapperElement().parentNode.querySelector(".editor-toolbar");
+		var uploadButton = toolbar ? toolbar.querySelector(".argon-md-upload") : null;
+		if (uploadButton) {
+			uploadButton.classList.add("active", "argon-upload-open");
 		}
-
 		var frameOptions = {
 			title: "\u672c\u5730\u4e0a\u4f20",
 			button: {
@@ -75,18 +73,13 @@
 			},
 			multiple: true
 		};
-		if (libraryType) {
-			frameOptions.library = {
-				type: libraryType
-			};
-		}
 
 		var frame = window.wp.media(frameOptions);
 		frame.on("select", function () {
 			var snippets = [];
 			frame.state().get("selection").each(function (item) {
 				var attachment = item.toJSON();
-				var snippet = getUploadSnippet(attachment, mode);
+				var snippet = getUploadSnippet(attachment);
 				if (snippet) {
 					snippets.push(snippet);
 				}
@@ -95,35 +88,28 @@
 				insertIntoEditor(editor, "\n" + snippets.join("") + "\n");
 			}
 		});
+		frame.on("close", function () {
+			closeUploadMenu(editor);
+		});
 		frame.open();
 	}
 
-	function toggleUploadMenu(editor) {
-		var toolbar = editor.codemirror.getWrapperElement().parentNode.querySelector(".editor-toolbar");
+	function closeUploadMenu(editor) {
+		var toolbar = editor && editor.codemirror
+			? editor.codemirror.getWrapperElement().parentNode.querySelector(".editor-toolbar")
+			: document.querySelector(".editor-toolbar");
 		if (!toolbar) {
 			return;
 		}
-		var existing = toolbar.querySelector(".argon-upload-menu");
-		if (existing) {
-			existing.remove();
-			return;
-		}
-		var menu = document.createElement("div");
-		menu.className = "argon-upload-menu";
-		menu.innerHTML =
-			'<button type="button" data-upload-mode="image">\u56fe\u7247</button>' +
-			'<button type="button" data-upload-mode="video">\u89c6\u9891</button>' +
-			'<button type="button" data-upload-mode="doc">\u6587\u6863</button>' +
-			'<button type="button" data-upload-mode="pdf">PDF</button>';
-		toolbar.appendChild(menu);
-		menu.addEventListener("click", function (event) {
-			var button = event.target.closest("button[data-upload-mode]");
-			if (!button) {
-				return;
-			}
-			openUploader(editor, button.getAttribute("data-upload-mode"));
+		var menu = toolbar.querySelector(".argon-upload-menu");
+		var uploadButton = toolbar.querySelector(".argon-md-upload");
+		if (menu) {
 			menu.remove();
-		});
+		}
+		if (uploadButton) {
+			uploadButton.classList.remove("active", "argon-upload-open");
+			uploadButton.blur();
+		}
 	}
 
 	function toggleToolbar(editor) {
@@ -228,7 +214,7 @@
 				{
 					name: "argon-upload",
 					action: function () {
-						toggleUploadMenu(markdownEditor);
+						openUploader(markdownEditor);
 					},
 					className: "argon-md-upload",
 					title: "\u672c\u5730\u4e0a\u4f20"
