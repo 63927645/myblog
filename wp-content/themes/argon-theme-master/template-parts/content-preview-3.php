@@ -41,7 +41,7 @@
 		</header>
 
 	<?php
-		$preview = argon_get_post_home_preview();
+		$preview = function_exists('argon_get_post_home_custom_preview') ? argon_get_post_home_custom_preview() : argon_get_post_home_preview();
 	?>
 	<?php if ($preview !== ""){ ?>
 		<div class="post-content">

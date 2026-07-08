@@ -15,7 +15,7 @@
 	<div class="post-content-container">
 		<a class="post-title" href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 		<?php
-			$preview = argon_get_post_home_preview();
+			$preview = function_exists('argon_get_post_home_custom_preview') ? argon_get_post_home_custom_preview() : argon_get_post_home_preview();
 		?>
 		<div class="post-meta">
 			<?php

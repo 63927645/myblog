@@ -3811,3 +3811,15 @@ function argon_add_markdown_wrapper_class($classes) {
 	return $classes;
 }
 add_filter('post_class', 'argon_add_markdown_wrapper_class');
+
+function argon_get_post_home_custom_preview($post_id = null) {
+	$post_id = $post_id ? intval($post_id) : get_the_ID();
+	if (!$post_id) {
+		return "";
+	}
+	$custom_preview = get_post_meta($post_id, 'argon_home_preview', true);
+	if (trim($custom_preview) === "") {
+		return "";
+	}
+	return wpautop(wp_kses_post($custom_preview));
+}
