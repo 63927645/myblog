@@ -3050,6 +3050,76 @@ function argon_home_exclude_composite_assigned_posts($query){
 	return $query;
 }
 add_action('pre_get_posts', 'argon_home_exclude_composite_assigned_posts', 20);
+
+function argon_get_login_required_composite_page_ids_for_recent_posts(){
+	$pages = get_posts(array(
+		'post_type' => 'page',
+		'post_status' => array('publish', 'private'),
+		'fields' => 'ids',
+		'numberposts' => -1,
+		'no_found_rows' => true,
+		'meta_query' => array(
+			'relation' => 'AND',
+			array(
+				'key' => 'argon_page_mode',
+				'value' => 'composite',
+				'compare' => '='
+			),
+			array(
+				'key' => 'argon_composite_visibility',
+				'value' => 'logged_in',
+				'compare' => '='
+			)
+		)
+	));
+	return array_values(array_filter(array_map('intval', $pages)));
+}
+
+function argon_get_recent_post_ids_hidden_until_oauth_login(){
+	if (function_exists('argon_get_comment_oauth_identity') && argon_get_comment_oauth_identity()){
+		return array();
+	}
+	$meta_query = array(
+		'relation' => 'OR',
+		array(
+			'key' => 'argon_post_visibility',
+			'value' => 'logged_in',
+			'compare' => '='
+		)
+	);
+	$login_required_pages = argon_get_login_required_composite_page_ids_for_recent_posts();
+	if (!empty($login_required_pages)){
+		$meta_query[] = array(
+			'key' => 'argon_parent_composite_page',
+			'value' => $login_required_pages,
+			'compare' => 'IN',
+			'type' => 'NUMERIC'
+		);
+	}
+	$posts = get_posts(array(
+		'post_type' => 'post',
+		'post_status' => 'publish',
+		'fields' => 'ids',
+		'numberposts' => -1,
+		'no_found_rows' => true,
+		'meta_query' => $meta_query
+	));
+	return array_values(array_filter(array_map('intval', $posts)));
+}
+
+function argon_recent_posts_widget_hide_login_required_posts($args, $instance = array()){
+	if (is_admin()){
+		return $args;
+	}
+	$hidden_post_ids = argon_get_recent_post_ids_hidden_until_oauth_login();
+	if (empty($hidden_post_ids)){
+		return $args;
+	}
+	$existing_excludes = !empty($args['post__not_in']) && is_array($args['post__not_in']) ? array_map('intval', $args['post__not_in']) : array();
+	$args['post__not_in'] = array_values(array_unique(array_merge($existing_excludes, $hidden_post_ids)));
+	return $args;
+}
+add_filter('widget_posts_args', 'argon_recent_posts_widget_hide_login_required_posts', 20, 2);
 //文章过时信息显示
 function argon_get_post_outdated_info(){
 	global $post;
