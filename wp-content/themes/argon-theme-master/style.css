@@ -2570,7 +2570,7 @@ html.darkmode .has-thumbnail .related-post-title.clamp {
 	border-radius: 3px;
 	margin-top: 10px;
 }
-/*璇勮鍖?/
+/* Comments */
 #comments {
 	margin-bottom: 25px;
 }
@@ -2630,25 +2630,39 @@ html.darkmode .has-thumbnail .related-post-title.clamp {
 }
 .comment-list {
 	padding: 0;
+	margin: 0;
+	list-style: none;
 }
 .comment-item {
-	margin-bottom: 1px;
 	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	margin: 0;
+	padding: 18px 0;
+	border-bottom: var(--color-border-on-foreground) solid 1px;
+	list-style: none;
 }
 .comment-item-left-wrapper {
-	display: block;
-	width: 40px;
-	margin-top: 26px;
-	margin-right: 15px;
+	display: flex;
+	flex: 0 0 48px;
+	width: 48px;
+	margin-top: 2px;
+	margin-right: 0;
 	position: relative;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
 }
 .comment-avatar-vertical-center .comment-item-left-wrapper {
 	margin: auto;
 	margin-right: 15px;
 }
 .comment-item-avatar .avatar {
-	height: 40px;
-	width: 40px;
+	height: 44px;
+	width: 44px;
+	max-width: 44px;
+	border-radius: 50%;
+	object-fit: cover;
 }
 .text-avatar {
 	user-select: none;
@@ -2659,11 +2673,12 @@ html.darkmode .has-thumbnail .related-post-title.clamp {
 .comment-item-inner {
 	display: block;
 	position: relative;
-	margin-top: 20px;
-	padding-bottom: 18px;
-	border-bottom: var(--color-border-on-foreground) solid 1px;
+	margin-top: 0;
+	padding-bottom: 0;
+	border-bottom: 0;
 	position: relative;
-	width: calc(100% - 50px);
+	width: calc(100% - 62px);
+	min-width: 0;
 }
 #comments .comment-item:last-child .comment-item-inner {
 	border-bottom: 0;
@@ -2724,6 +2739,13 @@ html.darkmode .comment-item-title .badge-comment-identity {
 .comment-item-text {
 	min-height: 24px;
 	margin-bottom: 1rem;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+}
+.comment-item-text img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
 }
 .comment-name {
 	flex: 1;
@@ -3023,11 +3045,11 @@ html.darkmode .comment-item-text blockquote {
 .comment-item-inner:not(.comment-folded) .show-full-comment {
 	display: none;
 }
-/*璇勮鍖洪〉鐮?/
+/* Comment pagination */
 .comments-navigation .page-item > div {
 	cursor: pointer;
 }
-/*璇勮鍖烘洿澶?/
+/* More comments */
 #comments_more {
 	width: 52px;
 	height: 52px;
@@ -3087,7 +3109,7 @@ html.darkmode .comment-edit-history-item {
 	border: navajowhite;
 	padding-bottom: 0;
 }
-/*鍙戦€佽瘎璁哄尯鍩?/
+/* Comment form */
 #post_comment {
 	margin-bottom: 25px;
 }
@@ -3561,7 +3583,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	background: #88888833;
 }
 
-/*鐭唬鐮?鍙嬮摼-绠€娲?/
+/* Shortcode friend links simple */
 .friend-links-simple .friend-category-title {
 	font-size: 22px;
 	text-align: center;
@@ -3708,7 +3730,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 .friend-links-style2 .friend-link-links > a {
 	margin-right: 15px;
 }
-/*鐭唬鐮?鍙嬮摼-鏍峰紡 2-澶уご鍍?/
+/* Shortcode friend links style 2 */
 .friend-links-style2.friend-links-style2-big .friend-link-avatar {
 	height: calc(100vw * 0.2);
 	min-height: 200px;
@@ -3724,7 +3746,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	}
 }
 
-/*鐭唬鐮?鏃堕棿绾?/
+/* Shortcode timeline */
 .argon-timeline {
 	margin-left: 110px;
 	border-left: 3px solid rgba(var(--themecolor-rgbstr), 0.2);
@@ -3869,7 +3891,7 @@ html.darkmode #post_comment.post-comment-force-privatemode-off .comment-post-pri
 	margin-right: 0;
 }
 
-/*鐭唬鐮?杩涘害鏉?/
+/* Shortcode progress */
 .progress {
 	background: var(--color-border-on-foreground-deeper);
 }
@@ -3944,7 +3966,7 @@ html.darkmode .argon-tabpanel .nav-pills .nav-link {
 	background: var(--color-border-on-foreground-deeper);
 }
 
-/*nprogress 鍔犺浇杩涘害鏉?/
+/* NProgress */
 #nprogress {
 	pointer-events: none;
 }
@@ -4564,7 +4586,7 @@ html[lang] {
 .shuoshuo-content:not(.shuoshuo-folded) .show-full-shuoshuo {
 	display: none;
 }
-/*褰掓。鏃堕棿杞?/
+/* Archive timeline */
 .archive-timeline {
 	padding-top: 10px;
 }
@@ -5470,7 +5492,7 @@ html.darkmode.amoled-dark #content:after {
 		margin-left: -10px;
 		margin-right: -10px;
 	}
-	/*鏄剧ず鏇村皯鐨勯〉鐮?/
+	/* Show fewer page numbers */
 	.pagination:not(.pagination-mobile) {
 		display: none;
 	}

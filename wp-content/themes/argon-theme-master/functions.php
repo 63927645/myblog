@@ -1597,8 +1597,6 @@ function argon_comment_format($comment, $args, $depth){
 			</div>
 		</div>
 	</li>
-	<li class="comment-divider"></li>
-	<li>
 <?php }}
 //评论样式格式化 (说说预览界面)
 function argon_comment_shuoshuo_preview_format($comment, $args, $depth){
