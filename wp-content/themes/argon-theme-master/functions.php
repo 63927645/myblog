@@ -589,6 +589,166 @@ function set_post_views(){
 	}
 }
 add_action('get_header', 'set_post_views');
+
+function argon_home_traffic_today_key(){
+	return current_time('Y-m-d');
+}
+
+function argon_get_home_daily_traffic(){
+	$today = argon_home_traffic_today_key();
+	$traffic = get_option('argon_home_daily_traffic', array());
+	if (!is_array($traffic) || !isset($traffic['date']) || $traffic['date'] !== $today){
+		$traffic = array(
+			'date' => $today,
+			'pv' => 0,
+			'uv' => 0,
+			'visitors' => array()
+		);
+	}
+	$traffic['pv'] = isset($traffic['pv']) ? max(0, intval($traffic['pv'])) : 0;
+	$traffic['uv'] = isset($traffic['uv']) ? max(0, intval($traffic['uv'])) : 0;
+	$traffic['visitors'] = (isset($traffic['visitors']) && is_array($traffic['visitors'])) ? $traffic['visitors'] : array();
+	return $traffic;
+}
+
+function argon_get_home_traffic_visitor_id(){
+	if (!empty($_COOKIE['argon_home_visitor_id'])){
+		return preg_replace('/[^a-zA-Z0-9_-]/', '', $_COOKIE['argon_home_visitor_id']);
+	}
+	$visitor_id = wp_generate_uuid4();
+	setcookie('argon_home_visitor_id', $visitor_id, time() + YEAR_IN_SECONDS, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN, is_ssl(), true);
+	$_COOKIE['argon_home_visitor_id'] = $visitor_id;
+	return $visitor_id;
+}
+
+function argon_track_home_daily_traffic(){
+	$traffic = argon_get_home_daily_traffic();
+	$visitor_id = argon_get_home_traffic_visitor_id();
+	$visitor_key = hash('sha256', $traffic['date'] . '|' . $visitor_id);
+
+	$traffic['pv']++;
+	if (!isset($traffic['visitors'][$visitor_key])){
+		$traffic['visitors'][$visitor_key] = current_time('timestamp');
+		$traffic['uv']++;
+	}
+	update_option('argon_home_daily_traffic', $traffic, false);
+	return $traffic;
+}
+
+function argon_ajax_track_home_daily_traffic(){
+	if (empty($_POST['home']) || $_POST['home'] !== '1'){
+		wp_send_json_error(array('message' => 'invalid request'), 400);
+	}
+	$traffic = argon_track_home_daily_traffic();
+	wp_send_json_success(array(
+		'date' => $traffic['date'],
+		'pv' => intval($traffic['pv']),
+		'uv' => intval($traffic['uv'])
+	));
+}
+add_action('wp_ajax_argon_track_home_daily_traffic', 'argon_ajax_track_home_daily_traffic');
+add_action('wp_ajax_nopriv_argon_track_home_daily_traffic', 'argon_ajax_track_home_daily_traffic');
+
+function argon_can_view_home_daily_traffic(){
+	return is_user_logged_in() && current_user_can('manage_options');
+}
+
+function argon_ajax_get_home_daily_traffic(){
+	if (!argon_can_view_home_daily_traffic()){
+		wp_send_json_error(array('message' => 'forbidden'), 403);
+	}
+	$traffic = argon_get_home_daily_traffic();
+	wp_send_json_success(array(
+		'date' => $traffic['date'],
+		'pv' => intval($traffic['pv']),
+		'uv' => intval($traffic['uv'])
+	));
+}
+add_action('wp_ajax_argon_get_home_daily_traffic', 'argon_ajax_get_home_daily_traffic');
+
+function argon_render_home_daily_traffic(){
+	if (!is_home() && !is_front_page()){
+		return;
+	}
+	if (!argon_can_view_home_daily_traffic()){
+		return;
+	}
+	$traffic = argon_get_home_daily_traffic();
+	?>
+	<div class="argon-home-traffic" data-home-traffic>
+		<div class="argon-home-traffic-label">今日流量</div>
+		<div class="argon-home-traffic-grid">
+			<div class="argon-home-traffic-item">
+				<span class="argon-home-traffic-number" data-home-traffic-pv><?php echo esc_html(number_format_i18n($traffic['pv'])); ?></span>
+				<span class="argon-home-traffic-name">浏览</span>
+			</div>
+			<div class="argon-home-traffic-item">
+				<span class="argon-home-traffic-number" data-home-traffic-uv><?php echo esc_html(number_format_i18n($traffic['uv'])); ?></span>
+				<span class="argon-home-traffic-name">访客</span>
+			</div>
+		</div>
+	</div>
+	<?php
+}
+
+function argon_home_daily_traffic_script(){
+	if (!is_home() && !is_front_page()){
+		return;
+	}
+	$ajax_url = admin_url('admin-ajax.php');
+	$can_view = argon_can_view_home_daily_traffic() ? 'true' : 'false';
+	?>
+	<script>
+	(function(){
+		var ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
+		var canView = <?php echo $can_view; ?>;
+		var body = new URLSearchParams();
+		body.append('action', 'argon_track_home_daily_traffic');
+		body.append('home', '1');
+
+		function applyTraffic(data){
+			if (!data || !data.success || !data.data) return;
+			document.querySelectorAll('[data-home-traffic-pv]').forEach(function(el){
+				el.textContent = Number(data.data.pv || 0).toLocaleString();
+			});
+			document.querySelectorAll('[data-home-traffic-uv]').forEach(function(el){
+				el.textContent = Number(data.data.uv || 0).toLocaleString();
+			});
+		}
+
+		function refreshTraffic(){
+			if (!canView) return;
+			fetch(ajaxUrl + '?action=argon_get_home_daily_traffic', {
+				credentials: 'same-origin',
+				cache: 'no-store'
+			}).then(function(res){
+				return res.json();
+			}).then(applyTraffic).catch(function(){});
+		}
+
+		fetch(ajaxUrl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+			body: body.toString(),
+			cache: 'no-store'
+		}).then(function(res){
+			return res.json();
+		}).then(function(data){
+			if (canView){
+				applyTraffic(data);
+			}
+		}).catch(function(){});
+
+		refreshTraffic();
+		if (canView){
+			setInterval(refreshTraffic, 30000);
+		}
+	})();
+	</script>
+	<?php
+}
+add_action('wp_footer', 'argon_home_daily_traffic_script', 30);
 //字数和预计阅读时间
 function get_article_words($str){
 	preg_match_all('/<pre(.*?)>[\S\s]*?<code(.*?)>([\S\s]*?)<\/code>[\S\s]*?<\/pre>/im', $str, $codeSegments, PREG_PATTERN_ORDER);
@@ -3822,6 +3982,7 @@ function argon_render_mobile_home_profile_card(){
 				<div class="mobile-home-profile-description"><?php echo wp_kses_post($description); ?></div>
 			<?php } ?>
 			<div class="mobile-home-profile-motto">桂棹兰桨，溯流远上，不惧劲风勇搏浪</div>
+			<?php if (function_exists('argon_render_home_daily_traffic')) { argon_render_home_daily_traffic(); } ?>
 			<a class="mobile-home-profile-about-link" href="<?php echo esc_url(argon_get_profile_page_url()); ?>">关于我 <span aria-hidden="true">→</span></a>
 			<?php echo $author_links; ?>
 		</div>

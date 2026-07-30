@@ -147,6 +147,7 @@
 									</a>
 								</div>
 							</nav>
+							<?php if (function_exists('argon_render_home_daily_traffic')) { argon_render_home_daily_traffic(); } ?>
 							<?php if (function_exists('argon_get_profile_page_url')) { ?>
 								<a class="leftbar-profile-about-link" href="<?php echo esc_url(argon_get_profile_page_url()); ?>">关于我 <span aria-hidden="true">→</span></a>
 							<?php } ?>
