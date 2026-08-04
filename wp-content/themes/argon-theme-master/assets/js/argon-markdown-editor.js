@@ -261,6 +261,13 @@
 		var oldPreview = document.querySelector("textarea[name='argon_home_preview']");
 		var oldLimit = document.querySelector("input[name='argon_home_preview_limit']");
 		var inlinePreview = document.getElementById("argon_home_preview_inline");
+		var titleBox = document.getElementById("titlediv");
+		var editorBox = document.getElementById("postdivrich");
+		var value = oldPreview ? oldPreview.value : "";
+		if (!document.body.classList.contains("post-type-post")) {
+			removeOldPreviewControls(oldPreview, oldLimit);
+			return;
+		}
 		if (inlinePreview) {
 			var inlineWrap = inlinePreview.closest(".argon-home-preview-inline");
 			if (inlineWrap) {
@@ -268,6 +275,22 @@
 			}
 		}
 		removeOldPreviewControls(oldPreview, oldLimit);
+		if (!titleBox && !editorBox) {
+			return;
+		}
+		var wrapper = document.createElement("div");
+		wrapper.className = "argon-home-preview-inline";
+		wrapper.innerHTML = [
+			'<label for="argon_home_preview_inline">\u9996\u9875\u5c55\u793a\u6458\u8981</label>',
+			'<textarea name="argon_home_preview" id="argon_home_preview_inline" rows="4" placeholder="\u8fd9\u91cc\u586b\u5199\u7684\u5185\u5bb9\u4f1a\u663e\u793a\u5728\u9996\u9875\u6587\u7ae0\u5361\u7247\u91cc\uff1b\u7559\u7a7a\u5219\u9996\u9875\u4e0d\u663e\u793a\u81ea\u5b9a\u4e49\u6458\u8981\u3002"></textarea>',
+			'<p>\u53ea\u7528\u4e8e\u9996\u9875\u6587\u7ae0\u5361\u7247\uff0c\u4e0d\u4f1a\u6539\u52a8\u6b63\u6587\u3002</p>'
+		].join("");
+		wrapper.querySelector("textarea").value = value;
+		if (editorBox && editorBox.parentNode) {
+			editorBox.parentNode.insertBefore(wrapper, editorBox);
+		} else if (titleBox && titleBox.parentNode) {
+			titleBox.parentNode.insertBefore(wrapper, titleBox.nextSibling);
+		}
 	}
 
 	function isCompositePageEditor() {

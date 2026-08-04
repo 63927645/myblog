@@ -461,16 +461,8 @@ function argon_get_post_home_preview($post_id = null){
 	}
 
 	$custom_preview = get_post_meta($post_id, 'argon_home_preview', true);
-	$custom_limit = intval(get_post_meta($post_id, 'argon_home_preview_limit', true));
 	if (trim($custom_preview) !== ""){
-		$preview = wp_kses_post($custom_preview);
-		if ($custom_limit > 0){
-			$plain_preview = wp_strip_all_tags($preview);
-			if (mb_strlen($plain_preview) > $custom_limit){
-				$preview = esc_html(mb_substr($plain_preview, 0, $custom_limit)) . "...";
-			}
-		}
-		return $preview;
+		return wp_kses_post($custom_preview);
 	}
 
 	$trim_words_count = intval(get_option('argon_trim_words_count', 175));
@@ -5117,3 +5109,70 @@ function argon_composite_page_banner_background($url) {
 	return $composite_background !== '' ? $composite_background : $url;
 }
 add_filter('argon_banner_background_url', 'argon_composite_page_banner_background');
+
+if (!defined('DISALLOW_FILE_EDIT')) {
+	define('DISALLOW_FILE_EDIT', true);
+}
+
+remove_action('wp_head', 'wp_generator');
+add_filter('the_generator', '__return_empty_string');
+add_filter('login_errors', function(){
+	return '登录信息不正确。';
+});
+
+add_filter('xmlrpc_enabled', '__return_false');
+add_filter('wp_headers', function($headers){
+	unset($headers['X-Pingback']);
+	$headers['X-Frame-Options'] = 'SAMEORIGIN';
+	$headers['X-Content-Type-Options'] = 'nosniff';
+	$headers['Referrer-Policy'] = 'strict-origin-when-cross-origin';
+	$headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=()';
+	return $headers;
+});
+
+add_filter('rest_authentication_errors', function($result){
+	if (!empty($result)) {
+		return $result;
+	}
+	$route = isset($GLOBALS['wp']->query_vars['rest_route']) ? $GLOBALS['wp']->query_vars['rest_route'] : '';
+	if (strpos($route, '/wp/v2/users') === 0 && !current_user_can('list_users')) {
+		return new WP_Error('argon_rest_users_forbidden', '用户列表不公开。', array('status' => 403));
+	}
+	return $result;
+});
+
+add_action('template_redirect', function(){
+	if (!is_admin() && isset($_GET['author']) && !is_user_logged_in()) {
+		global $wp_query;
+		$wp_query->set_404();
+		status_header(404);
+		nocache_headers();
+	}
+});
+
+add_filter('wp_is_application_passwords_available', '__return_false');
+
+function argon_harden_uploads_directory(){
+	if (!current_user_can('manage_options')) {
+		return;
+	}
+	$upload_dir = wp_get_upload_dir();
+	if (empty($upload_dir['basedir']) || !is_dir($upload_dir['basedir'])) {
+		return;
+	}
+	$htaccess = trailingslashit($upload_dir['basedir']) . '.htaccess';
+	$marker_start = '# BEGIN Argon Uploads Hardening';
+	$marker_end = '# END Argon Uploads Hardening';
+	$rules = $marker_start . "\n"
+		. "<FilesMatch \"\\.(php|phtml|phar|php[0-9])$\">\n"
+		. "Require all denied\n"
+		. "</FilesMatch>\n"
+		. "Options -Indexes\n"
+		. $marker_end . "\n";
+	$current = file_exists($htaccess) ? file_get_contents($htaccess) : '';
+	if (strpos($current, $marker_start) !== false) {
+		return;
+	}
+	@file_put_contents($htaccess, rtrim($current) . "\n\n" . $rules, LOCK_EX);
+}
+add_action('admin_init', 'argon_harden_uploads_directory');
