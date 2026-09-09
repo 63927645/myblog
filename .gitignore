@@ -12,3 +12,18 @@ temp/
 # 环境文件
 .envs
 
+# Sensitive runtime files
+.env
+.env.*
+wp-config.php
+webhook.php
+deploy.sh
+
+# Security quarantine / local audit output
+security-quarantine/
+security-report/
+
+# Local dependencies
+vendor/
+node_modules/
+
